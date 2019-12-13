@@ -1,0 +1,7 @@
+<resources>
+    <string name="main_home_title">首页</string>
+
+    <string name="main_home_video_player">视频播放器</string>
+    <string name="main_home_audio_player">音乐播放器</string>
+    <string name="main_home_picture_viewer">图片查看器</string>
+</resources>
