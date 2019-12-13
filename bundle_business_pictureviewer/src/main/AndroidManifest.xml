@@ -5,7 +5,7 @@
         android:allowBackup="true"
         android:supportsRtl="true">
         <activity
-            android:name=".ui.activity.PictureViewerHomeActivity"
+            android:name=".ui.activity.PvHomeActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan|stateHidden"></activity>

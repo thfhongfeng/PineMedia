@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data class="VpHomeActivityBinding">
+
+        <variable
+            name="presenter"
+            type="com.pine.videoplayer.ui.activity.VpHomeActivity.Presenter" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <com.pine.player.widget.PineMediaPlayerView
+            android:id="@+id/video_view"
+            android:layout_width="match_parent"
+            android:layout_height="202dp"
+            android:layout_alignParentTop="true"
+            android:background="#DDDDDD"
+            android:gravity="center" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/snow"
+            android:gravity="right"
+            android:orientation="horizontal"
+            android:padding="@dimen/dp_5">
+
+            <ImageView
+                android:id="@+id/choose_file_iv"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
+                android:onClick="@{presenter::onChooseFileClick}"
+                android:src="@mipmap/res_ic_folder"></ImageView>
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/media_list_rv"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="10dp"></androidx.recyclerview.widget.RecyclerView>
+    </LinearLayout>
+</layout>

@@ -5,7 +5,7 @@
         android:allowBackup="true"
         android:supportsRtl="true">
         <activity
-            android:name=".ui.activity.AudioPlayerHomeActivity"
+            android:name=".ui.activity.ApHomeActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan|stateHidden"></activity>
