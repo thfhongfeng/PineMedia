@@ -7,5 +7,8 @@ import com.pine.base.BaseConstants;
  */
 
 public interface VpConstants extends BaseConstants {
-
+    public static final int PLUGIN_IMAGE_ADVERT = 1;
+    public static final int PLUGIN_LRC_SUBTITLE = 2;
+    public static final int PLUGIN_SRT_SUBTITLE = 3;
+    public static final int PLUGIN_BARRAGE = 4;
 }

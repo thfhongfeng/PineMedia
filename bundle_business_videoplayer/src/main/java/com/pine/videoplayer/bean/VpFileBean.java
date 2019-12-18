@@ -1,8 +1,9 @@
 package com.pine.videoplayer.bean;
 
+import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.tool.util.FileUtils;
 
-public class VpChooseFileBean {
+public class VpFileBean {
     public final static int TYPE_UNKNOWN = 0;
     public final static int TYPE_FOLDER = 1;
     public final static int TYPE_FILE = 2;
@@ -11,8 +12,10 @@ public class VpChooseFileBean {
     private int type;
     private String filePath;
     private String fileName;
+    private int mediaPosition;
+    private PineMediaPlayerBean mediaPlayerBean;
 
-    public VpChooseFileBean(int type, String filePath) {
+    public VpFileBean(int type, String filePath) {
         this.type = type;
         this.filePath = filePath;
         this.fileName = FileUtils.getFileName(filePath);
@@ -41,5 +44,21 @@ public class VpChooseFileBean {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public int getMediaPosition() {
+        return mediaPosition;
+    }
+
+    public void setMediaPosition(int mediaPosition) {
+        this.mediaPosition = mediaPosition;
+    }
+
+    public PineMediaPlayerBean getMediaPlayerBean() {
+        return mediaPlayerBean;
+    }
+
+    public void setMediaPlayerBean(PineMediaPlayerBean mediaPlayerBean) {
+        this.mediaPlayerBean = mediaPlayerBean;
     }
 }
