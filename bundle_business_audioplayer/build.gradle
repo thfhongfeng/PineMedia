@@ -61,6 +61,7 @@ dependencies {
     // ARouter配置 end
 
     // 第三方 dependency begin
+    annotationProcessor build_dependency["android_room_compiler"]
     // 第三方 dependency end
 
     // 主体基础模块 begin

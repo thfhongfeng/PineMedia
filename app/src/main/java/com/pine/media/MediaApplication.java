@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.StrictMode;
 
+import com.pine.audioplayer.ApApplication;
 import com.pine.base.BaseApplication;
 import com.pine.base.access.UiAccessConfigSwitcherExecutor;
 import com.pine.base.access.UiAccessLoginExecutor;
@@ -23,6 +24,7 @@ import com.pine.base.component.share.manager.ShareManager;
 import com.pine.config.BuildConfig;
 import com.pine.config.switcher.ConfigSwitcherServer;
 import com.pine.main.MainApplication;
+import com.pine.pictureviewer.PvApplication;
 import com.pine.tool.access.UiAccessManager;
 import com.pine.tool.request.IRequestManager;
 import com.pine.tool.request.IRequestManagerFactory;
@@ -34,6 +36,7 @@ import com.pine.tool.router.RouterManager;
 import com.pine.tool.router.impl.arouter.manager.ARouterManager;
 import com.pine.tool.util.AppUtils;
 import com.pine.tool.util.LogUtils;
+import com.pine.videoplayer.VpApplication;
 import com.pine.welcome.WelcomeApplication;
 
 /**
@@ -68,7 +71,9 @@ public class MediaApplication extends Application {
 
             WelcomeApplication.attach();
             MainApplication.attach();
-
+            VpApplication.attach();
+            ApApplication.attach();
+            PvApplication.attach();
             doStartupBusiness();
         }
     }

@@ -3,6 +3,21 @@
 
     <data class="ApHomeActivityBinding">
 
+        <variable
+            name="allMusicCount"
+            type="java.lang.Integer" />
+
+        <variable
+            name="favouriteCount"
+            type="java.lang.Integer" />
+
+        <variable
+            name="recentCount"
+            type="java.lang.Integer" />
+
+        <variable
+            name="customSheetCount"
+            type="java.lang.Integer" />
     </data>
 
     <LinearLayout
@@ -28,7 +43,7 @@
                 android:drawablePadding="@dimen/dp_5"
                 android:gravity="center"
                 android:paddingTop="@dimen/dp_10"
-                android:text="@string/ap_home_all_music"
+                android:text="@{@string/ap_home_all_music(allMusicCount)}"
                 android:textColor="@color/black_gray"
                 android:textSize="@dimen/sp_14"></TextView>
 
@@ -41,7 +56,7 @@
                 android:drawablePadding="@dimen/dp_5"
                 android:gravity="center"
                 android:paddingTop="@dimen/dp_10"
-                android:text="@string/ap_home_my_favourite"
+                android:text="@{@string/ap_home_my_favourite(favouriteCount)}"
                 android:textColor="@color/black_gray"
                 android:textSize="@dimen/sp_14"></TextView>
 
@@ -54,7 +69,7 @@
                 android:drawablePadding="@dimen/dp_5"
                 android:gravity="center"
                 android:paddingTop="@dimen/dp_10"
-                android:text="@string/ap_home_recent_music"
+                android:text="@{@string/ap_home_recent_music(recentCount)}"
                 android:textColor="@color/black_gray"
                 android:textSize="@dimen/sp_14"></TextView>
         </LinearLayout>
@@ -82,7 +97,7 @@
                     android:layout_marginRight="@dimen/dp_10"
                     android:layout_weight="1"
                     android:padding="@dimen/dp_5"
-                    android:text="@string/ap_home_my_music_sheet"
+                    android:text="@{@string/ap_home_my_music_sheet(customSheetCount)}"
                     android:textColor="@color/black"
                     android:textSize="@dimen/sp_15" />
 

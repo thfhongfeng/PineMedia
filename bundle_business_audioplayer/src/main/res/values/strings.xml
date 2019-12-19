@@ -1,6 +1,8 @@
 <resources>
     <string name="ap_home_all_music">全部歌曲\n%d</string>
+    <string name="ap_home_my_favourite_name">我喜欢</string>
     <string name="ap_home_my_favourite">我喜欢\n%d</string>
+    <string name="ap_home_recent_music_name">最近</string>
     <string name="ap_home_recent_music">最近\n%d</string>
 
     <string name="ap_home_my_music_sheet">自建歌单&#160;%d</string>

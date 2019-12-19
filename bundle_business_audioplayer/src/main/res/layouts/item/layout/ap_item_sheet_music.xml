@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <data class="ApItemMusicSheetBinding">
+    <data class="ApItemSheetMusicBinding">
 
         <variable
-            name="sheetBean"
-            type="com.pine.audioplayer.db.entity.ApMusicSheet" />
+            name="musicBean"
+            type="com.pine.audioplayer.db.entity.ApSheetMusic" />
     </data>
 
     <LinearLayout
@@ -14,12 +14,6 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingBottom="@dimen/dp_5">
-
-        <ImageView
-            android:id="@+id/img_iv"
-            android:layout_width="@dimen/dp_48"
-            android:layout_height="@dimen/dp_48"
-            android:layout_marginRight="@dimen/dp_20" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -44,11 +38,11 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/go_detail_btn"
+            android:id="@+id/menu_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/dp_20"
             android:padding="@dimen/dp_5"
-            android:src="@mipmap/res_ic_right_arrow" />
+            android:src="@mipmap/res_ic_menu_1" />
     </LinearLayout>
 </layout>
