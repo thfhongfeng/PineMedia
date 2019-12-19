@@ -32,7 +32,7 @@ public class VpHomeVm extends ViewModel {
     private final String LRC_SUFFIX = "lrc";
     private final String SRT_SUFFIX = "srt";
 
-    private HashSet<String> mAllPlayableFileSet = new HashSet<>();
+    private Set<String> mAllPlayableFileSet = new HashSet<>();
     private HashMap<String, HashSet<String>> mChosenFileMap = new HashMap<>();
     private HashMap<String, String> mChosenLrcFileSubtitleMap = new HashMap<>();
     private HashMap<String, String> mChosenSrtFileSubtitleMap = new HashMap<>();
@@ -43,9 +43,11 @@ public class VpHomeVm extends ViewModel {
     @Override
     public void afterViewInit() {
         super.afterViewInit();
-        Set<String> similarFileSet = SharePreferenceUtils.readSetStringFromCache("recentAllPlayableFileSet", null);
-        if (similarFileSet != null && similarFileSet.size() > 0) {
-            setupMediaData(getContext(), similarFileSet, null);
+        mAllPlayableFileSet = SharePreferenceUtils.readSetStringFromCache("recentAllPlayableFileSet", null);
+        if (mAllPlayableFileSet != null && mAllPlayableFileSet.size() > 0) {
+            setupAddedMediaData(getContext(), mAllPlayableFileSet, null);
+        } else {
+            mAllPlayableFileSet = new HashSet<>();
         }
     }
 
@@ -78,11 +80,11 @@ public class VpHomeVm extends ViewModel {
             similarFileSet.addAll(FileUtils.getFileList(FileUtils.getFolderName(chooseFilePath), similarStr, suffixList));
         }
         mAllPlayableFileSet.addAll(similarFileSet);
-        setupMediaData(context, similarFileSet, chooseFilePathList.get(0));
+        setupAddedMediaData(context, similarFileSet, chooseFilePathList.get(0));
         SharePreferenceUtils.saveToCache("recentAllPlayableFileSet", mAllPlayableFileSet);
     }
 
-    private void setupMediaData(Context context, Set<String> similarFileList, String willPlayFilePath) {
+    private void setupAddedMediaData(Context context, Set<String> similarFileList, String willPlayFilePath) {
         String[] similarFiles = similarFileList.toArray(new String[0]);
         for (int i = 0; i < similarFiles.length; i++) {
             String filePath = similarFiles[i];

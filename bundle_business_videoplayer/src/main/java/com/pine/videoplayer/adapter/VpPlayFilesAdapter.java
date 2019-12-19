@@ -98,6 +98,8 @@ public class VpPlayFilesAdapter extends BaseNoPaginationTreeListAdapter<VpFileBe
         }
     }
 
+    private int lastFileSelectPosition = -1;
+
     public class FileViewHolder extends BaseListViewHolder<VpFileBean> {
         private VpChooseFileItemBinding mBinding;
 
@@ -113,7 +115,12 @@ public class VpPlayFilesAdapter extends BaseNoPaginationTreeListAdapter<VpFileBe
                 mBinding.container.setVisibility(View.GONE);
                 return;
             }
-            mBinding.nameTv.setSelected(mCurMediaPosition == content.getMediaPosition());
+            if (mCurMediaPosition == content.getMediaPosition()) {
+                lastFileSelectPosition = position;
+                mBinding.nameTv.setSelected(true);
+            } else {
+                mBinding.nameTv.setSelected(false);
+            }
             mBinding.container.setVisibility(View.VISIBLE);
 
             mBinding.getRoot().setOnClickListener(new View.OnClickListener() {
@@ -122,7 +129,8 @@ public class VpPlayFilesAdapter extends BaseNoPaginationTreeListAdapter<VpFileBe
                     if (mMediaItemClickListener != null) {
                         mMediaItemClickListener.onMediaItemClick(v, content.getMediaPosition());
                         mCurMediaPosition = content.getMediaPosition();
-                        notifyDataSetChangedSafely();
+                        notifyItemChangedSafely(lastFileSelectPosition);
+                        notifyItemChangedSafely(position);
                     }
                 }
             });

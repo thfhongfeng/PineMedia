@@ -2216,8 +2216,8 @@ public class PineMediaController extends RelativeLayout
          * @param position
          * @param startPlay
          */
-        public void mediaSelect(int position, boolean startPlay) {
-
+        public boolean mediaSelect(int position, boolean startPlay) {
+            return true;
         }
     }
 
