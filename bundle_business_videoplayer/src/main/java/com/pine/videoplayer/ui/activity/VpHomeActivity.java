@@ -87,8 +87,8 @@ public class VpHomeActivity extends BaseMvvmNoActionBarActivity<VpHomeActivityBi
         mBinding.mediaListRv.setAdapter(mRecentPlayedFilesAdapter);
 
         mController = new PineMediaController(this);
-        mBinding.videoView.init(TAG, mController);
-        mPlayer = mBinding.videoView.getMediaPlayer();
+        mBinding.playerView.init(TAG, mController);
+        mPlayer = mBinding.playerView.getMediaPlayer();
         mPlayer.setAutocephalyPlayMode(false);
     }
 

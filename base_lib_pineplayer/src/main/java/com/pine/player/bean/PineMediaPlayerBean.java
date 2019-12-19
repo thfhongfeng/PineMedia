@@ -2,6 +2,7 @@ package com.pine.player.bean;
 
 import android.content.ContentResolver;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -9,6 +10,7 @@ import androidx.annotation.NonNull;
 import com.pine.player.applet.IPinePlayerPlugin;
 import com.pine.player.decrytor.IPineMediaDecryptor;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -19,7 +21,7 @@ import java.util.HashMap;
 /**
  * 播放参数
  */
-public class PineMediaPlayerBean {
+public class PineMediaPlayerBean implements Serializable {
     public final static int MEDIA_TYPE_VIDEO = 1;
     public final static int MEDIA_TYPE_AUDIO = 2;
 

@@ -14,7 +14,7 @@
         android:orientation="vertical">
 
         <com.pine.player.widget.PineMediaPlayerView
-            android:id="@+id/video_view"
+            android:id="@+id/player_view"
             android:layout_width="match_parent"
             android:layout_height="202dp"
             android:layout_alignParentTop="true"
@@ -25,7 +25,7 @@
             android:id="@+id/pager_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/video_view"
+            android:layout_below="@id/player_view"
             android:orientation="vertical">
 
             <LinearLayout

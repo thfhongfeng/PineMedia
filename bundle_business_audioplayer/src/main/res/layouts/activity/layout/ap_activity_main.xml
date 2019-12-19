@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data class="ApMainActivityBinding">
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.pine.player.widget.PineMediaPlayerView
+            android:id="@+id/player_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></com.pine.player.widget.PineMediaPlayerView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="@dimen/dp_10">
+
+            <include
+                android:id="@+id/controller_include"
+                layout="@layout/ap_audio_controller_layout"></include>
+        </LinearLayout>
+    </RelativeLayout>
+</layout>
