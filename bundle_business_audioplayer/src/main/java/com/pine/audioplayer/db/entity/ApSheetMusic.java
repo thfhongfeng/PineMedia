@@ -19,6 +19,10 @@ public class ApSheetMusic implements Serializable {
     @ColumnInfo(name = "sheet_id")
     private long sheetId;
 
+    @NonNull
+    @ColumnInfo(name = "song_id")
+    private long songId;
+
     @ColumnInfo(name = "music_img_uri")
     private String musicImgUri;
 
@@ -31,16 +35,19 @@ public class ApSheetMusic implements Serializable {
 
     private String author;
 
-    private String duration;
+    private int duration;
 
     private String album;
+
+    @ColumnInfo(name = "album_id")
+    private long albumId;
 
     private String year;
 
     @ColumnInfo(name = "mime_type")
     private String mimeType;
 
-    private String size;
+    private long size;
 
     private String description;
 
@@ -58,6 +65,14 @@ public class ApSheetMusic implements Serializable {
 
     public void setSheetId(long sheetId) {
         this.sheetId = sheetId;
+    }
+
+    public long getSongId() {
+        return songId;
+    }
+
+    public void setSongId(long songId) {
+        this.songId = songId;
     }
 
     public String getMusicImgUri() {
@@ -94,11 +109,11 @@ public class ApSheetMusic implements Serializable {
         this.author = author;
     }
 
-    public String getDuration() {
+    public int getDuration() {
         return duration;
     }
 
-    public void setDuration(String duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 
@@ -108,6 +123,14 @@ public class ApSheetMusic implements Serializable {
 
     public void setAlbum(String album) {
         this.album = album;
+    }
+
+    public long getAlbumId() {
+        return albumId;
+    }
+
+    public void setAlbumId(long albumId) {
+        this.albumId = albumId;
     }
 
     public String getYear() {
@@ -126,11 +149,11 @@ public class ApSheetMusic implements Serializable {
         this.mimeType = mimeType;
     }
 
-    public String getSize() {
+    public long getSize() {
         return size;
     }
 
-    public void setSize(String size) {
+    public void setSize(long size) {
         this.size = size;
     }
 

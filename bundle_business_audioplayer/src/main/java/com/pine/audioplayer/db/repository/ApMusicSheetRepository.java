@@ -43,21 +43,21 @@ public class ApMusicSheetRepository {
         }
     }
 
-    public int queryMaxSheetId() {
+    public ApMusicSheet querySheetByType(int sheetType) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
-            return apMusicSheetDao.queryMaxSheetId();
+            return apMusicSheetDao.querySheetByType(sheetType);
         }
     }
 
-    public ApMusicSheet querySheetBySheetId(int sheetId) {
+    public List<ApMusicSheet> querySheetListByType(int sheetType) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
-            return apMusicSheetDao.querySheetBySheetId(sheetId);
+            return apMusicSheetDao.querySheetListByType(sheetType);
         }
     }
 
-    public List<ApMusicSheet> querySheetListExcludeIds(List<Integer> excludeSheetIds) {
+    public List<ApMusicSheet> querySheetListByTypes(List<Integer> sheetTypes) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
-            return apMusicSheetDao.querySheetListExcludeIds(excludeSheetIds);
+            return apMusicSheetDao.querySheetListByTypes(sheetTypes);
         }
     }
 

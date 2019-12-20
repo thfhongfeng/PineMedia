@@ -1,4 +1,5 @@
 <resources>
+    <string name="ap_home_all_music_name">我喜欢</string>
     <string name="ap_home_all_music">全部歌曲\n%d</string>
     <string name="ap_home_my_favourite_name">我喜欢</string>
     <string name="ap_home_my_favourite">我喜欢\n%d</string>
@@ -6,4 +7,15 @@
     <string name="ap_home_recent_music">最近\n%d</string>
 
     <string name="ap_home_my_music_sheet">自建歌单&#160;%d</string>
+    <string name="ap_home_create_sheet_title">新建歌单</string>
+    <string name="ap_home_sheet_item_desc">%d&#160;首歌曲</string>
+    <string name="ap_home_tmp_play_name">播放列表</string>
+    <string name="ap_home_sheet_name_non_empty">歌单名称不能为空</string>
+
+    <string name="ap_ml_play_all">播放全部</string>
+    <string name="ap_ml_add_music">添加歌曲</string>
+    <string name="ap_ml_total_count">共&#160;%d&#160;首</string>
+
+    <string name="ap_ml_menu_add_music">添加歌曲</string>
+    <string name="ap_ml_menu_delete_sheet">删除歌单</string>
 </resources>

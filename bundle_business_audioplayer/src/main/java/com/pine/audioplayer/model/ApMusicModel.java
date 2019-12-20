@@ -7,30 +7,26 @@ import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.audioplayer.db.repository.ApMusicSheetRepository;
 import com.pine.audioplayer.db.repository.ApSheetMusicRepository;
+import com.pine.audioplayer.uitls.ApLocalMusicUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ApMusicModel {
 
     public ApMusicSheet getFavouriteSheet(Context context) {
-        return ApMusicSheetRepository.getInstance(context).querySheetBySheetId(ApConstants.MUSIC_FAVOURITE_SHEET_ID);
+        return ApMusicSheetRepository.getInstance(context).querySheetByType(ApConstants.MUSIC_SHEET_TYPE_FAVOURITE);
     }
 
     public ApMusicSheet getRecentSheet(Context context) {
-        return ApMusicSheetRepository.getInstance(context).querySheetBySheetId(ApConstants.MUSIC_RECENT_SHEET_ID);
+        return ApMusicSheetRepository.getInstance(context).querySheetByType(ApConstants.MUSIC_SHEET_TYPE_RECENT);
     }
 
     public List<ApMusicSheet> getCustomMusicSheetList(Context context) {
-        List<Integer> excludeIds = new ArrayList<>();
-        excludeIds.add(ApConstants.MUSIC_FAVOURITE_SHEET_ID);
-        excludeIds.add(ApConstants.MUSIC_RECENT_SHEET_ID);
-        return ApMusicSheetRepository.getInstance(context).querySheetListExcludeIds(excludeIds);
+        return ApMusicSheetRepository.getInstance(context).querySheetListByType(ApConstants.MUSIC_SHEET_TYPE_CUSTOM);
     }
 
     public void addMusicSheet(Context context, ApMusicSheet apMusicSheet) {
-        int curMaxSheetId = ApMusicSheetRepository.getInstance(context).queryMaxSheetId();
-        apMusicSheet.setSheetId(++curMaxSheetId);
+        apMusicSheet.setSheetType(ApConstants.MUSIC_SHEET_TYPE_CUSTOM);
         ApMusicSheetRepository.getInstance(context).addMusicSheet(apMusicSheet);
     }
 
@@ -38,7 +34,15 @@ public class ApMusicModel {
         ApMusicSheetRepository.getInstance(context).deleteMusicSheet(apMusicSheet);
     }
 
-    public List<ApSheetMusic> getSheetMusicList(Context context, int sheetId) {
+    public int getAllMusicListCount(Context context) {
+        return ApLocalMusicUtils.getAllMusicListCount(context);
+    }
+
+    public List<ApSheetMusic> getAllMusicList(Context context) {
+        return ApLocalMusicUtils.getAllMusicList(context);
+    }
+
+    public List<ApSheetMusic> getSheetMusicList(Context context, long sheetId) {
         return ApSheetMusicRepository.getInstance(context).querySheetMusicList(sheetId);
     }
 

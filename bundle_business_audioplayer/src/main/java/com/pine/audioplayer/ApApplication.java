@@ -20,13 +20,17 @@ public class ApApplication extends BaseApplication {
         if (!SharePreferenceUtils.readBooleanFromConfig("ap_database_init", false)) {
             List<ApMusicSheet> list = new ArrayList<>();
             ApMusicSheet favouriteSheet = new ApMusicSheet();
-            favouriteSheet.setSheetId(ApConstants.MUSIC_FAVOURITE_SHEET_ID);
+            favouriteSheet.setSheetType(ApConstants.MUSIC_SHEET_TYPE_FAVOURITE);
             favouriteSheet.setName(mApplication.getString(R.string.ap_home_my_favourite_name));
             list.add(favouriteSheet);
             ApMusicSheet recentSheet = new ApMusicSheet();
-            recentSheet.setSheetId(ApConstants.MUSIC_RECENT_SHEET_ID);
+            recentSheet.setSheetType(ApConstants.MUSIC_SHEET_TYPE_RECENT);
             recentSheet.setName(mApplication.getString(R.string.ap_home_recent_music_name));
             list.add(recentSheet);
+            ApMusicSheet tmpPlaySheet = new ApMusicSheet();
+            tmpPlaySheet.setSheetType(ApConstants.MUSIC_SHEET_TYPE_TMP_PLAY);
+            tmpPlaySheet.setName(mApplication.getString(R.string.ap_home_tmp_play_name));
+            list.add(tmpPlaySheet);
             ApMusicSheetRepository.getInstance(mApplication).addMusicSheetList(list);
             SharePreferenceUtils.saveToConfig("ap_database_init", true);
         }

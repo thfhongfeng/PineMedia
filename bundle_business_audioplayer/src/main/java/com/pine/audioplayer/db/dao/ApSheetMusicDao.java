@@ -22,7 +22,7 @@ public interface ApSheetMusicDao {
     int update(ApSheetMusic apSheetMusic);
 
     @Query("SELECT * FROM ap_sheet_music WHERE sheet_id=:sheetId")
-    List<ApSheetMusic> querySheetMusic(int sheetId);
+    List<ApSheetMusic> querySheetMusic(long sheetId);
 
     @Query("DELETE FROM ap_sheet_music WHERE sheet_id=:sheetId")
     int deleteBySheetId(int sheetId);

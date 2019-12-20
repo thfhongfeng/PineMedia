@@ -1,6 +1,7 @@
 package com.pine.base.binding.adapter;
 
 import android.graphics.Bitmap;
+import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.DrawableRes;
@@ -38,5 +39,10 @@ public class BaseAndroidBindingAdapter {
     @BindingAdapter("android:src")
     public static void setSrc(ImageView view, int resId) {
         view.setImageResource(resId);
+    }
+
+    @BindingAdapter("selectState")
+    public static void setSelectState(View view, boolean selectState) {
+        view.setSelected(selectState);
     }
 }

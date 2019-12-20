@@ -3,7 +3,6 @@ package com.pine.audioplayer.db.repository;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.pine.audioplayer.db.ApRoomDatabase;
 import com.pine.audioplayer.db.dao.ApSheetMusicDao;
@@ -44,7 +43,7 @@ public class ApSheetMusicRepository {
         }
     }
 
-    public List<ApSheetMusic> querySheetMusicList(@Nullable int sheetId) {
+    public List<ApSheetMusic> querySheetMusicList(long sheetId) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
             return apSheetMusicDao.querySheetMusic(sheetId);
         }

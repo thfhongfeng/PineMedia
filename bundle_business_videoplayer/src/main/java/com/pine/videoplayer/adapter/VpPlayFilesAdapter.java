@@ -126,8 +126,8 @@ public class VpPlayFilesAdapter extends BaseNoPaginationTreeListAdapter<VpFileBe
             mBinding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mMediaItemClickListener != null) {
-                        mMediaItemClickListener.onMediaItemClick(v, content.getMediaPosition());
+                    if (mItemClickListener != null) {
+                        mItemClickListener.onItemClick(v, position, null, content.getMediaPosition());
                         mCurMediaPosition = content.getMediaPosition();
                         notifyItemChangedSafely(lastFileSelectPosition);
                         notifyItemChangedSafely(position);
@@ -135,15 +135,5 @@ public class VpPlayFilesAdapter extends BaseNoPaginationTreeListAdapter<VpFileBe
                 }
             });
         }
-    }
-
-    private IOnMediaItemClick mMediaItemClickListener;
-
-    public void setMediaItemClick(IOnMediaItemClick listener) {
-        mMediaItemClickListener = listener;
-    }
-
-    public interface IOnMediaItemClick {
-        void onMediaItemClick(View view, int position);
     }
 }

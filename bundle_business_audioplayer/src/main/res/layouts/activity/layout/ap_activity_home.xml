@@ -4,20 +4,24 @@
     <data class="ApHomeActivityBinding">
 
         <variable
-            name="allMusicCount"
-            type="java.lang.Integer" />
+            name="allMusicSheet"
+            type="com.pine.audioplayer.db.entity.ApMusicSheet" />
 
         <variable
-            name="favouriteCount"
-            type="java.lang.Integer" />
+            name="favouriteSheet"
+            type="com.pine.audioplayer.db.entity.ApMusicSheet" />
 
         <variable
-            name="recentCount"
-            type="java.lang.Integer" />
+            name="recentSheet"
+            type="com.pine.audioplayer.db.entity.ApMusicSheet" />
 
         <variable
             name="customSheetCount"
             type="java.lang.Integer" />
+
+        <variable
+            name="presenter"
+            type="com.pine.audioplayer.ui.activity.ApHomeActivity.Presenter" />
     </data>
 
     <LinearLayout
@@ -42,9 +46,10 @@
                 android:drawableTop="@mipmap/res_ic_all_music"
                 android:drawablePadding="@dimen/dp_5"
                 android:gravity="center"
+                android:onClick="@{(view)->presenter.onShowAllClick(view, allMusicSheet)}"
                 android:paddingTop="@dimen/dp_10"
-                android:text="@{@string/ap_home_all_music(allMusicCount)}"
-                android:textColor="@color/black_gray"
+                android:text="@{@string/ap_home_all_music(allMusicSheet.count)}"
+                android:textColor="@color/dark_black_gray"
                 android:textSize="@dimen/sp_14"></TextView>
 
             <TextView
@@ -55,9 +60,10 @@
                 android:drawableTop="@mipmap/res_ic_favourite"
                 android:drawablePadding="@dimen/dp_5"
                 android:gravity="center"
+                android:onClick="@{(view)->presenter.onShowFavouriteClick(view, favouriteSheet)}"
                 android:paddingTop="@dimen/dp_10"
-                android:text="@{@string/ap_home_my_favourite(favouriteCount)}"
-                android:textColor="@color/black_gray"
+                android:text="@{@string/ap_home_my_favourite(favouriteSheet.count)}"
+                android:textColor="@color/dark_black_gray"
                 android:textSize="@dimen/sp_14"></TextView>
 
             <TextView
@@ -68,9 +74,10 @@
                 android:drawableTop="@mipmap/res_ic_recent"
                 android:drawablePadding="@dimen/dp_5"
                 android:gravity="center"
+                android:onClick="@{(view)->presenter.onShowRecentClick(view, recentSheet)}"
                 android:paddingTop="@dimen/dp_10"
-                android:text="@{@string/ap_home_recent_music(recentCount)}"
-                android:textColor="@color/black_gray"
+                android:text="@{@string/ap_home_recent_music(recentSheet.count)}"
+                android:textColor="@color/dark_black_gray"
                 android:textSize="@dimen/sp_14"></TextView>
         </LinearLayout>
 
@@ -99,22 +106,23 @@
                     android:padding="@dimen/dp_5"
                     android:text="@{@string/ap_home_my_music_sheet(customSheetCount)}"
                     android:textColor="@color/black"
-                    android:textSize="@dimen/sp_15" />
+                    android:textSize="@dimen/sp_15"
+                    android:textStyle="bold" />
 
                 <ImageView
                     android:id="@+id/create_sheet_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
-                    android:padding="@dimen/dp_5"
+                    android:onClick="@{presenter::onCreateSheetClick}"
+                    android:padding="@dimen/dp_10"
                     android:src="@mipmap/res_ic_add"></ImageView>
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/sheet_rv"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_0"
-                android:layout_weight="1"></androidx.recyclerview.widget.RecyclerView>
+                android:layout_height="wrap_content"></androidx.recyclerview.widget.RecyclerView>
 
         </LinearLayout>
     </LinearLayout>

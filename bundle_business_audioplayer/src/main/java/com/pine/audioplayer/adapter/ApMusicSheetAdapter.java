@@ -15,6 +15,11 @@ import com.pine.base.recycle_view.adapter.BaseNoPaginationListAdapter;
 import com.pine.base.recycle_view.bean.BaseListAdapterItemProperty;
 
 public class ApMusicSheetAdapter extends BaseNoPaginationListAdapter<ApMusicSheet> {
+
+    private void setOnItemClickListener() {
+
+    }
+
     @Override
     public BaseListViewHolder getViewHolder(ViewGroup parent, int viewType) {
         return new MusicSheetViewHolder(parent.getContext(), LayoutInflater.from(parent.getContext())
@@ -30,11 +35,14 @@ public class ApMusicSheetAdapter extends BaseNoPaginationListAdapter<ApMusicShee
         }
 
         @Override
-        public void updateData(ApMusicSheet content, final BaseListAdapterItemProperty propertyEntity, final int position) {
+        public void updateData(final ApMusicSheet content, final BaseListAdapterItemProperty propertyEntity, final int position) {
             mBinding.setSheetBean(content);
-            mBinding.goDetailBtn.setOnClickListener(new View.OnClickListener() {
+            mBinding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (mItemClickListener != null) {
+                        mItemClickListener.onItemClick(v, position, null, content);
+                    }
                 }
             });
         }

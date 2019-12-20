@@ -21,14 +21,14 @@ public interface ApMusicSheetDao {
     @Update
     int update(ApMusicSheet apMusicSheet);
 
-    @Query("SELECT * FROM ap_music_sheet WHERE sheet_id NOT IN (:excludeSheetIds)")
-    List<ApMusicSheet> querySheetListExcludeIds(List<Integer> excludeSheetIds);
+    @Query("SELECT * FROM ap_music_sheet WHERE sheet_type IN (:sheetTypes)")
+    List<ApMusicSheet> querySheetListByTypes(List<Integer> sheetTypes);
 
-    @Query("SELECT *FROM ap_music_sheet WHERE sheet_id=:sheetId")
-    ApMusicSheet querySheetBySheetId(int sheetId);
+    @Query("SELECT *FROM ap_music_sheet WHERE sheet_type=:sheetType")
+    List<ApMusicSheet> querySheetListByType(int sheetType);
 
-    @Query("SELECT MAX(sheet_id) FROM ap_music_sheet")
-    int queryMaxSheetId();
+    @Query("SELECT *FROM ap_music_sheet WHERE sheet_type=:sheetType")
+    ApMusicSheet querySheetByType(int sheetType);
 
     @Delete
     int delete(ApMusicSheet apMusicSheet);

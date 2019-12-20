@@ -1,0 +1,85 @@
+package com.pine.audioplayer.ui.activity;
+
+import android.os.Bundle;
+import android.view.View;
+
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.pine.audioplayer.R;
+import com.pine.audioplayer.adapter.ApMusicListAdapter;
+import com.pine.audioplayer.databinding.ApMusicListActivityBinding;
+import com.pine.audioplayer.db.entity.ApMusicSheet;
+import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.vm.ApMusicListVm;
+import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
+import com.pine.tool.widget.dialog.PopupMenu;
+
+import java.util.List;
+
+public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicListActivityBinding, ApMusicListVm> {
+
+    private ApMusicListAdapter mMusicListAdapter;
+    private PopupMenu mPopupMenu;
+
+    @Override
+    public void observeInitLiveData(Bundle savedInstanceState) {
+        mViewModel.mSheetData.observe(this, new Observer<ApMusicSheet>() {
+            @Override
+            public void onChanged(ApMusicSheet apMusicSheet) {
+                mBinding.setMusicSheet(apMusicSheet);
+            }
+        });
+        mViewModel.mSheetMusicListData.observe(this, new Observer<List<ApSheetMusic>>() {
+            @Override
+            public void onChanged(List<ApSheetMusic> list) {
+                mMusicListAdapter.setData(list);
+            }
+        });
+    }
+
+    @Override
+    public void observeSyncLiveData(int liveDataObjTag) {
+
+    }
+
+    @Override
+    protected int getActivityLayoutResId() {
+        return R.layout.ap_activity_music_list;
+    }
+
+    @Override
+    protected void init(Bundle onCreateSavedInstanceState) {
+        mBinding.setPresenter(new Presenter());
+
+        mMusicListAdapter = new ApMusicListAdapter();
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(RecyclerView.VERTICAL);
+        mBinding.recycleView.setLayoutManager(layoutManager);
+        mBinding.recycleView.setAdapter(mMusicListAdapter);
+    }
+
+    public class Presenter {
+        public void onPlayOrAddBtnClick(View view, boolean add) {
+
+        }
+
+        public void onGoBackClick(View view) {
+            setResult(RESULT_OK);
+            finish();
+        }
+
+        public void onTopMenuClick(View view) {
+            if (mPopupMenu == null) {
+                mPopupMenu = new PopupMenu.Builder(ApMusicListActivity.this)
+                        .create(R.layout.ap_music_list_top_menu_layout, view);
+            }
+            mPopupMenu.showAsDropDown(view);
+        }
+
+        public void onGoMultiSelectUiClick(View view) {
+
+        }
+    }
+}

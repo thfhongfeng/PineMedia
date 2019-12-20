@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
+import com.pine.base.recycle_view.adapter.BaseListAdapter;
 import com.pine.base.util.SysIntentUtils;
 import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.player.component.PineMediaWidget;
@@ -78,9 +79,9 @@ public class VpHomeActivity extends BaseMvvmNoActionBarActivity<VpHomeActivityBi
         mBinding.mediaListRv.setLayoutManager(linearLayoutManager);
         mRecentPlayedFilesAdapter = new VpPlayFilesAdapter();
         mRecentPlayedFilesAdapter.enableEmptyComplete(false, false);
-        mRecentPlayedFilesAdapter.setMediaItemClick(new VpPlayFilesAdapter.IOnMediaItemClick() {
+        mRecentPlayedFilesAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener<Integer>() {
             @Override
-            public void onMediaItemClick(View view, int position) {
+            public void onItemClick(View view, int position, String tag, Integer customData) {
                 mMediaControllerAdapter.mediaSelect(position, true);
             }
         });

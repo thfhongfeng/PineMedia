@@ -11,6 +11,9 @@ public interface ApConstants extends BaseConstants {
     int PLUGIN_LRC_SUBTITLE = 2;
     int PLUGIN_SRT_SUBTITLE = 3;
 
-    int MUSIC_FAVOURITE_SHEET_ID = 1;
-    int MUSIC_RECENT_SHEET_ID = 2;
+    int MUSIC_SHEET_TYPE_ALL = 0;
+    int MUSIC_SHEET_TYPE_FAVOURITE = 1;
+    int MUSIC_SHEET_TYPE_RECENT = 2;
+    int MUSIC_SHEET_TYPE_TMP_PLAY = 9;
+    int MUSIC_SHEET_TYPE_CUSTOM = 99;
 }

@@ -15,9 +15,10 @@ public class ApMusicSheet implements Serializable {
     @ColumnInfo(name = "_id")
     private long id;
 
+    // 0-所有；1-我喜欢；2-最近；9-播放列表；99-自建
     @NonNull
-    @ColumnInfo(name = "sheet_id")
-    private int sheetId;
+    @ColumnInfo(name = "sheet_type")
+    private int sheetType;
 
     @ColumnInfo(name = "image_uri")
     private String imageUri;
@@ -37,12 +38,12 @@ public class ApMusicSheet implements Serializable {
         this.id = id;
     }
 
-    public int getSheetId() {
-        return sheetId;
+    public int getSheetType() {
+        return sheetType;
     }
 
-    public void setSheetId(int sheetId) {
-        this.sheetId = sheetId;
+    public void setSheetType(int sheetType) {
+        this.sheetType = sheetType;
     }
 
     public String getImageUri() {

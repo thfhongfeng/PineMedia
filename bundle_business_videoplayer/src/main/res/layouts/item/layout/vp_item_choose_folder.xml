@@ -33,7 +33,7 @@
                 android:layout_marginLeft="@dimen/dp_10"
                 android:singleLine="true"
                 android:text="@{fileBean.filePath}"
-                android:textColor="@color/black_gray"
+                android:textColor="@color/dark_black_gray"
                 android:textSize="@dimen/sp_15"></TextView>
         </LinearLayout>
 
