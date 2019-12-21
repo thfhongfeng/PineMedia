@@ -62,7 +62,11 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
 
     public class Presenter {
         public void onPlayOrAddBtnClick(View view, boolean add) {
+            if (add) {
 
+            } else {
+
+            }
         }
 
         public void onGoBackClick(View view) {

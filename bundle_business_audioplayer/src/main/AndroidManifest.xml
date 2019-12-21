@@ -19,7 +19,21 @@
             android:windowSoftInputMode="adjustPan|stateHidden"></activity>
 
         <activity
-            android:name=".ui.activity.ApMusicListActivity"
+        android:name=".ui.activity.ApMusicListActivity"
+        android:configChanges="orientation|keyboardHidden|screenSize"
+        android:launchMode="singleTask"
+        android:screenOrientation="portrait"
+        android:windowSoftInputMode="adjustPan|stateHidden"></activity>
+
+        <activity
+            android:name=".ui.activity.ApAddMusicActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan|stateHidden"></activity>
+
+        <activity
+            android:name=".ui.activity.ApMultiMusicSelectActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
