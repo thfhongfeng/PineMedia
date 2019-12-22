@@ -21,6 +21,10 @@ public class ApMusicModel {
         return ApMusicSheetRepository.getInstance(context).querySheetByType(ApConstants.MUSIC_SHEET_TYPE_RECENT);
     }
 
+    public ApMusicSheet getCustomSheet(Context context, long sheetId) {
+        return ApMusicSheetRepository.getInstance(context).querySheetById(sheetId);
+    }
+
     public List<ApMusicSheet> getCustomMusicSheetList(Context context) {
         return ApMusicSheetRepository.getInstance(context).querySheetListByType(ApConstants.MUSIC_SHEET_TYPE_CUSTOM);
     }

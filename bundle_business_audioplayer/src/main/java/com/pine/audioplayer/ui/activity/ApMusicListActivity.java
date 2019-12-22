@@ -1,5 +1,6 @@
 package com.pine.audioplayer.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -15,10 +16,12 @@ import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.audioplayer.vm.ApMusicListVm;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.tool.widget.dialog.PopupMenu;
+import com.uuzuche.lib_zxing.decoding.Intents;
 
 import java.util.List;
 
 public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicListActivityBinding, ApMusicListVm> {
+    private final int REQUEST_CODE_GO_ADD_MUSIC = 1;
 
     private ApMusicListAdapter mMusicListAdapter;
     private PopupMenu mPopupMenu;
@@ -60,10 +63,25 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
         mBinding.recycleView.setAdapter(mMusicListAdapter);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_GO_ADD_MUSIC) {
+            if (resultCode == RESULT_OK) {
+                mViewModel.onRefresh();
+            }
+        }
+    }
+
+    private void goAddMusicActivity() {
+        Intent intent = new Intent(this, ApAddMusicActivity.class);
+        startActivityForResult(intent, REQUEST_CODE_GO_ADD_MUSIC);
+    }
+
     public class Presenter {
         public void onPlayOrAddBtnClick(View view, boolean add) {
             if (add) {
-
+                goAddMusicActivity();
             } else {
 
             }

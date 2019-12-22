@@ -40,7 +40,7 @@
                     android:layout_marginLeft="@dimen/dp_15"
                     android:singleLine="true"
                     android:text="@{fileBean.fileName}"
-                    android:textColor="@drawable/res_selector_text"
+                    android:textColor="@drawable/res_selector_text_color"
                     android:textSize="@dimen/sp_14"></TextView>
             </LinearLayout>
 

@@ -1,5 +1,5 @@
 <resources>
-    <string name="ap_home_all_music_name">我喜欢</string>
+    <string name="ap_home_all_music_name">全部歌曲</string>
     <string name="ap_home_all_music">全部歌曲\n%d</string>
     <string name="ap_home_my_favourite_name">我喜欢</string>
     <string name="ap_home_my_favourite">我喜欢\n%d</string>
@@ -18,4 +18,8 @@
 
     <string name="ap_ml_menu_add_music">添加歌曲</string>
     <string name="ap_ml_menu_delete_sheet">删除歌单</string>
+
+    <string name="ap_mms_select_count">已选择&#160;%d&#160;项</string>
+    <string name="ap_mms_all_select">全选</string>
+    <string name="ap_mms_all_cancel_select">取消全选</string>
 </resources>

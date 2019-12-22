@@ -27,6 +27,9 @@ public interface ApMusicSheetDao {
     @Query("SELECT *FROM ap_music_sheet WHERE sheet_type=:sheetType")
     List<ApMusicSheet> querySheetListByType(int sheetType);
 
+    @Query("SELECT *FROM ap_music_sheet WHERE _id=:sheetId")
+    ApMusicSheet querySheetById(long sheetId);
+
     @Query("SELECT *FROM ap_music_sheet WHERE sheet_type=:sheetType")
     ApMusicSheet querySheetByType(int sheetType);
 

@@ -10,7 +10,7 @@ import com.pine.tool.architecture.mvvm.vm.ViewModel;
 
 import java.util.List;
 
-public class ApHomeVm extends ViewModel {
+public class ApSheetListVm extends ViewModel {
     private ApMusicModel mModel = new ApMusicModel();
 
     public MutableLiveData<ApMusicSheet> mAllMusicSheetData = new MutableLiveData<>();

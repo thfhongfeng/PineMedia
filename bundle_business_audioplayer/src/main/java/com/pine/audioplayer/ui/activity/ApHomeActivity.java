@@ -6,15 +6,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicSheetAdapter;
 import com.pine.audioplayer.databinding.ApHomeActivityBinding;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
-import com.pine.audioplayer.vm.ApHomeVm;
+import com.pine.audioplayer.vm.ApSheetListVm;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
 import com.pine.base.util.DialogUtils;
@@ -22,7 +18,11 @@ import com.pine.base.widget.dialog.InputTextDialog;
 
 import java.util.List;
 
-public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBinding, ApHomeVm> {
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBinding, ApSheetListVm> {
     private final int REQUEST_CODE_GO_MUSIC_LIST = 1;
 
     private ApMusicSheetAdapter mMusicSheetAdapter;
@@ -74,9 +74,7 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
         mMusicSheetAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener<ApMusicSheet>() {
             @Override
             public void onItemClick(View view, int position, String tag, ApMusicSheet sheet) {
-                Intent intent = new Intent(ApHomeActivity.this, ApMusicListActivity.class);
-                intent.putExtra("musicSheet", sheet);
-                startActivityForResult(intent, REQUEST_CODE_GO_MUSIC_LIST);
+                goMusicListActivity(sheet);
             }
         });
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -93,6 +91,12 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
                 mViewModel.onRefresh();
             }
         }
+    }
+
+    private void goMusicListActivity(ApMusicSheet sheet) {
+        Intent intent = new Intent(this, ApMusicListActivity.class);
+        intent.putExtra("musicSheet", sheet);
+        startActivityForResult(intent, REQUEST_CODE_GO_MUSIC_LIST);
     }
 
     public class Presenter {
@@ -118,21 +122,15 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
         }
 
         public void onShowAllClick(View view, ApMusicSheet sheet) {
-            Intent intent = new Intent(ApHomeActivity.this, ApMusicListActivity.class);
-            intent.putExtra("musicSheet", sheet);
-            startActivityForResult(intent, REQUEST_CODE_GO_MUSIC_LIST);
+            goMusicListActivity(sheet);
         }
 
         public void onShowFavouriteClick(View view, ApMusicSheet sheet) {
-            Intent intent = new Intent(ApHomeActivity.this, ApMusicListActivity.class);
-            intent.putExtra("musicSheet", sheet);
-            startActivityForResult(intent, REQUEST_CODE_GO_MUSIC_LIST);
+            goMusicListActivity(sheet);
         }
 
         public void onShowRecentClick(View view, ApMusicSheet sheet) {
-            Intent intent = new Intent(ApHomeActivity.this, ApMusicListActivity.class);
-            intent.putExtra("musicSheet", sheet);
-            startActivityForResult(intent, REQUEST_CODE_GO_MUSIC_LIST);
+            goMusicListActivity(sheet);
         }
     }
 }

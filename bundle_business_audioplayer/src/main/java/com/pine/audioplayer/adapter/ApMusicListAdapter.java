@@ -5,16 +5,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.databinding.DataBindingUtil;
-
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.databinding.ApItemSheetMusicBinding;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.base.recycle_view.BaseListViewHolder;
-import com.pine.base.recycle_view.adapter.BasePaginationListAdapter;
+import com.pine.base.recycle_view.adapter.BaseNoPaginationListAdapter;
 import com.pine.base.recycle_view.bean.BaseListAdapterItemProperty;
 
-public class ApMusicListAdapter extends BasePaginationListAdapter<ApSheetMusic> {
+import androidx.databinding.DataBindingUtil;
+
+public class ApMusicListAdapter extends BaseNoPaginationListAdapter<ApSheetMusic> {
     @Override
     public BaseListViewHolder getViewHolder(ViewGroup parent, int viewType) {
         return new SheetMusicViewHolder(parent.getContext(), LayoutInflater.from(parent.getContext())
