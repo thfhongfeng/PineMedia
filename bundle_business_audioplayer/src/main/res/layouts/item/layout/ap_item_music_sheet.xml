@@ -3,6 +3,8 @@
 
     <data class="ApItemMusicSheetBinding">
 
+        <import type="com.pine.audioplayer.R"></import>
+
         <variable
             name="sheetBean"
             type="com.pine.audioplayer.db.entity.ApMusicSheet" />
@@ -21,12 +23,14 @@
             android:orientation="horizontal"
             android:paddingBottom="@dimen/dp_10">
 
-            <ImageView
+            <com.pine.tool.widget.view.RoundImageView
                 android:id="@+id/img_iv"
+                emptySrc="@{R.mipmap.res_iv_top_bg}"
                 imageUrl="@{sheetBean.imageUri}"
                 android:layout_width="@dimen/dp_48"
                 android:layout_height="@dimen/dp_48"
-                android:layout_marginRight="@dimen/dp_20" />
+                android:layout_marginRight="@dimen/dp_20"
+                android:scaleType="centerCrop" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -40,9 +44,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/dp_5"
                     android:text="@{sheetBean.name}"
-                    android:textStyle="bold"
                     android:textColor="@color/dark_black_gray"
-                    android:textSize="@dimen/sp_15"></TextView>
+                    android:textSize="@dimen/sp_15"
+                    android:textStyle="bold"></TextView>
 
                 <TextView
                     android:id="@+id/desc_tv"

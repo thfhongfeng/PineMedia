@@ -27,11 +27,17 @@ public interface ApMusicSheetDao {
     @Query("SELECT *FROM ap_music_sheet WHERE sheet_type=:sheetType")
     List<ApMusicSheet> querySheetListByType(int sheetType);
 
+    @Query("SELECT *FROM ap_music_sheet WHERE sheet_type=:sheetType AND _id NOT IN (:excludeIds)")
+    List<ApMusicSheet> querySheetListByType(int sheetType, long... excludeIds);
+
     @Query("SELECT *FROM ap_music_sheet WHERE _id=:sheetId")
     ApMusicSheet querySheetById(long sheetId);
 
     @Query("SELECT *FROM ap_music_sheet WHERE sheet_type=:sheetType")
     ApMusicSheet querySheetByType(int sheetType);
+
+    @Query("UPDATE ap_music_sheet SET count=:count WHERE _id=:sheetId")
+    int updateSheetCount(long sheetId, int count);
 
     @Delete
     int delete(ApMusicSheet apMusicSheet);

@@ -32,10 +32,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/dp_5"
-                    android:textStyle="bold"
                     android:text="@{musicBean.name}"
                     android:textColor="@color/dark_black_gray"
-                    android:textSize="@dimen/sp_15"></TextView>
+                    android:textSize="@dimen/sp_15"
+                    android:textStyle="bold"></TextView>
 
                 <TextView
                     android:id="@+id/desc_tv"

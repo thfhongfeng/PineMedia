@@ -17,15 +17,15 @@ import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.audioplayer.vm.ApMusicListVm;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
+import com.pine.base.recycle_view.adapter.BaseListAdapter;
 import com.pine.tool.widget.dialog.PopupMenu;
 
 import java.util.List;
 
 public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicListActivityBinding, ApMusicListVm> {
-    private final int REQUEST_CODE_GO_ADD_MUSIC = 1;
 
     private ApMusicListAdapter mMusicListAdapter;
-    private PopupMenu mPopupMenu;
+    private PopupMenu mTopPopupMenu;
 
     @Override
     public void observeInitLiveData(Bundle savedInstanceState) {
@@ -58,6 +58,12 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
         mBinding.setPresenter(new Presenter());
 
         mMusicListAdapter = new ApMusicListAdapter();
+        mMusicListAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position, String tag, Object customData) {
+
+            }
+        });
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         mBinding.recycleView.setLayoutManager(layoutManager);
@@ -65,18 +71,15 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_GO_ADD_MUSIC) {
-            if (resultCode == RESULT_OK) {
-                mViewModel.onRefresh();
-            }
-        }
+    protected void onRealResume() {
+        super.onRealResume();
+        mViewModel.refreshData();
     }
 
     private void goAddMusicActivity() {
         Intent intent = new Intent(this, ApAddMusicActivity.class);
-        startActivityForResult(intent, REQUEST_CODE_GO_ADD_MUSIC);
+        intent.putExtra("musicSheet", mViewModel.mSheetData.getValue());
+        startActivity(intent);
     }
 
     public class Presenter {
@@ -89,35 +92,39 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
         }
 
         public void onGoBackClick(View view) {
-            setResult(RESULT_OK);
             finish();
         }
 
         public void onTopMenuClick(View view) {
-            if (mPopupMenu == null) {
-                mPopupMenu = new PopupMenu.Builder(ApMusicListActivity.this)
+            if (mTopPopupMenu == null) {
+                mTopPopupMenu = new PopupMenu.Builder(ApMusicListActivity.this)
                         .create(R.layout.ap_music_list_top_menu_layout, view);
-                ApMusicListTopMenuBinding binding = DataBindingUtil.bind(mPopupMenu.getContentView());
+                ApMusicListTopMenuBinding binding = DataBindingUtil.bind(mTopPopupMenu.getContentView());
                 binding.addMusicLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        mTopPopupMenu.dismiss();
                         goAddMusicActivity();
                     }
                 });
                 binding.deleteSheetLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        mTopPopupMenu.dismiss();
                         mViewModel.deleteMusicSheet();
                         setResult(RESULT_OK);
                         finish();
                     }
                 });
             }
-            mPopupMenu.showAsDropDown(view);
+            mTopPopupMenu.showAsDropDown(view);
         }
 
         public void onGoMultiSelectUiClick(View view) {
-
+            Intent intent = new Intent(ApMusicListActivity.this, ApMultiMusicSelectActivity.class);
+            intent.putExtra("musicSheet", mViewModel.mSheetData.getValue());
+            intent.putExtra("action", true);
+            startActivity(intent);
         }
     }
 }

@@ -1,9 +1,14 @@
 package com.pine.audioplayer.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMultiMusicSelectAdapter;
@@ -14,11 +19,8 @@ import com.pine.audioplayer.vm.ApMusicListVm;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmActionBarImageMenuActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 public class ApMultiMusicSelectActivity extends BaseMvvmActionBarImageMenuActivity<ApMultiMusicSelectActivityBinding, ApMusicListVm> {
     private TextView mTitleTv;
@@ -32,10 +34,13 @@ public class ApMultiMusicSelectActivity extends BaseMvvmActionBarImageMenuActivi
         menuBtnIv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<ApSheetMusic> selectList = mMultiMusicSelectAdapter.getSelectMusicList(mViewModel.mSheetData.getValue().getId());
+                ArrayList<ApSheetMusic> selectList = mMultiMusicSelectAdapter.getSelectMusicList();
                 if (selectList.size() > 0) {
-
+                    Intent data = new Intent();
+                    data.putExtra("selectList", selectList);
+                    setResult(RESULT_OK, data);
                 }
+                finish();
             }
         });
     }
@@ -53,6 +58,12 @@ public class ApMultiMusicSelectActivity extends BaseMvvmActionBarImageMenuActivi
             @Override
             public void onChanged(List<ApSheetMusic> list) {
                 mMultiMusicSelectAdapter.setData(list);
+            }
+        });
+        mViewModel.mActionData.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean hasAction) {
+                mBinding.setHasAction(hasAction);
             }
         });
     }
@@ -82,6 +93,7 @@ public class ApMultiMusicSelectActivity extends BaseMvvmActionBarImageMenuActivi
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         mBinding.recycleView.setLayoutManager(layoutManager);
         mBinding.recycleView.setAdapter(mMultiMusicSelectAdapter);
+        mViewModel.refreshData();
     }
 
     private void onMusicSelectChange() {
@@ -90,12 +102,29 @@ public class ApMultiMusicSelectActivity extends BaseMvvmActionBarImageMenuActivi
         mBinding.allSelectBtn.setSelected(isAllSelect);
         mBinding.allSelectBtn.setText(isAllSelect ? R.string.ap_mms_all_cancel_select : R.string.ap_mms_all_select);
         mTitleTv.setText(selectCount > 0 ? getString(R.string.ap_mms_select_count, selectCount) : mViewModel.mSheetData.getValue().getName());
+        mBinding.addToSheetBtn.setEnabled(selectCount > 0);
+        mBinding.deleteSelectBtn.setEnabled(selectCount > 0);
     }
 
     public class Presenter {
         public void onAllSelectClick(View view) {
             mMultiMusicSelectAdapter.setAllSelectMusic(!view.isSelected());
             onMusicSelectChange();
+        }
+
+        public void onAddToSheetClick(View view) {
+            if (mMultiMusicSelectAdapter.getSelectMusicList().size() < 1) {
+                return;
+            }
+            Intent intent = new Intent(ApMultiMusicSelectActivity.this, ApAddMusicToSheetActivity.class);
+            intent.putExtra("musicSheet", mViewModel.mSheetData.getValue());
+            intent.putParcelableArrayListExtra("selectList", mMultiMusicSelectAdapter.getSelectMusicList());
+            startActivity(intent);
+        }
+
+        public void onDeleteClick(View view) {
+            mViewModel.deleteSheetMusics(mMultiMusicSelectAdapter.getSelectMusicList());
+            finish();
         }
     }
 }

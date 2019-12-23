@@ -2,20 +2,22 @@ package com.pine.audioplayer.db.repository;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import com.pine.audioplayer.db.ApRoomDatabase;
 import com.pine.audioplayer.db.dao.ApMusicSheetDao;
+import com.pine.audioplayer.db.dao.ApSheetMusicDao;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.tool.util.LogUtils;
 
 import java.util.List;
-
-import androidx.annotation.NonNull;
 
 public class ApMusicSheetRepository {
     private final String TAG = LogUtils.makeLogTag(this.getClass());
 
     private static volatile ApMusicSheetRepository mInstance = null;
 
+    private ApSheetMusicDao apSheetMusicDao;
     private ApMusicSheetDao apMusicSheetDao;
 
     public static ApMusicSheetRepository getInstance(Context application) {
@@ -33,6 +35,7 @@ public class ApMusicSheetRepository {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
             LogUtils.d(TAG, "new");
             roomDatabase = ApRoomDatabase.getINSTANCE(application);
+            apSheetMusicDao = roomDatabase.apSheetMusicDao();
             apMusicSheetDao = roomDatabase.apMusicSheetDao();
         }
     }
@@ -61,15 +64,21 @@ public class ApMusicSheetRepository {
         }
     }
 
+    public List<ApMusicSheet> querySheetListByType(int sheetType, long... excludeIds) {
+        synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
+            return apMusicSheetDao.querySheetListByType(sheetType, excludeIds);
+        }
+    }
+
     public List<ApMusicSheet> querySheetListByTypes(List<Integer> sheetTypes) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
             return apMusicSheetDao.querySheetListByTypes(sheetTypes);
         }
     }
 
-    public void addMusicSheet(@NonNull ApMusicSheet apMusicSheet) {
+    public long addMusicSheet(@NonNull ApMusicSheet apMusicSheet) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
-            apMusicSheetDao.insert(apMusicSheet);
+            return apMusicSheetDao.insert(apMusicSheet);
         }
     }
 
@@ -79,9 +88,15 @@ public class ApMusicSheetRepository {
         }
     }
 
-    public void deleteMusicSheet(@NonNull ApMusicSheet apMusicSheet) {
+    public void deleteMusicSheet(final @NonNull ApMusicSheet apMusicSheet) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
-            apMusicSheetDao.delete(apMusicSheet);
+            roomDatabase.runInTransaction(new Runnable() {
+                @Override
+                public void run() {
+                    apMusicSheetDao.delete(apMusicSheet);
+                    apSheetMusicDao.deleteBySheetId(apMusicSheet.getId());
+                }
+            });
         }
     }
 }

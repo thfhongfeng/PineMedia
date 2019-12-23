@@ -81,7 +81,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:onClick="@{(view)->presenter.onGoRecentMusicClick(view, allMusicSheet)}"
+                android:onClick="@{(view)->presenter.onGoRecentMusicClick(view, recentSheet)}"
                 android:orientation="horizontal"
                 android:padding="@dimen/dp_15">
 
@@ -120,7 +120,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:onClick="@{(view)->presenter.onGoFavouriteMusicClick(view, allMusicSheet)}"
+                android:onClick="@{(view)->presenter.onGoFavouriteMusicClick(view, favouriteSheet)}"
                 android:orientation="horizontal"
                 android:padding="@dimen/dp_15">
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.pine.audioplayer.db.ApRoomDatabase;
+import com.pine.audioplayer.db.dao.ApMusicSheetDao;
 import com.pine.audioplayer.db.dao.ApSheetMusicDao;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.tool.util.LogUtils;
@@ -17,6 +18,7 @@ public class ApSheetMusicRepository {
     private static volatile ApSheetMusicRepository mInstance = null;
 
     private ApSheetMusicDao apSheetMusicDao;
+    private ApMusicSheetDao apMusicSheetDao;
 
     public static ApSheetMusicRepository getInstance(Context application) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
@@ -34,6 +36,7 @@ public class ApSheetMusicRepository {
             LogUtils.d(TAG, "new");
             roomDatabase = ApRoomDatabase.getINSTANCE(application);
             apSheetMusicDao = roomDatabase.apSheetMusicDao();
+            apMusicSheetDao = roomDatabase.apMusicSheetDao();
         }
     }
 
@@ -49,27 +52,72 @@ public class ApSheetMusicRepository {
         }
     }
 
-    public void addSheetMusicList(@NonNull List<ApSheetMusic> list) {
+    public void addSheetMusic(final @NonNull ApSheetMusic apSheetMusic, final long sheetId) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
-            apSheetMusicDao.insert(list);
+            roomDatabase.runInTransaction(new Runnable() {
+                @Override
+                public void run() {
+                    if (apSheetMusicDao.checkSheetMusic(sheetId, apSheetMusic.getSongId(), apSheetMusic.getFilePath()) == null) {
+                        apSheetMusic.setId(0);
+                        apSheetMusic.setSheetId(sheetId);
+                        apSheetMusicDao.insert(apSheetMusic);
+                        updateMusicSheetCount(apSheetMusic.getSheetId());
+                    }
+                }
+            });
         }
     }
 
-    public void addSheetMusic(@NonNull ApSheetMusic apSheetMusic) {
+    public void addSheetMusicList(final @NonNull List<ApSheetMusic> list, final long sheetId) {
+        if (list.size() < 1) {
+            return;
+        }
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
-            apSheetMusicDao.insert(apSheetMusic);
+            roomDatabase.runInTransaction(new Runnable() {
+                @Override
+                public void run() {
+                    for (ApSheetMusic music : list) {
+                        if (apSheetMusicDao.checkSheetMusic(sheetId, music.getSongId(), music.getFilePath()) == null) {
+                            music.setId(0);
+                            music.setSheetId(sheetId);
+                            apSheetMusicDao.insert(music);
+                        }
+                    }
+                    updateMusicSheetCount(sheetId);
+                }
+            });
         }
     }
 
-    public void deleteSheetMusic(@NonNull ApSheetMusic apSheetMusic) {
+    public void deleteSheetMusic(final @NonNull ApSheetMusic apSheetMusic) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
-            apSheetMusicDao.delete(apSheetMusic);
+            roomDatabase.runInTransaction(new Runnable() {
+                @Override
+                public void run() {
+                    apSheetMusicDao.delete(apSheetMusic);
+                    updateMusicSheetCount(apSheetMusic.getSheetId());
+                }
+            });
         }
     }
 
-    public void deleteSheetMusicList(@NonNull List<ApSheetMusic> list) {
-        synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
-            apSheetMusicDao.delete(list);
+    public void deleteSheetMusicList(@NonNull final List<ApSheetMusic> list, final long sheetId) {
+        if (list.size() < 1) {
+            return;
         }
+        synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
+            roomDatabase.runInTransaction(new Runnable() {
+                @Override
+                public void run() {
+                    apSheetMusicDao.delete(list);
+                    updateMusicSheetCount(sheetId);
+                }
+            });
+        }
+    }
+
+    private void updateMusicSheetCount(long sheetId) {
+        int count = apSheetMusicDao.querySheetMusicCount(sheetId);
+        apMusicSheetDao.updateSheetCount(sheetId, count);
     }
 }

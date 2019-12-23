@@ -8,35 +8,40 @@ import android.view.ViewGroup;
 import androidx.databinding.DataBindingUtil;
 
 import com.pine.audioplayer.R;
-import com.pine.audioplayer.databinding.ApItemSheetMusicBinding;
-import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.databinding.ApItemAddMusicToSheetBinding;
+import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.base.recycle_view.BaseListViewHolder;
 import com.pine.base.recycle_view.adapter.BaseNoPaginationListAdapter;
 import com.pine.base.recycle_view.bean.BaseListAdapterItemProperty;
 
-public class ApMusicListAdapter extends BaseNoPaginationListAdapter<ApSheetMusic> {
-    @Override
-    public BaseListViewHolder getViewHolder(ViewGroup parent, int viewType) {
-        return new SheetMusicViewHolder(parent.getContext(), LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.ap_item_sheet_music, parent, false));
+public class ApAddMusicToSheetAdapter extends BaseNoPaginationListAdapter<ApMusicSheet> {
+
+    private void setOnItemClickListener() {
+
     }
 
-    public class SheetMusicViewHolder extends BaseListViewHolder<ApSheetMusic> {
-        private ApItemSheetMusicBinding mBinding;
+    @Override
+    public BaseListViewHolder getViewHolder(ViewGroup parent, int viewType) {
+        return new MusicSheetViewHolder(parent.getContext(), LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.ap_item_add_to_music_sheet, parent, false));
+    }
 
-        public SheetMusicViewHolder(Context context, View itemView) {
+    public class MusicSheetViewHolder extends BaseListViewHolder<ApMusicSheet> {
+        private ApItemAddMusicToSheetBinding mBinding;
+
+        public MusicSheetViewHolder(Context context, View itemView) {
             super(itemView);
             mBinding = DataBindingUtil.bind(itemView);
         }
 
         @Override
-        public void updateData(final ApSheetMusic content, final BaseListAdapterItemProperty propertyEntity, final int position) {
-            mBinding.setMusicBean(content);
-            mBinding.menuBtn.setOnClickListener(new View.OnClickListener() {
+        public void updateData(final ApMusicSheet content, final BaseListAdapterItemProperty propertyEntity, final int position) {
+            mBinding.setSheetBean(content);
+            mBinding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mItemClickListener != null) {
-                        mItemClickListener.onItemClick(v, position, "menu", content);
+                        mItemClickListener.onItemClick(v, position, null, content);
                     }
                 }
             });

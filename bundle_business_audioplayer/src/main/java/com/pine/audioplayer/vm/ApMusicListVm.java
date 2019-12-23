@@ -21,6 +21,7 @@ public class ApMusicListVm extends ViewModel {
     public MutableLiveData<List<PineMediaPlayerBean>> mMediaListData = new MutableLiveData<>();
     public MutableLiveData<List<ApSheetMusic>> mSheetMusicListData = new MutableLiveData<>();
     public MutableLiveData<ApMusicSheet> mSheetData = new MutableLiveData<>();
+    public MutableLiveData<Boolean> mActionData = new MutableLiveData<>();
 
     private ApMusicSheet mMusicSheet;
     private long mSheetId;
@@ -31,33 +32,15 @@ public class ApMusicListVm extends ViewModel {
         if (mMusicSheet == null) {
             return true;
         }
+        mActionData.setValue(bundle.getBoolean("action", false));
         mSheetId = mMusicSheet.getId();
         mSheetData.setValue(mMusicSheet);
         return false;
     }
 
-    @Override
-    public void afterViewInit() {
+    public void refreshData() {
         switch (mMusicSheet.getSheetType()) {
             case ApConstants.MUSIC_SHEET_TYPE_ALL:
-                mSheetMusicListData.setValue(mModel.getAllMusicList(getContext()));
-                break;
-            case ApConstants.MUSIC_SHEET_TYPE_FAVOURITE:
-            case ApConstants.MUSIC_SHEET_TYPE_RECENT:
-            case ApConstants.MUSIC_SHEET_TYPE_CUSTOM:
-                mSheetMusicListData.setValue(mModel.getSheetMusicList(getContext(), mSheetId));
-                break;
-        }
-    }
-
-    public void deleteMusicSheet() {
-        mModel.removeMusicSheet(getContext(), mMusicSheet);
-    }
-
-    public void onRefresh() {
-        switch (mMusicSheet.getSheetType()) {
-            case ApConstants.MUSIC_SHEET_TYPE_ALL:
-                mMusicSheet = mModel.getRecentSheet(getContext());
                 mSheetData.setValue(mMusicSheet);
                 mSheetMusicListData.setValue(mModel.getAllMusicList(getContext()));
                 break;
@@ -77,5 +60,13 @@ public class ApMusicListVm extends ViewModel {
                 mSheetMusicListData.setValue(mModel.getSheetMusicList(getContext(), mSheetId));
                 break;
         }
+    }
+
+    public void deleteMusicSheet() {
+        mModel.removeMusicSheet(getContext(), mMusicSheet);
+    }
+
+    public void deleteSheetMusics(List<ApSheetMusic> selectList) {
+        mModel.removeSheetMusicList(getContext(), selectList, mSheetId);
     }
 }

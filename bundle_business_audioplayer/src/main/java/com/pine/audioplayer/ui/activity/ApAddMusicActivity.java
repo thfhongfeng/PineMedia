@@ -6,21 +6,22 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicSheetAdapter;
 import com.pine.audioplayer.databinding.ApAddMusicActivityBinding;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
-import com.pine.audioplayer.vm.ApSheetListVm;
+import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.vm.ApAddMusicVm;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmActionBarActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
 
 import java.util.List;
 
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-public class ApAddMusicActivity extends BaseMvvmActionBarActivity<ApAddMusicActivityBinding, ApSheetListVm> {
+public class ApAddMusicActivity extends BaseMvvmActionBarActivity<ApAddMusicActivityBinding, ApAddMusicVm> {
     private final int REQUEST_CODE_GO_MULTI_MUSIC_SELECT = 1;
 
     private ApMusicSheetAdapter mMusicSheetAdapter;
@@ -53,6 +54,7 @@ public class ApAddMusicActivity extends BaseMvvmActionBarActivity<ApAddMusicActi
         mViewModel.mCustomSheetListData.observe(this, new Observer<List<ApMusicSheet>>() {
             @Override
             public void onChanged(List<ApMusicSheet> list) {
+                list.remove(mViewModel.mSheetBeAddTo);
                 mBinding.setCustomSheetCount(list == null ? 0 : list.size());
                 mMusicSheetAdapter.setData(list);
             }
@@ -87,11 +89,21 @@ public class ApAddMusicActivity extends BaseMvvmActionBarActivity<ApAddMusicActi
     }
 
     @Override
+    protected void onRealResume() {
+        super.onRealResume();
+        mViewModel.refreshData();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_GO_MULTI_MUSIC_SELECT) {
             if (resultCode == RESULT_OK) {
-                mViewModel.onRefresh();
+                List<ApSheetMusic> selectList = data.getParcelableArrayListExtra("selectList");
+                if (selectList != null && selectList.size() > 0) {
+                    long sheetId = mViewModel.mSheetBeAddTo.getId();
+                    mViewModel.addMusicList(selectList, sheetId);
+                }
             }
         }
     }

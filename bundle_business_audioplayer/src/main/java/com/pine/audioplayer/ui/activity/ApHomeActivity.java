@@ -6,6 +6,10 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicSheetAdapter;
 import com.pine.audioplayer.databinding.ApHomeActivityBinding;
@@ -18,13 +22,7 @@ import com.pine.base.widget.dialog.InputTextDialog;
 
 import java.util.List;
 
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBinding, ApSheetListVm> {
-    private final int REQUEST_CODE_GO_MUSIC_LIST = 1;
-
     private ApMusicSheetAdapter mMusicSheetAdapter;
 
     @Override
@@ -84,19 +82,15 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_GO_MUSIC_LIST) {
-            if (resultCode == RESULT_OK) {
-                mViewModel.onRefresh();
-            }
-        }
+    protected void onRealResume() {
+        super.onRealResume();
+        mViewModel.refreshData();
     }
 
     private void goMusicListActivity(ApMusicSheet sheet) {
         Intent intent = new Intent(this, ApMusicListActivity.class);
         intent.putExtra("musicSheet", sheet);
-        startActivityForResult(intent, REQUEST_CODE_GO_MUSIC_LIST);
+        startActivity(intent);
     }
 
     public class Presenter {

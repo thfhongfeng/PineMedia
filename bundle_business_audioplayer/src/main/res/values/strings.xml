@@ -22,4 +22,9 @@
     <string name="ap_mms_select_count">已选择&#160;%d&#160;项</string>
     <string name="ap_mms_all_select">全选</string>
     <string name="ap_mms_all_cancel_select">取消全选</string>
+    <string name="ap_mms_add_to_sheet">添加到歌单</string>
+    <string name="ap_mms_delete">删除</string>
+
+    <string name="ap_amts_title">已选择&#160;%d&#160;首歌</string>
+    <string name="ap_amts_create_sheet">新建歌单</string>
 </resources>

@@ -1,14 +1,15 @@
 package com.pine.audioplayer.db.entity;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import java.io.Serializable;
-
 @Entity(tableName = "ap_sheet_music")
-public class ApSheetMusic implements Serializable {
+public class ApSheetMusic implements Parcelable {
     // id
     @PrimaryKey(autoGenerate = true)
     @NonNull
@@ -50,6 +51,62 @@ public class ApSheetMusic implements Serializable {
     private long size;
 
     private String description;
+
+    public ApSheetMusic() {
+
+    }
+
+    protected ApSheetMusic(Parcel in) {
+        id = in.readLong();
+        sheetId = in.readLong();
+        songId = in.readLong();
+        musicImgUri = in.readString();
+        name = in.readString();
+        filePath = in.readString();
+        author = in.readString();
+        duration = in.readInt();
+        album = in.readString();
+        albumId = in.readLong();
+        year = in.readString();
+        mimeType = in.readString();
+        size = in.readLong();
+        description = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeLong(sheetId);
+        dest.writeLong(songId);
+        dest.writeString(musicImgUri);
+        dest.writeString(name);
+        dest.writeString(filePath);
+        dest.writeString(author);
+        dest.writeInt(duration);
+        dest.writeString(album);
+        dest.writeLong(albumId);
+        dest.writeString(year);
+        dest.writeString(mimeType);
+        dest.writeLong(size);
+        dest.writeString(description);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<ApSheetMusic> CREATOR = new Creator<ApSheetMusic>() {
+        @Override
+        public ApSheetMusic createFromParcel(Parcel in) {
+            return new ApSheetMusic(in);
+        }
+
+        @Override
+        public ApSheetMusic[] newArray(int size) {
+            return new ApSheetMusic[size];
+        }
+    };
 
     public long getId() {
         return id;

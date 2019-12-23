@@ -29,9 +29,13 @@ public class ApMusicModel {
         return ApMusicSheetRepository.getInstance(context).querySheetListByType(ApConstants.MUSIC_SHEET_TYPE_CUSTOM);
     }
 
-    public void addMusicSheet(Context context, ApMusicSheet apMusicSheet) {
+    public List<ApMusicSheet> getCustomMusicSheetList(Context context, long... excludeSheetIds) {
+        return ApMusicSheetRepository.getInstance(context).querySheetListByType(ApConstants.MUSIC_SHEET_TYPE_CUSTOM, excludeSheetIds);
+    }
+
+    public long addMusicSheet(Context context, ApMusicSheet apMusicSheet) {
         apMusicSheet.setSheetType(ApConstants.MUSIC_SHEET_TYPE_CUSTOM);
-        ApMusicSheetRepository.getInstance(context).addMusicSheet(apMusicSheet);
+        return ApMusicSheetRepository.getInstance(context).addMusicSheet(apMusicSheet);
     }
 
     public void removeMusicSheet(Context context, ApMusicSheet apMusicSheet) {
@@ -50,19 +54,19 @@ public class ApMusicModel {
         return ApSheetMusicRepository.getInstance(context).querySheetMusicList(sheetId);
     }
 
-    public void addSheetMusic(Context context, ApSheetMusic apSheetMusic) {
-        ApSheetMusicRepository.getInstance(context).addSheetMusic(apSheetMusic);
+    public void addSheetMusic(Context context, ApSheetMusic apSheetMusic, long sheetId) {
+        ApSheetMusicRepository.getInstance(context).addSheetMusic(apSheetMusic, sheetId);
     }
 
-    public void addSheetMusicList(Context context, List<ApSheetMusic> list) {
-        ApSheetMusicRepository.getInstance(context).addSheetMusicList(list);
+    public void addSheetMusicList(Context context, List<ApSheetMusic> list, long sheetId) {
+        ApSheetMusicRepository.getInstance(context).addSheetMusicList(list, sheetId);
     }
 
     public void removeSheetMusic(Context context, ApSheetMusic apSheetMusic) {
         ApSheetMusicRepository.getInstance(context).deleteSheetMusic(apSheetMusic);
     }
 
-    public void removeSheetMusicList(Context context, List<ApSheetMusic> list) {
-        ApSheetMusicRepository.getInstance(context).deleteSheetMusicList(list);
+    public void removeSheetMusicList(Context context, List<ApSheetMusic> list, long sheetId) {
+        ApSheetMusicRepository.getInstance(context).deleteSheetMusicList(list, sheetId);
     }
 }

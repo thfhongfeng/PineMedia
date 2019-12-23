@@ -17,7 +17,6 @@ import com.pine.base.recycle_view.bean.BaseListAdapterItemProperty;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 
 public class ApMultiMusicSelectAdapter extends BaseNoPaginationListAdapter<ApSheetMusic> {
     private HashSet<ApSheetMusic> mSelectSet = new HashSet<>();
@@ -26,13 +25,12 @@ public class ApMultiMusicSelectAdapter extends BaseNoPaginationListAdapter<ApShe
         return mSelectSet.size();
     }
 
-    public List<ApSheetMusic> getSelectMusicList(long sheetId) {
-        List<ApSheetMusic> list = new ArrayList<>();
+    public ArrayList<ApSheetMusic> getSelectMusicList() {
+        ArrayList<ApSheetMusic> list = new ArrayList<>();
         Iterator<ApSheetMusic> iterator = mSelectSet.iterator();
         while (iterator.hasNext()) {
             ApSheetMusic music = iterator.next();
-            music.setId(0);
-            music.setSheetId(sheetId);
+            music.setSheetId(0);
             list.add(music);
         }
         return list;
