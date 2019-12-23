@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,12 +12,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicListAdapter;
 import com.pine.audioplayer.databinding.ApMusicListActivityBinding;
+import com.pine.audioplayer.databinding.ApMusicListTopMenuBinding;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.audioplayer.vm.ApMusicListVm;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.tool.widget.dialog.PopupMenu;
-import com.uuzuche.lib_zxing.decoding.Intents;
 
 import java.util.List;
 
@@ -96,6 +97,21 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
             if (mPopupMenu == null) {
                 mPopupMenu = new PopupMenu.Builder(ApMusicListActivity.this)
                         .create(R.layout.ap_music_list_top_menu_layout, view);
+                ApMusicListTopMenuBinding binding = DataBindingUtil.bind(mPopupMenu.getContentView());
+                binding.addMusicLl.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        goAddMusicActivity();
+                    }
+                });
+                binding.deleteSheetLl.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mViewModel.deleteMusicSheet();
+                        setResult(RESULT_OK);
+                        finish();
+                    }
+                });
             }
             mPopupMenu.showAsDropDown(view);
         }

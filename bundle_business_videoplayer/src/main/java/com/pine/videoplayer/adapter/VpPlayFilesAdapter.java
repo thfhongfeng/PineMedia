@@ -95,6 +95,8 @@ public class VpPlayFilesAdapter extends BaseNoPaginationTreeListAdapter<VpFileBe
                     notifyItemRangeChanged(position + getHeadViewCount(), propertyEntity.getSubItemViewCount() + 1);
                 }
             });
+            // 数据改变时立即刷新数据，解决DataBinding导致的刷新闪烁问题
+            mBinding.executePendingBindings();
         }
     }
 
@@ -134,6 +136,8 @@ public class VpPlayFilesAdapter extends BaseNoPaginationTreeListAdapter<VpFileBe
                     }
                 }
             });
+            // 数据改变时立即刷新数据，解决DataBinding导致的刷新闪烁问题
+            mBinding.executePendingBindings();
         }
     }
 }

@@ -10,7 +10,6 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 
 public class PopupMenu extends PopupWindow {
-    private Builder mBuilder;
 
     public PopupMenu(Context context) {
         super(context);

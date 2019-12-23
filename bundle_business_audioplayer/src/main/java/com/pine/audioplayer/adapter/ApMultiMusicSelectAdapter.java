@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.databinding.DataBindingUtil;
+
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.databinding.ApItemMultiMusicSelectBinding;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
@@ -16,8 +18,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-
-import androidx.databinding.DataBindingUtil;
 
 public class ApMultiMusicSelectAdapter extends BaseNoPaginationListAdapter<ApSheetMusic> {
     private HashSet<ApSheetMusic> mSelectSet = new HashSet<>();
@@ -79,6 +79,8 @@ public class ApMultiMusicSelectAdapter extends BaseNoPaginationListAdapter<ApShe
                     }
                 }
             });
+            // 数据改变时立即刷新数据，解决DataBinding导致的刷新闪烁问题
+            mBinding.executePendingBindings();
         }
     }
 }

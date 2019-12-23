@@ -2,6 +2,9 @@ package com.pine.audioplayer.vm;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
+
 import com.pine.audioplayer.ApConstants;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
@@ -10,9 +13,6 @@ import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.tool.architecture.mvvm.vm.ViewModel;
 
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.MutableLiveData;
 
 public class ApMusicListVm extends ViewModel {
 
@@ -48,6 +48,10 @@ public class ApMusicListVm extends ViewModel {
                 mSheetMusicListData.setValue(mModel.getSheetMusicList(getContext(), mSheetId));
                 break;
         }
+    }
+
+    public void deleteMusicSheet() {
+        mModel.removeMusicSheet(getContext(), mMusicSheet);
     }
 
     public void onRefresh() {
