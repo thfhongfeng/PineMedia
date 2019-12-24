@@ -30,6 +30,14 @@ public class ApMusicSheet implements Serializable {
 
     private String description;
 
+    @NonNull
+    @ColumnInfo(name = "update_time_stamp")
+    private long updateTimeStamp;
+
+    @NonNull
+    @ColumnInfo(name = "create_time_stamp")
+    private long createTimeStamp;
+
     public long getId() {
         return id;
     }
@@ -77,5 +85,21 @@ public class ApMusicSheet implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public long getUpdateTimeStamp() {
+        return updateTimeStamp;
+    }
+
+    public void setUpdateTimeStamp(long updateTimeStamp) {
+        this.updateTimeStamp = updateTimeStamp;
+    }
+
+    public long getCreateTimeStamp() {
+        return createTimeStamp;
+    }
+
+    public void setCreateTimeStamp(long createTimeStamp) {
+        this.createTimeStamp = createTimeStamp;
     }
 }

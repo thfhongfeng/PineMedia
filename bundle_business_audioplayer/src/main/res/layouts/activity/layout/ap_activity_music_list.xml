@@ -99,7 +99,8 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="@dimen/dp_10">
+            android:padding="@dimen/dp_10"
+            android:visibility="@{musicSheet.count&lt;1?View.GONE:View.VISIBLE}">
 
             <TextView
                 android:layout_width="0dp"

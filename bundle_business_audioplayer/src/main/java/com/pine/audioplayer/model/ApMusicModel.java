@@ -9,6 +9,7 @@ import com.pine.audioplayer.db.repository.ApMusicSheetRepository;
 import com.pine.audioplayer.db.repository.ApSheetMusicRepository;
 import com.pine.audioplayer.uitls.ApLocalMusicUtils;
 
+import java.util.Calendar;
 import java.util.List;
 
 public class ApMusicModel {
@@ -35,6 +36,8 @@ public class ApMusicModel {
 
     public long addMusicSheet(Context context, ApMusicSheet apMusicSheet) {
         apMusicSheet.setSheetType(ApConstants.MUSIC_SHEET_TYPE_CUSTOM);
+        apMusicSheet.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+        apMusicSheet.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
         return ApMusicSheetRepository.getInstance(context).addMusicSheet(apMusicSheet);
     }
 
@@ -55,6 +58,8 @@ public class ApMusicModel {
     }
 
     public void addSheetMusic(Context context, ApSheetMusic apSheetMusic, long sheetId) {
+        apSheetMusic.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+        apSheetMusic.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
         ApSheetMusicRepository.getInstance(context).addSheetMusic(apSheetMusic, sheetId);
     }
 

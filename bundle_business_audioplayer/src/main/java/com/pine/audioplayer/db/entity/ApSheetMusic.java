@@ -52,6 +52,14 @@ public class ApSheetMusic implements Parcelable {
 
     private String description;
 
+    @NonNull
+    @ColumnInfo(name = "update_time_stamp")
+    private long updateTimeStamp;
+
+    @NonNull
+    @ColumnInfo(name = "create_time_stamp")
+    private long createTimeStamp;
+
     public ApSheetMusic() {
 
     }
@@ -71,6 +79,13 @@ public class ApSheetMusic implements Parcelable {
         mimeType = in.readString();
         size = in.readLong();
         description = in.readString();
+        updateTimeStamp = in.readLong();
+        createTimeStamp = in.readLong();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     @Override
@@ -89,11 +104,8 @@ public class ApSheetMusic implements Parcelable {
         dest.writeString(mimeType);
         dest.writeLong(size);
         dest.writeString(description);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
+        dest.writeLong(updateTimeStamp);
+        dest.writeLong(createTimeStamp);
     }
 
     public static final Creator<ApSheetMusic> CREATOR = new Creator<ApSheetMusic>() {
@@ -220,5 +232,21 @@ public class ApSheetMusic implements Parcelable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public long getUpdateTimeStamp() {
+        return updateTimeStamp;
+    }
+
+    public void setUpdateTimeStamp(long updateTimeStamp) {
+        this.updateTimeStamp = updateTimeStamp;
+    }
+
+    public long getCreateTimeStamp() {
+        return createTimeStamp;
+    }
+
+    public void setCreateTimeStamp(long createTimeStamp) {
+        this.createTimeStamp = createTimeStamp;
     }
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ap_music_item_menu_name">
+        <item>添加至我喜欢</item>
+        <item>添加至歌单</item>
+        <item>从歌单删除</item>
+    </string-array>
+
+    <integer-array name="ap_music_item_menu_img">
+        <item>@mipmap/res_ic_favourite</item>
+        <item>@mipmap/res_ic_favourite</item>
+        <item>@mipmap/res_ic_favourite</item>
+    </integer-array>
+</resources>

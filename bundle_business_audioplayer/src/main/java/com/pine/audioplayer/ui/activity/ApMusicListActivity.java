@@ -18,6 +18,9 @@ import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.audioplayer.vm.ApMusicListVm;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
+import com.pine.base.util.DialogUtils;
+import com.pine.base.widget.dialog.SelectItemDialog;
+import com.pine.tool.util.ResourceUtils;
 import com.pine.tool.widget.dialog.PopupMenu;
 
 import java.util.List;
@@ -58,10 +61,18 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
         mBinding.setPresenter(new Presenter());
 
         mMusicListAdapter = new ApMusicListAdapter();
-        mMusicListAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener() {
+        mMusicListAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener<ApSheetMusic>() {
             @Override
-            public void onItemClick(View view, int position, String tag, Object customData) {
-
+            public void onItemClick(View view, int position, String tag, ApSheetMusic customData) {
+                DialogUtils.createItemSelectDialog(ApMusicListActivity.this, customData.getName(),
+                        ResourceUtils.getResIdArray(ApMusicListActivity.this, R.array.ap_music_item_menu_img),
+                        getResources().getStringArray(R.array.ap_music_item_menu_name),
+                        new SelectItemDialog.IDialogSelectListener() {
+                            @Override
+                            public void onSelect(String selectText, int position) {
+                                
+                            }
+                        }).show();
             }
         });
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);

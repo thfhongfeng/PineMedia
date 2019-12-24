@@ -15,6 +15,7 @@ import com.pine.base.recycle_view.adapter.BaseNoPaginationListAdapter;
 import com.pine.base.recycle_view.bean.BaseListAdapterItemProperty;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -31,6 +32,8 @@ public class ApMultiMusicSelectAdapter extends BaseNoPaginationListAdapter<ApShe
         while (iterator.hasNext()) {
             ApSheetMusic music = iterator.next();
             music.setSheetId(0);
+            music.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+            music.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
             list.add(music);
         }
         return list;

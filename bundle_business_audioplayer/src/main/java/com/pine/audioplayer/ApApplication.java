@@ -7,6 +7,7 @@ import com.pine.tool.util.LogUtils;
 import com.pine.tool.util.SharePreferenceUtils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -22,14 +23,20 @@ public class ApApplication extends BaseApplication {
             ApMusicSheet favouriteSheet = new ApMusicSheet();
             favouriteSheet.setSheetType(ApConstants.MUSIC_SHEET_TYPE_FAVOURITE);
             favouriteSheet.setName(mApplication.getString(R.string.ap_home_my_favourite_name));
+            favouriteSheet.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+            favouriteSheet.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
             list.add(favouriteSheet);
             ApMusicSheet recentSheet = new ApMusicSheet();
             recentSheet.setSheetType(ApConstants.MUSIC_SHEET_TYPE_RECENT);
             recentSheet.setName(mApplication.getString(R.string.ap_home_recent_music_name));
+            recentSheet.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+            recentSheet.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
             list.add(recentSheet);
             ApMusicSheet tmpPlaySheet = new ApMusicSheet();
             tmpPlaySheet.setSheetType(ApConstants.MUSIC_SHEET_TYPE_TMP_PLAY);
             tmpPlaySheet.setName(mApplication.getString(R.string.ap_home_tmp_play_name));
+            recentSheet.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+            recentSheet.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
             list.add(tmpPlaySheet);
             ApMusicSheetRepository.getInstance(mApplication).addMusicSheetList(list);
             SharePreferenceUtils.saveToConfig("ap_database_init", true);
