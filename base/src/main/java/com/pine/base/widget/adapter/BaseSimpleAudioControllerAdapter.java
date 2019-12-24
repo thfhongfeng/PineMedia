@@ -20,6 +20,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+
 public class BaseSimpleAudioControllerAdapter extends PineMediaController.AbstractMediaControllerAdapter {
     private Context mContext;
     private ViewGroup mRoot;
@@ -29,7 +31,8 @@ public class BaseSimpleAudioControllerAdapter extends PineMediaController.Abstra
     private ViewGroup mControllerView;
     private PineMediaWidget.IPineMediaPlayer mPlayer;
     private List<PineMediaPlayerBean> mMediaList = new ArrayList<>();
-    private int mCurrentVideoPosition = -1;
+    private String mCurrentMediaCode = "";
+    private int mCurrentMediaPos = -1;
 
     public BaseSimpleAudioControllerAdapter(Context context, PineMediaWidget.IPineMediaPlayer player, ViewGroup root) {
         mContext = context;
@@ -45,16 +48,10 @@ public class BaseSimpleAudioControllerAdapter extends PineMediaController.Abstra
     }
 
     public void addMedia(PineMediaPlayerBean bean) {
-        if (bean == null) {
-            return;
-        }
         mMediaList.add(0, bean);
     }
 
     public void addMediaList(List<PineMediaPlayerBean> list) {
-        if (list == null && list.size() < 1) {
-            return;
-        }
         mMediaList.addAll(0, list);
     }
 
@@ -123,26 +120,69 @@ public class BaseSimpleAudioControllerAdapter extends PineMediaController.Abstra
         return null;
     }
 
-    @Override
-    public boolean mediaSelect(int position, boolean startPlay) {
-        PineMediaPlayerBean pineMediaPlayerBean = null;
+
+    private int findMediaPosition(String mediaCode) {
         if (mMediaList != null && mMediaList.size() > 0) {
-            if (position >= 0 && position < mMediaList.size()) {
-                pineMediaPlayerBean = mMediaList.get(position);
-            } else {
-                return false;
+            for (int i = 0; i < mMediaList.size(); i++) {
+                if (mediaCode.equals(mMediaList.get(i).getMediaCode())) {
+                    return i;
+                }
             }
-        } else {
-            pineMediaPlayerBean = mPlayer.getMediaPlayerBean();
         }
-        if (mCurrentVideoPosition != position) {
-            mPlayer.setPlayingMedia(pineMediaPlayerBean);
+        return -1;
+    }
+
+    @Override
+    public boolean onPreMediaSelect(@NonNull String curMediaCode, boolean startPlay) {
+        int position = findMediaPosition(curMediaCode);
+        if (position == -1) {
+            return false;
         }
-        if (startPlay) {
-            mPlayer.start();
+        position--;
+        return playMedia(position, startPlay);
+    }
+
+    @Override
+    public boolean onNextMediaSelect(@NonNull String curMediaCode, boolean startPlay) {
+        int position = findMediaPosition(curMediaCode);
+        if (position == -1) {
+            return false;
         }
-        mCurrentVideoPosition = position;
-        return true;
+        position++;
+        return playMedia(position, startPlay);
+    }
+
+    @Override
+    public boolean onMediaSelect(String mediaCode, boolean startPlay) {
+        int position = findMediaPosition(mediaCode);
+        if (position == -1) {
+            return false;
+        }
+        return playMedia(position, startPlay);
+    }
+
+    private boolean playMedia(int position, boolean startPlay) {
+        if (mControllerViewHolder != null) {
+            if (mControllerViewHolder.getPrevButton() != null) {
+                mControllerViewHolder.getPrevButton().setEnabled(position > 0);
+            }
+            if (mControllerViewHolder.getNextButton() != null) {
+                mControllerViewHolder.getNextButton().setEnabled(position < mMediaList.size() - 1);
+            }
+        }
+        if (position >= 0 && position < mMediaList.size()) {
+            PineMediaPlayerBean mediaBean = mMediaList.get(position);
+            if (mCurrentMediaCode != mediaBean.getMediaCode()) {
+                mPlayer.setPlayingMedia(mediaBean);
+            }
+            if (startPlay) {
+                mPlayer.start();
+            }
+            mCurrentMediaPos = position;
+            mCurrentMediaCode = mediaBean.getMediaCode();
+            return true;
+        }
+        return false;
     }
 
     @Override

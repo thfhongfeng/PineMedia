@@ -12,7 +12,7 @@ public class VpFileBean {
     private int type;
     private String filePath;
     private String fileName;
-    private int mediaPosition;
+    private String mediaCode;
     private PineMediaPlayerBean mediaPlayerBean;
 
     public VpFileBean(int type, String filePath) {
@@ -46,12 +46,12 @@ public class VpFileBean {
         this.fileName = fileName;
     }
 
-    public int getMediaPosition() {
-        return mediaPosition;
+    public String getMediaCode() {
+        return mediaCode;
     }
 
-    public void setMediaPosition(int mediaPosition) {
-        this.mediaPosition = mediaPosition;
+    public void setMediaCode(String mediaCode) {
+        this.mediaCode = mediaCode;
     }
 
     public PineMediaPlayerBean getMediaPlayerBean() {

@@ -7,8 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
-import androidx.annotation.Nullable;
-
 import com.pine.base.R;
 import com.pine.base.widget.adapter.BaseSimpleAudioControllerAdapter;
 import com.pine.player.bean.PineMediaPlayerBean;
@@ -18,6 +16,9 @@ import com.pine.player.widget.PineMediaPlayerView;
 import com.pine.tool.ui.Activity;
 
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class BaseSimpleAudioPlayerView extends RelativeLayout {
     private View mRoot;
@@ -59,13 +60,19 @@ public class BaseSimpleAudioPlayerView extends RelativeLayout {
         mMediaController.setMediaControllerAdapter(mControllerAdapter);
     }
 
-    public void playMediaList(List<PineMediaPlayerBean> mediaBeanList) {
+    public void playMediaList(@NonNull List<PineMediaPlayerBean> mediaBeanList) {
+        if (mediaBeanList == null && mediaBeanList.size() < 1) {
+            return;
+        }
         mControllerAdapter.addMediaList(mediaBeanList);
-        mControllerAdapter.mediaSelect(0, true);
+        mControllerAdapter.onMediaSelect(mediaBeanList.get(0).getMediaCode(), true);
     }
 
-    public void playMedia(PineMediaPlayerBean mediaBean) {
+    public void playMedia(@NonNull PineMediaPlayerBean mediaBean) {
+        if (mediaBean == null) {
+            return;
+        }
         mControllerAdapter.addMedia(mediaBean);
-        mControllerAdapter.mediaSelect(0, true);
+        mControllerAdapter.onMediaSelect(mediaBean.getMediaCode(), true);
     }
 }

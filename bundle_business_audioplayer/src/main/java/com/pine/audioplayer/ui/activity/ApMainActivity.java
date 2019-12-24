@@ -3,8 +3,6 @@ package com.pine.audioplayer.ui.activity;
 import android.os.Bundle;
 import android.view.ViewGroup;
 
-import androidx.lifecycle.Observer;
-
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApAudioControllerAdapter;
 import com.pine.audioplayer.databinding.ApMainActivityBinding;
@@ -15,6 +13,8 @@ import com.pine.player.component.PineMediaWidget;
 import com.pine.player.widget.PineMediaController;
 
 import java.util.List;
+
+import androidx.lifecycle.Observer;
 
 public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBinding, ApMainVm> {
     private PineMediaController mMediaController;
@@ -30,10 +30,10 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
 
             }
         });
-        mViewModel.mPlayStateData.observe(this, new Observer<Integer>() {
+        mViewModel.mPlayStateData.observe(this, new Observer<String>() {
             @Override
-            public void onChanged(Integer position) {
-                mControllerAdapter.mediaSelect(position, mViewModel.mPlayStateData.getCustomData());
+            public void onChanged(String mediaCode) {
+                mControllerAdapter.onMediaSelect(mediaCode, mViewModel.mPlayStateData.getCustomData());
             }
         });
     }

@@ -2,11 +2,8 @@ package com.pine.videoplayer.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
-
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
@@ -24,6 +21,10 @@ import com.pine.videoplayer.vm.VpHomeVm;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 public class VpHomeActivity extends BaseMvvmNoActionBarActivity<VpHomeActivityBinding, VpHomeVm> {
     private final int REQUEST_CODE_CHOOSE_FILE = 1;
     private VpPlayFilesAdapter mRecentPlayedFilesAdapter;
@@ -38,24 +39,25 @@ public class VpHomeActivity extends BaseMvvmNoActionBarActivity<VpHomeActivityBi
             @Override
             public void onChanged(ArrayList<VpFileBean> list) {
                 mRecentPlayedFilesAdapter.setData(list);
-                mRecentPlayedFilesAdapter.setCurMediaPosition(mViewModel.mFileListData.getCustomData());
+                mRecentPlayedFilesAdapter.setCurMediaCode(mViewModel.mFileListData.getCustomData());
                 mRecentPlayedFilesAdapter.notifyDataSetChangedSafely();
             }
         });
         mViewModel.mMediaListData.observe(this, new Observer<List<PineMediaPlayerBean>>() {
             @Override
             public void onChanged(List<PineMediaPlayerBean> list) {
-                mMediaControllerAdapter = new DefaultVideoControllerAdapter(VpHomeActivity.this, mPlayer, list);
+                mMediaControllerAdapter = new DefaultVideoControllerAdapter(VpHomeActivity.this, list);
                 mMediaControllerAdapter.setMediaItemChangeListener(new DefaultVideoControllerAdapter.IOnMediaItemChangeListener() {
+
                     @Override
-                    public void onMediaChange(int oldMediaBeanPosition, int newMediaBeanPosition) {
-                        mRecentPlayedFilesAdapter.setCurMediaPosition(newMediaBeanPosition);
+                    public void onMediaChange(String oldMediaCode, String newMediaCode) {
+                        mRecentPlayedFilesAdapter.setCurMediaCode(newMediaCode);
                         mRecentPlayedFilesAdapter.notifyDataSetChangedSafely();
                     }
                 });
                 mController.setMediaControllerAdapter(mMediaControllerAdapter);
-                int playIndex = mViewModel.mMediaListData.getCustomData();
-                mMediaControllerAdapter.mediaSelect(mViewModel.mMediaListData.getCustomData(), playIndex != -1);
+                String mediaCode = mViewModel.mMediaListData.getCustomData();
+                mMediaControllerAdapter.onMediaSelect(mediaCode, !TextUtils.isEmpty(mediaCode));
             }
         });
     }
@@ -79,10 +81,10 @@ public class VpHomeActivity extends BaseMvvmNoActionBarActivity<VpHomeActivityBi
         mBinding.mediaListRv.setLayoutManager(linearLayoutManager);
         mRecentPlayedFilesAdapter = new VpPlayFilesAdapter();
         mRecentPlayedFilesAdapter.enableEmptyComplete(false, false);
-        mRecentPlayedFilesAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener<Integer>() {
+        mRecentPlayedFilesAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener<String>() {
             @Override
-            public void onItemClick(View view, int position, String tag, Integer customData) {
-                mMediaControllerAdapter.mediaSelect(position, true);
+            public void onItemClick(View view, int position, String tag, String customData) {
+                mMediaControllerAdapter.onMediaSelect(customData, true);
             }
         });
         mBinding.mediaListRv.setAdapter(mRecentPlayedFilesAdapter);

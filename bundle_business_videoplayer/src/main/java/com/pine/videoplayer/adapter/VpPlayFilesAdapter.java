@@ -5,8 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.databinding.DataBindingUtil;
-
 import com.pine.base.recycle_view.BaseListViewHolder;
 import com.pine.base.recycle_view.adapter.BaseNoPaginationTreeListAdapter;
 import com.pine.base.recycle_view.bean.BaseListAdapterItemEntity;
@@ -19,18 +17,20 @@ import com.pine.videoplayer.databinding.VpChooseFolderItemBinding;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.databinding.DataBindingUtil;
+
 public class VpPlayFilesAdapter extends BaseNoPaginationTreeListAdapter<VpFileBean> {
     public final static int FOLDER_VIEW_HOLDER = 1;
     public final static int FILE_VIEW_HOLDER = 2;
 
-    private int mCurMediaPosition = -1;
+    private String mCurMediaCode = "";
 
-    public int getCurMediaPosition() {
-        return mCurMediaPosition;
+    public String getCurMediaCode() {
+        return mCurMediaCode;
     }
 
-    public void setCurMediaPosition(int curMediaPosition) {
-        mCurMediaPosition = curMediaPosition;
+    public void setCurMediaCode(String curMediaCode) {
+        mCurMediaCode = curMediaCode;
     }
 
     @Override
@@ -117,7 +117,7 @@ public class VpPlayFilesAdapter extends BaseNoPaginationTreeListAdapter<VpFileBe
                 mBinding.container.setVisibility(View.GONE);
                 return;
             }
-            if (mCurMediaPosition == content.getMediaPosition()) {
+            if (mCurMediaCode.equals(content.getMediaCode())) {
                 lastFileSelectPosition = position;
                 mBinding.nameTv.setSelected(true);
             } else {
@@ -129,8 +129,8 @@ public class VpPlayFilesAdapter extends BaseNoPaginationTreeListAdapter<VpFileBe
                 @Override
                 public void onClick(View v) {
                     if (mItemClickListener != null) {
-                        mItemClickListener.onItemClick(v, position, null, content.getMediaPosition());
-                        mCurMediaPosition = content.getMediaPosition();
+                        mItemClickListener.onItemClick(v, position, null, content.getMediaCode());
+                        mCurMediaCode = content.getMediaCode();
                         notifyItemChangedSafely(lastFileSelectPosition);
                         notifyItemChangedSafely(position);
                     }

@@ -1,6 +1,7 @@
 package com.pine.audioplayer.vm;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
@@ -14,16 +15,16 @@ import java.util.List;
 public class ApMainVm extends ViewModel {
 
     public MutableLiveData<List<PineMediaPlayerBean>> mMediaListData = new MutableLiveData<>();
-    public ParametricLiveData<Integer, Boolean> mPlayStateData = new ParametricLiveData<>();
+    public ParametricLiveData<String, Boolean> mPlayStateData = new ParametricLiveData<>();
 
     @Override
     public boolean parseIntentData(@NonNull Bundle bundle) {
         List<PineMediaPlayerBean> list = (List<PineMediaPlayerBean>) bundle.getSerializable("mediaList");
-        int position = bundle.getInt("position", 0);
+        String mediaCode = bundle.getString("mediaCode");
         boolean playing = bundle.getBoolean("playing", false);
-        if (list != null) {
+        if (list != null && !TextUtils.isEmpty(mediaCode)) {
             mMediaListData.setValue(list);
-            mPlayStateData.setValue(position, playing);
+            mPlayStateData.setValue(mediaCode, playing);
         }
         return false;
     }

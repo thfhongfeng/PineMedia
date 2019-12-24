@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
-
 import com.pine.player.applet.IPinePlayerPlugin;
 import com.pine.player.applet.subtitle.plugin.PineLrcParserPlugin;
 import com.pine.player.applet.subtitle.plugin.PineSrtParserPlugin;
@@ -28,6 +26,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import androidx.annotation.NonNull;
+
 public class VpHomeVm extends ViewModel {
     private final String LRC_SUFFIX = "lrc";
     private final String SRT_SUFFIX = "srt";
@@ -37,8 +37,8 @@ public class VpHomeVm extends ViewModel {
     private HashMap<String, String> mChosenLrcFileSubtitleMap = new HashMap<>();
     private HashMap<String, String> mChosenSrtFileSubtitleMap = new HashMap<>();
     private HashMap<String, Uri> mChosenMediaImageMap = new HashMap<>();
-    public ParametricLiveData<ArrayList<VpFileBean>, Integer> mFileListData = new ParametricLiveData<>();
-    public ParametricLiveData<List<PineMediaPlayerBean>, Integer> mMediaListData = new ParametricLiveData<>();
+    public ParametricLiveData<ArrayList<VpFileBean>, String> mFileListData = new ParametricLiveData<>();
+    public ParametricLiveData<List<PineMediaPlayerBean>, String> mMediaListData = new ParametricLiveData<>();
 
     @Override
     public void afterViewInit() {
@@ -81,7 +81,7 @@ public class VpHomeVm extends ViewModel {
         }
         mAllPlayableFileSet.addAll(similarFileSet);
         setupAddedMediaData(context, similarFileSet, chooseFilePathList.get(0));
-        SharePreferenceUtils.saveToCache("recentAllPlayableFileSet", mAllPlayableFileSet);
+        SharePreferenceUtils.saveToCache("recentAllPlayableFileSet", new HashSet<String>(mAllPlayableFileSet));
     }
 
     private void setupAddedMediaData(Context context, Set<String> similarFileList, String willPlayFilePath) {
@@ -100,8 +100,7 @@ public class VpHomeVm extends ViewModel {
         }
         ArrayList<VpFileBean> fileList = new ArrayList<>();
         ArrayList<PineMediaPlayerBean> mediaList = new ArrayList<>();
-        int playMediaIndex = -1;
-        int count = 0;
+        String playMediaCode = "";
         Iterator<HashMap.Entry<String, HashSet<String>>> iterator = mChosenFileMap.entrySet().iterator();
         while (iterator.hasNext()) {
             HashMap.Entry<String, HashSet<String>> entry = iterator.next();
@@ -120,21 +119,21 @@ public class VpHomeVm extends ViewModel {
                     playerPluginMap.put(VpConstants.PLUGIN_SRT_SUBTITLE, playerPlugin);
                 }
                 Uri mediaImgUri = mChosenMediaImageMap.containsKey(fileNameWithoutExtension) ? mChosenMediaImageMap.get(fileNameWithoutExtension) : null;
-                PineMediaPlayerBean bean = new PineMediaPlayerBean(String.valueOf(count),
-                        file.getFileName(), Uri.parse(file.getFilePath()),
+                String mediaCode = file.hashCode() + "";
+                PineMediaPlayerBean bean = new PineMediaPlayerBean(mediaCode, file.getFileName(), Uri.parse(file.getFilePath()),
                         MediaFileUtils.isVideoFileType(MediaFileUtils.getFileTypeForFile(filePath)) ? PineMediaPlayerBean.MEDIA_TYPE_VIDEO : PineMediaPlayerBean.MEDIA_TYPE_AUDIO,
                         mediaImgUri, playerPluginMap, null);
-                file.setMediaPosition(count++);
+                file.setMediaCode(mediaCode);
                 file.setMediaPlayerBean(bean);
                 fileList.add(file);
                 mediaList.add(bean);
                 if (filePath.equals(willPlayFilePath)) {
-                    playMediaIndex = mediaList.size() - 1;
+                    playMediaCode = mediaCode;
                 }
             }
         }
-        mFileListData.setValue(fileList, playMediaIndex);
-        mMediaListData.setValue(mediaList, playMediaIndex);
+        mFileListData.setValue(fileList, playMediaCode);
+        mMediaListData.setValue(mediaList, playMediaCode);
     }
 
     private String addToChooseFileMap(String filePath) {
