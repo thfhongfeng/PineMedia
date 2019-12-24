@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/transparent">
+
+    <com.pine.player.widget.PineMediaPlayerView
+        android:id="@+id/player_view"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_0"></com.pine.player.widget.PineMediaPlayerView>
+
+    <LinearLayout
+        android:id="@+id/controller_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="@dimen/dp_10">
+
+        <LinearLayout
+            android:id="@+id/content_ll"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/dp_30"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.pine.tool.widget.view.CircleImageView
+                android:id="@+id/cover_iv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_marginRight="@dimen/dp_10"
+                android:scaleType="centerCrop" />
+
+            <LinearLayout
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/name_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/dp_3"
+                    android:singleLine="true"
+                    android:textColor="@color/dark_black_gray"
+                    android:textSize="@dimen/sp_14"></TextView>
+
+                <TextView
+                    android:id="@+id/desc_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="@dimen/sp_12"></TextView>
+            </LinearLayout>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/play_pause_btn"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:layout_marginRight="@dimen/dp_10"
+            android:background="@drawable/base_shape_circle_d3d3d3"
+            android:gravity="center"
+            android:padding="@dimen/dp_10"
+            android:src="@drawable/base_selector_play_pause_btn" />
+
+        <ImageView
+            android:id="@+id/next_btn"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:layout_marginRight="@dimen/dp_10"
+            android:background="@drawable/base_shape_circle_d3d3d3"
+            android:gravity="center"
+            android:padding="@dimen/dp_10"
+            android:src="@drawable/base_selector_next_btn" />
+
+        <ImageView
+            android:id="@+id/list_btn"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:layout_marginRight="@dimen/dp_10"
+            android:background="@drawable/base_shape_circle_d3d3d3"
+            android:gravity="center"
+            android:padding="@dimen/dp_10"
+            android:src="@mipmap/base_ic_player_list" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/play_music_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="播放列表"></TextView>
+    </LinearLayout>
+</RelativeLayout>

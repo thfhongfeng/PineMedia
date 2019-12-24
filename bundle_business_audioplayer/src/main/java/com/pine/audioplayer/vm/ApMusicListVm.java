@@ -9,7 +9,6 @@ import com.pine.audioplayer.ApConstants;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.audioplayer.model.ApMusicModel;
-import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.tool.architecture.mvvm.vm.ViewModel;
 
 import java.util.List;
@@ -18,7 +17,6 @@ public class ApMusicListVm extends ViewModel {
 
     private ApMusicModel mModel = new ApMusicModel();
 
-    public MutableLiveData<List<PineMediaPlayerBean>> mMediaListData = new MutableLiveData<>();
     public MutableLiveData<List<ApSheetMusic>> mSheetMusicListData = new MutableLiveData<>();
     public MutableLiveData<ApMusicSheet> mSheetData = new MutableLiveData<>();
     public MutableLiveData<Boolean> mActionData = new MutableLiveData<>();
@@ -62,8 +60,24 @@ public class ApMusicListVm extends ViewModel {
         }
     }
 
+    public void addMusicToFavourite(ApSheetMusic music) {
+        mModel.addSheetMusic(getContext(), music, mModel.getFavouriteSheet(getContext()).getId());
+    }
+
+    public void addMusicToRecent(ApSheetMusic music) {
+        mModel.addSheetMusic(getContext(), music, mModel.getRecentSheet(getContext()).getId());
+    }
+
+    public void addAllMusicsToRecent() {
+        mModel.addSheetMusicList(getContext(), mSheetMusicListData.getValue(), mModel.getRecentSheet(getContext()).getId());
+    }
+
     public void deleteMusicSheet() {
         mModel.removeMusicSheet(getContext(), mMusicSheet);
+    }
+
+    public void deleteSheetMusic(ApSheetMusic sheetMusic) {
+        mModel.removeSheetMusic(getContext(), sheetMusic);
     }
 
     public void deleteSheetMusics(List<ApSheetMusic> selectList) {

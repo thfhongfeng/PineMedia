@@ -23,6 +23,7 @@ import com.pine.base.widget.dialog.SelectItemDialog;
 import com.pine.tool.util.ResourceUtils;
 import com.pine.tool.widget.dialog.PopupMenu;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicListActivityBinding, ApMusicListVm> {
@@ -63,28 +64,61 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
         mMusicListAdapter = new ApMusicListAdapter();
         mMusicListAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener<ApSheetMusic>() {
             @Override
-            public void onItemClick(View view, int position, String tag, ApSheetMusic customData) {
-                DialogUtils.createItemSelectDialog(ApMusicListActivity.this, customData.getName(),
-                        ResourceUtils.getResIdArray(ApMusicListActivity.this, R.array.ap_music_item_menu_img),
-                        getResources().getStringArray(R.array.ap_music_item_menu_name),
-                        new SelectItemDialog.IDialogSelectListener() {
-                            @Override
-                            public void onSelect(String selectText, int position) {
-                                
-                            }
-                        }).show();
+            public void onItemClick(View view, int position, String tag, ApSheetMusic sheetMusic) {
+                switch (tag) {
+                    case "menu":
+                        showMusicItemMenu(sheetMusic);
+                        break;
+                    default:
+                        playMusic(sheetMusic, position);
+                        break;
+                }
             }
         });
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         mBinding.recycleView.setLayoutManager(layoutManager);
         mBinding.recycleView.setAdapter(mMusicListAdapter);
+        mBinding.audioView.init(TAG, this);
     }
 
     @Override
     protected void onRealResume() {
         super.onRealResume();
         mViewModel.refreshData();
+    }
+
+    private void showMusicItemMenu(final ApSheetMusic sheetMusic) {
+        DialogUtils.createItemSelectDialog(ApMusicListActivity.this, sheetMusic.getName(),
+                ResourceUtils.getResIdArray(ApMusicListActivity.this, R.array.ap_music_item_menu_img),
+                getResources().getStringArray(R.array.ap_music_item_menu_name),
+                new SelectItemDialog.IDialogSelectListener() {
+                    @Override
+                    public void onSelect(String selectText, int position) {
+                        switch (position) {
+                            case 0:
+                                mViewModel.addMusicToFavourite(sheetMusic);
+                                break;
+                            case 1:
+                                Intent intent = new Intent(ApMusicListActivity.this, ApAddMusicToSheetActivity.class);
+                                intent.putExtra("musicSheet", mViewModel.mSheetData.getValue());
+                                ArrayList<ApSheetMusic> list = new ArrayList<>();
+                                list.add(sheetMusic);
+                                intent.putParcelableArrayListExtra("selectList", list);
+                                startActivity(intent);
+                                break;
+                            case 2:
+                                mViewModel.deleteSheetMusic(sheetMusic);
+                                mViewModel.refreshData();
+                                break;
+                        }
+                    }
+                }).show();
+    }
+
+    private void playMusic(ApSheetMusic sheetMusic, int position) {
+        mBinding.audioView.playMedia(mMusicListAdapter.getMediaList().get(position));
+        mViewModel.addMusicToRecent(sheetMusic);
     }
 
     private void goAddMusicActivity() {
@@ -98,7 +132,8 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
             if (add) {
                 goAddMusicActivity();
             } else {
-
+                mBinding.audioView.playMediaList(mMusicListAdapter.getMediaList());
+                mViewModel.addAllMusicsToRecent();
             }
         }
 

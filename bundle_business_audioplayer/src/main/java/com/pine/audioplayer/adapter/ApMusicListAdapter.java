@@ -1,6 +1,8 @@
 package com.pine.audioplayer.adapter;
 
 import android.content.Context;
+import android.net.Uri;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +15,34 @@ import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.base.recycle_view.BaseListViewHolder;
 import com.pine.base.recycle_view.adapter.BaseNoPaginationListAdapter;
 import com.pine.base.recycle_view.bean.BaseListAdapterItemProperty;
+import com.pine.player.bean.PineMediaPlayerBean;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ApMusicListAdapter extends BaseNoPaginationListAdapter<ApSheetMusic> {
+    private List<PineMediaPlayerBean> mMediaList = new ArrayList<>();
+
+    public List<PineMediaPlayerBean> getMediaList() {
+        return mMediaList;
+    }
+    
+    @Override
+    protected void onDataSet() {
+        super.onDataSet();
+        mMediaList = new ArrayList<>();
+        if (mOriginData != null) {
+            for (ApSheetMusic music : mOriginData) {
+                PineMediaPlayerBean bean = new PineMediaPlayerBean(music.getSongId() + "",
+                        music.getName(), Uri.parse(music.getFilePath()),
+                        PineMediaPlayerBean.MEDIA_TYPE_VIDEO,
+                        TextUtils.isEmpty(music.getMusicImgUri()) ? null : Uri.parse(music.getMusicImgUri()),
+                        null, null);
+                mMediaList.add(bean);
+            }
+        }
+    }
+
     @Override
     public BaseListViewHolder getViewHolder(ViewGroup parent, int viewType) {
         return new SheetMusicViewHolder(parent.getContext(), LayoutInflater.from(parent.getContext())
@@ -37,6 +65,14 @@ public class ApMusicListAdapter extends BaseNoPaginationListAdapter<ApSheetMusic
                 public void onClick(View v) {
                     if (mItemClickListener != null) {
                         mItemClickListener.onItemClick(v, position, "menu", content);
+                    }
+                }
+            });
+            mBinding.getRoot().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mItemClickListener != null) {
+                        mItemClickListener.onItemClick(v, position, "", content);
                     }
                 }
             });

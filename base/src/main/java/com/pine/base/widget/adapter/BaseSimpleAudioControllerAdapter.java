@@ -1,4 +1,4 @@
-package com.pine.audioplayer.adapter;
+package com.pine.base.widget.adapter;
 
 import android.content.Context;
 import android.net.Uri;
@@ -6,10 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.SeekBar;
-import android.widget.TextView;
 
-import com.pine.audioplayer.R;
+import com.pine.base.R;
 import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.player.component.PineMediaWidget;
 import com.pine.player.widget.PineMediaController;
@@ -19,11 +17,10 @@ import com.pine.player.widget.viewholder.PineRightViewHolder;
 import com.pine.player.widget.viewholder.PineWaitingProgressViewHolder;
 
 import java.io.File;
-import java.util.Formatter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
-public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaControllerAdapter {
+public class BaseSimpleAudioControllerAdapter extends PineMediaController.AbstractMediaControllerAdapter {
     private Context mContext;
     private ViewGroup mRoot;
     private PineBackgroundViewHolder mBackgroundViewHolder;
@@ -31,17 +28,34 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
     private RelativeLayout mBackgroundView;
     private ViewGroup mControllerView;
     private PineMediaWidget.IPineMediaPlayer mPlayer;
-    private List<PineMediaPlayerBean> mMediaList;
+    private List<PineMediaPlayerBean> mMediaList = new ArrayList<>();
     private int mCurrentVideoPosition = -1;
 
-    public ApAudioControllerAdapter(Context context, PineMediaWidget.IPineMediaPlayer player, ViewGroup root) {
+    public BaseSimpleAudioControllerAdapter(Context context, PineMediaWidget.IPineMediaPlayer player, ViewGroup root) {
         mContext = context;
         mPlayer = player;
         mRoot = root;
     }
 
-    public void setMediaList(List<PineMediaPlayerBean> mediaList) {
-        mMediaList = mediaList;
+    public void setMediaList(List<PineMediaPlayerBean> list) {
+        mMediaList = list;
+        if (mMediaList == null) {
+            mMediaList = new ArrayList<>();
+        }
+    }
+
+    public void addMedia(PineMediaPlayerBean bean) {
+        if (bean == null) {
+            return;
+        }
+        mMediaList.add(0, bean);
+    }
+
+    public void addMediaList(List<PineMediaPlayerBean> list) {
+        if (list == null && list.size() < 1) {
+            return;
+        }
+        mMediaList.addAll(0, list);
     }
 
     @Override
@@ -78,11 +92,9 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
 
     private final void initControllerViewHolder(
             PineControllerViewHolder viewHolder, View root) {
-        viewHolder.setPausePlayButton(root.findViewById(R.id.audio_play_pause_btn));
-        SeekBar seekBar = root.findViewById(R.id.audio_progress_bar);
-        viewHolder.setPlayProgressBar(seekBar);
-        viewHolder.setEndTimeText(root.findViewById(R.id.audio_end_time_tv));
-        viewHolder.setCurrentTimeText(root.findViewById(R.id.audio_cur_time_tv));
+        viewHolder.setPausePlayButton(root.findViewById(R.id.play_pause_btn));
+//        SeekBar seekBar = root.findViewById(R.id.progress_bar);
+//        viewHolder.setPlayProgressBar(seekBar);
     }
 
     @Override
@@ -111,26 +123,6 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         return null;
     }
 
-    protected PineMediaController.ControllerMonitor onCreateControllerMonitor() {
-        return new PineMediaController.ControllerMonitor() {
-            public boolean onCurrentTimeUpdate(PineMediaWidget.IPineMediaPlayer player,
-                                               View currentTimeText, int currentTime) {
-                if (currentTimeText instanceof TextView) {
-                    ((TextView) currentTimeText).setText(stringForTime(currentTime));
-                }
-                return true;
-            }
-
-            public boolean onEndTimeUpdate(PineMediaWidget.IPineMediaPlayer player,
-                                           View endTimeText, int endTime) {
-                if (endTimeText instanceof TextView) {
-                    ((TextView) endTimeText).setText(stringForTime(player.getDuration()));
-                }
-                return true;
-            }
-        };
-    }
-
     @Override
     public boolean mediaSelect(int position, boolean startPlay) {
         PineMediaPlayerBean pineMediaPlayerBean = null;
@@ -151,21 +143,6 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         }
         mCurrentVideoPosition = position;
         return true;
-    }
-
-    private String stringForTime(int timeMs) {
-        int totalSeconds = timeMs / 1000;
-        int seconds = totalSeconds % 60;
-        int minutes = (totalSeconds / 60) % 60;
-        int hours = totalSeconds / 3600;
-        StringBuilder formatBuilder = new StringBuilder();
-        Formatter formatter = new Formatter(formatBuilder, Locale.getDefault());
-        formatBuilder.setLength(0);
-        if (hours > 0) {
-            return formatter.format("%d:%02d:%02d", hours, minutes, seconds).toString();
-        } else {
-            return formatter.format("%02d:%02d", minutes, seconds).toString();
-        }
     }
 
     @Override
