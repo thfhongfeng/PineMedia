@@ -92,7 +92,7 @@ public class SelectMultiItemsDialog extends Dialog {
                                              int[] selectPosArr, final IDialogSelectListener listener) {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            final SelectMultiItemsDialog dialog = new SelectMultiItemsDialog(context, R.style.BaseSelectItemDialog);
+            final SelectMultiItemsDialog dialog = new SelectMultiItemsDialog(context, R.style.BaseDialogStyle);
             View layout = inflater.inflate(R.layout.base_dialog_multi_item_select, null);
             dialog.setContentView(layout);
             title_tv = layout.findViewById(R.id.title_tv);

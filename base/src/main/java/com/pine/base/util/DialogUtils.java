@@ -57,7 +57,7 @@ public class DialogUtils {
         LinearLayout layout = v.findViewById(R.id.dialog_loading_view);
         TextView tip_tv = v.findViewById(R.id.tip_tv);
         tip_tv.setText(msg);
-        Dialog loadingDialog = new Dialog(context, R.style.BaseDialogStyle);
+        Dialog loadingDialog = new Dialog(context, R.style.BaseCustomDialogStyle);
         loadingDialog.setCanceledOnTouchOutside(false);
         loadingDialog.setContentView(layout, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,

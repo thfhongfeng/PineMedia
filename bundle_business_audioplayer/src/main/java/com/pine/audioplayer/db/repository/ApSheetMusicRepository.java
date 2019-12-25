@@ -10,6 +10,7 @@ import com.pine.audioplayer.db.dao.ApSheetMusicDao;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.tool.util.LogUtils;
 
+import java.util.Calendar;
 import java.util.List;
 
 public class ApSheetMusicRepository {
@@ -60,6 +61,8 @@ public class ApSheetMusicRepository {
                     if (apSheetMusicDao.checkSheetMusic(sheetId, apSheetMusic.getSongId(), apSheetMusic.getFilePath()) == null) {
                         apSheetMusic.setId(0);
                         apSheetMusic.setSheetId(sheetId);
+                        apSheetMusic.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+                        apSheetMusic.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
                         apSheetMusicDao.insert(apSheetMusic);
                         updateMusicSheetCount(apSheetMusic.getSheetId());
                     }
@@ -80,6 +83,8 @@ public class ApSheetMusicRepository {
                         if (apSheetMusicDao.checkSheetMusic(sheetId, music.getSongId(), music.getFilePath()) == null) {
                             music.setId(0);
                             music.setSheetId(sheetId);
+                            music.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+                            music.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
                             apSheetMusicDao.insert(music);
                         }
                     }

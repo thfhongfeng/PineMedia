@@ -71,7 +71,7 @@ public class TimeSelectDialog extends Dialog {
             }
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            final TimeSelectDialog dialog = new TimeSelectDialog(context, R.style.BaseSelectDialogStyle);
+            final TimeSelectDialog dialog = new TimeSelectDialog(context, R.style.BaseDialogStyle);
             View layout = inflater.inflate(R.layout.base_dialog_date_or_time_select, null);
             cancel_tv = layout.findViewById(R.id.cancel_tv);
             confirm_tv = layout.findViewById(R.id.confirm_tv);

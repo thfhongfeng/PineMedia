@@ -1,15 +1,8 @@
 package com.pine.audioplayer.ui.activity;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
-
-import androidx.annotation.NonNull;
-import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicListAdapter;
@@ -17,7 +10,6 @@ import com.pine.audioplayer.databinding.ApMusicListActivityBinding;
 import com.pine.audioplayer.databinding.ApMusicListTopMenuBinding;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
-import com.pine.audioplayer.uitls.ApLocalMusicUtils;
 import com.pine.audioplayer.vm.ApMusicListVm;
 import com.pine.audioplayer.widget.view.ApSimpleAudioPlayerView;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
@@ -30,6 +22,12 @@ import com.pine.tool.widget.dialog.PopupMenu;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicListActivityBinding, ApMusicListVm> {
 
@@ -75,7 +73,7 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
                         showMusicItemMenu(sheetMusic);
                         break;
                     default:
-                        playMusic(mMusicListAdapter.getMediaList().get(position), sheetMusic, true);
+                        playMusic(sheetMusic, true);
                         break;
                 }
             }
@@ -86,26 +84,18 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
         mBinding.recycleView.setAdapter(mMusicListAdapter);
         mBinding.audioView.init(this, TAG, new ApSimpleAudioPlayerView.IOnMediaListChangeListener() {
             @Override
-            public void onMediaRemove(PineMediaPlayerBean mediaBean) {
-                mViewModel.removeMusicFromRecent(mediaBean.getMediaCode());
+            public void onMediaRemove(ApSheetMusic music) {
+                mViewModel.removeMusicFromRecent(music.getSongId());
             }
 
             @Override
-            public void onMediaListClear(List<PineMediaPlayerBean> mediaBeanList) {
+            public void onMediaListClear(List<ApSheetMusic> musicList) {
                 mViewModel.clearRecentSheetMusic();
             }
         });
-        List<PineMediaPlayerBean> recentMediaList = new ArrayList<>();
-        List<ApSheetMusic> recentMusicList = new ArrayList<>();
-        mViewModel.getRecentMediaList(recentMusicList, recentMediaList);
-        if (recentMediaList != null && recentMediaList.size() > 0) {
-            ApSheetMusic music = recentMusicList.get(0);
-            Bitmap bitmap = null;
-            if (music != null) {
-                bitmap = ApLocalMusicUtils.getAlbumArtBitmap(this,
-                        music.getSongId(), music.getAlbumId(), true);
-            }
-            mBinding.audioView.playMediaList(recentMediaList, recentMediaList.get(0), bitmap, false);
+        List<ApSheetMusic> recentMusicList = mViewModel.getRecentMusicList();
+        if (recentMusicList != null && recentMusicList.size() > 0) {
+            mBinding.audioView.playMusicList(recentMusicList, false);
         }
     }
 
@@ -115,25 +105,13 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
         mViewModel.refreshData();
     }
 
-    private void playAllMediaList(@NonNull List<PineMediaPlayerBean> mediaBeanList,
-                                  @NonNull PineMediaPlayerBean playBean, ApSheetMusic music,
-                                  boolean startPlay) {
-        Bitmap bitmap = null;
-        if (music != null) {
-            bitmap = ApLocalMusicUtils.getAlbumArtBitmap(this,
-                    music.getSongId(), music.getAlbumId(), true);
-        }
-        mBinding.audioView.playMediaList(mediaBeanList, playBean, bitmap, startPlay);
+    private void playAllMusicList(@NonNull List<ApSheetMusic> musicList, boolean startPlay) {
+        mBinding.audioView.playMusicList(musicList, startPlay);
         mViewModel.addAllMusicsToRecent();
     }
 
-    private void playMusic(@NonNull PineMediaPlayerBean playBean, ApSheetMusic music, boolean startPlay) {
-        Bitmap bitmap = null;
-        if (music != null) {
-            bitmap = ApLocalMusicUtils.getAlbumArtBitmap(this,
-                    music.getSongId(), music.getAlbumId(), true);
-        }
-        mBinding.audioView.playMedia(playBean, bitmap, startPlay);
+    private void playMusic(@NonNull ApSheetMusic music, boolean startPlay) {
+        mBinding.audioView.playMusic(music, startPlay);
         mViewModel.addMusicToRecent(music);
     }
 
@@ -176,10 +154,9 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
             if (add) {
                 goAddMusicActivity();
             } else {
-                List<PineMediaPlayerBean> playerBeanList = mMusicListAdapter.getMediaList();
                 List<ApSheetMusic> sheetMusicList = mMusicListAdapter.getOriginData();
-                if (playerBeanList != null && playerBeanList.size() > 0) {
-                    playAllMediaList(playerBeanList, playerBeanList.get(0), sheetMusicList.get(0), true);
+                if (sheetMusicList != null && sheetMusicList.size() > 0) {
+                    playAllMusicList(sheetMusicList, true);
                 }
             }
         }

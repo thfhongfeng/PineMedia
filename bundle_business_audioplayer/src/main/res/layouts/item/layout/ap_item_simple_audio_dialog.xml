@@ -6,8 +6,8 @@
         <import type="android.view.View"></import>
 
         <variable
-            name="mediaBean"
-            type="com.pine.player.bean.PineMediaPlayerBean" />
+            name="music"
+            type="com.pine.audioplayer.db.entity.ApSheetMusic" />
 
         <variable
             name="playingState"
@@ -41,7 +41,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:lines="1"
-                    android:text="@{mediaBean.mediaName}"
+                    android:text="@{music.name}"
                     android:textColor="@color/dark_black_gray"
                     android:textSize="@dimen/sp_15"></TextView>
 
@@ -49,7 +49,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:lines="1"
-                    android:text="@{mediaBean.mediaDesc}"
+                    android:text='@{music.album+" - "+music.album}'
                     android:textColor="@color/black_gray"
                     android:textSize="@dimen/sp_14"></TextView>
             </LinearLayout>
@@ -61,7 +61,7 @@
                 android:layout_marginRight="@dimen/dp_20"
                 android:padding="@dimen/dp_5"
                 android:src="@drawable/res_anim_playing"
-                android:visibility="@{playingState==0?View.GONE:View.VISIBLE}"></ImageView>
+                android:visibility="@{playingState==0?View.INVISIBLE:View.VISIBLE}"></ImageView>
 
             <ImageView
                 android:id="@+id/delete_iv"

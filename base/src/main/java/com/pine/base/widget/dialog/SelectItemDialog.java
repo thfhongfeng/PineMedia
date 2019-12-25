@@ -115,7 +115,7 @@ public class SelectItemDialog extends Dialog {
                                        boolean showSelectState, final IDialogSelectListener listener) {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            final SelectItemDialog dialog = new SelectItemDialog(context, R.style.BaseSelectItemDialog);
+            final SelectItemDialog dialog = new SelectItemDialog(context, R.style.BaseDialogStyle);
             View layout = inflater.inflate(R.layout.base_dialog_item_select, null);
             dialog.setContentView(layout);
             title_tv = layout.findViewById(R.id.title_tv);

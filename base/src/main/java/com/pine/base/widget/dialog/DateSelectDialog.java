@@ -86,7 +86,7 @@ public class DateSelectDialog extends Dialog {
             this.endMonth = endDate.get(Calendar.MONTH);
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            final DateSelectDialog dialog = new DateSelectDialog(context, R.style.BaseSelectDialogStyle);
+            final DateSelectDialog dialog = new DateSelectDialog(context, R.style.BaseDialogStyle);
             View layout = inflater.inflate(R.layout.base_dialog_date_or_time_select, null);
             cancelBtn = (TextView) layout.findViewById(R.id.cancel_tv);
             confirmBtn = (TextView) layout.findViewById(R.id.confirm_tv);

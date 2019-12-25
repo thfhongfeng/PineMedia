@@ -58,8 +58,6 @@ public class ApMusicModel {
     }
 
     public void addSheetMusic(Context context, ApSheetMusic apSheetMusic, long sheetId) {
-        apSheetMusic.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
-        apSheetMusic.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
         ApSheetMusicRepository.getInstance(context).addSheetMusic(apSheetMusic, sheetId);
     }
 

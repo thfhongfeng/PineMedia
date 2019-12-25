@@ -1,9 +1,9 @@
 package com.pine.audioplayer.widget.view;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
+import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,14 +12,12 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
-
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.bean.ApPlayListType;
 import com.pine.audioplayer.databinding.ApItemSimpleAudioDialogBinding;
 import com.pine.audioplayer.databinding.ApSimpleAudioDialogTitleBinding;
+import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.uitls.ApLocalMusicUtils;
 import com.pine.audioplayer.widget.adapter.ApSimpleAudioControllerAdapter;
 import com.pine.base.util.DialogUtils;
 import com.pine.base.widget.dialog.CustomListDialog;
@@ -30,12 +28,17 @@ import com.pine.player.widget.PineMediaPlayerView;
 import com.pine.tool.ui.Activity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
 
 public class ApSimpleAudioPlayerView extends RelativeLayout {
     private View mRoot;
     private View controller_view;
-    private ImageView cover_iv, list_btn;
+    private ImageView cover_iv, next_btn, list_btn;
     private TextView name_tv, desc_tv;
 
     private PineMediaPlayerView mMediaPlayerView;
@@ -45,6 +48,11 @@ public class ApSimpleAudioPlayerView extends RelativeLayout {
 
     private List<ApPlayListType> mPlayTypeList = new ArrayList<>();
     private int mCurPlayTypePos = -1;
+
+    private HashMap<String, ApSheetMusic> mMusicListMap = new HashMap<>();
+    private ApSheetMusic mCurPlayMusic;
+
+    private CustomListDialog mMusicListDialog;
 
     private IOnMediaListChangeListener mListener;
 
@@ -73,18 +81,22 @@ public class ApSimpleAudioPlayerView extends RelativeLayout {
         cover_iv = mRoot.findViewById(R.id.cover_iv);
         name_tv = mRoot.findViewById(R.id.name_tv);
         desc_tv = mRoot.findViewById(R.id.desc_tv);
+        next_btn = mRoot.findViewById(R.id.next_btn);
         list_btn = mRoot.findViewById(R.id.list_btn);
 
         list_btn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Dialog dialog = DialogUtils.createCustomListDialog(getContext(), R.layout.ap_simple_audio_dialog_title_layout,
+                if (mMusicListDialog != null && mMusicListDialog.isShowing()) {
+                    mMusicListDialog.dismiss();
+                }
+                mMusicListDialog = DialogUtils.createCustomListDialog(getContext(), R.layout.ap_simple_audio_dialog_title_layout,
                         R.layout.ap_item_simple_audio_dialog, mControllerAdapter.getMediaList(),
                         new CustomListDialog.IOnViewBindCallback<PineMediaPlayerBean>() {
                             @Override
-                            public void onTitleBind(View titleView, final CustomListDialog.DialogListAdapter adapter) {
+                            public void onTitleBind(View titleView, final CustomListDialog dialog) {
                                 final ApSimpleAudioDialogTitleBinding binding = DataBindingUtil.bind(titleView);
-                                binding.setPlayType(mPlayTypeList.get((++mCurPlayTypePos) % mPlayTypeList.size()));
+                                binding.setPlayType(mPlayTypeList.get((mCurPlayTypePos + 1) % mPlayTypeList.size()));
                                 binding.setMediaCount(mControllerAdapter.getMediaList().size());
                                 binding.playTypeIv.setOnClickListener(new OnClickListener() {
                                     @Override
@@ -97,20 +109,22 @@ public class ApSimpleAudioPlayerView extends RelativeLayout {
                                     public void onClick(View v) {
                                         List<PineMediaPlayerBean> list = mControllerAdapter.getMediaList();
                                         mControllerAdapter.setMediaList(null);
-                                        adapter.setData(null);
+                                        dialog.getListAdapter().setData(null);
                                         onMediaListClear(list);
+                                        dialog.dismiss();
                                     }
                                 });
                                 binding.executePendingBindings();
                             }
 
                             @Override
-                            public void onItemBind(View itemView, final CustomListDialog.DialogListAdapter adapter,
-                                                   int position, final PineMediaPlayerBean data) {
+                            public void onItemBind(View itemView, int position,
+                                                   final PineMediaPlayerBean data,
+                                                   final CustomListDialog dialog) {
                                 ApItemSimpleAudioDialogBinding binding = DataBindingUtil.bind(itemView);
-                                binding.setMediaBean(data);
+                                binding.setMusic(mMusicListMap.get(data.getMediaCode()));
                                 PineMediaPlayerBean playerBean = mMediaPlayer.getMediaPlayerBean();
-                                int playState = playerBean != null && playerBean.getMediaCode().equals(data.getMediaCode()) ? (mMediaPlayer.isInPlaybackState() ? 2 : 1) : 0;
+                                int playState = playerBean != null && playerBean.getMediaCode().equals(data.getMediaCode()) ? (mMediaPlayer.isPlaying() ? 2 : 1) : 0;
                                 binding.setPlayingState(playState);
                                 if (playState == 2) {
                                     binding.playStateIv.setImageResource(R.drawable.res_anim_playing);
@@ -123,27 +137,36 @@ public class ApSimpleAudioPlayerView extends RelativeLayout {
                                     @Override
                                     public void onClick(View v) {
                                         mControllerAdapter.removeMedia(data);
-                                        adapter.setData(mControllerAdapter.getMediaList());
+                                        List<PineMediaPlayerBean> mediaList = mControllerAdapter.getMediaList();
+                                        dialog.getListAdapter().setData(mediaList);
                                         onMediaRemove(data);
+                                        if (mediaList == null || mediaList.size() < 1) {
+                                            dialog.dismiss();
+                                        }
                                     }
                                 });
                                 binding.getRoot().setOnClickListener(new OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-
+                                        playMusic(mMusicListMap.get(data.getMediaCode()), true);
                                     }
                                 });
                                 binding.executePendingBindings();
                             }
                         });
-                dialog.show();
+                mMusicListDialog.show();
             }
         });
-        cover_iv.setImageResource(R.mipmap.res_iv_top_bg);
-        name_tv.setText(R.string.ap_sad_play_pine_name);
-        desc_tv.setText(R.string.ap_sad_play_pine_desc);
 
-        refreshAudioListRelateState();
+        setupControllerView(null);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        if (mMusicListDialog != null && mMusicListDialog.isShowing()) {
+            mMusicListDialog.dismiss();
+        }
+        super.onDetachedFromWindow();
     }
 
     public void init(Activity context, String tag, IOnMediaListChangeListener listener) {
@@ -152,67 +175,115 @@ public class ApSimpleAudioPlayerView extends RelativeLayout {
         mMediaPlayerView.init(tag, mMediaController);
         mMediaPlayer = mMediaPlayerView.getMediaPlayer();
         mMediaPlayer.setAutocephalyPlayMode(true);
-        mControllerAdapter = new ApSimpleAudioControllerAdapter(getContext(), mMediaPlayer,
-                (ViewGroup) controller_view);
+        mControllerAdapter = new ApSimpleAudioControllerAdapter(getContext(), (ViewGroup) controller_view);
         mMediaController.setMediaControllerAdapter(mControllerAdapter);
-        refreshAudioListRelateState();
+        mMediaPlayer.addMediaPlayerListener(new PineMediaWidget.PineMediaPlayerListener() {
+            @Override
+            public void onStateChange(PineMediaPlayerBean playerBean, int fromState, int toState) {
+                boolean mediaChange = mCurPlayMusic == null || !playerBean.getMediaCode().equals(mCurPlayMusic.getSongId() + "");
+                boolean playStateChange = fromState != toState;
+                if (mediaChange || playStateChange) {
+                    mCurPlayMusic = mMusicListMap.get(playerBean.getMediaCode());
+                    setupControllerView(mCurPlayMusic);
+                    if (mMusicListDialog != null) {
+                        mMusicListDialog.getListAdapter().notifyDataSetChangedSafely();
+                    }
+                }
+            }
+        });
     }
 
-    public void playMediaList(@NonNull List<PineMediaPlayerBean> mediaBeanList,
-                              @NonNull PineMediaPlayerBean playerBean, Bitmap musicAlbumArtBitmap,
-                              boolean startPlay) {
-        if (mediaBeanList == null && mediaBeanList.size() < 1) {
+    public void playMusicList(@NonNull List<ApSheetMusic> musicList, boolean startPlay) {
+        if (musicList == null && musicList.size() < 1) {
             return;
         }
-        mControllerAdapter.addMediaList(mediaBeanList);
-        mControllerAdapter.onMediaSelect(playerBean.getMediaCode(), startPlay);
+        List<PineMediaPlayerBean> mediaList = new ArrayList<>();
+        for (ApSheetMusic music : musicList) {
+            PineMediaPlayerBean mediaBean = transferMediaBean(music);
+            mediaBean.setMediaDesc(music.getAuthor() + " - " + music.getAlbum());
+            mediaList.add(mediaBean);
+            mMusicListMap.put(mediaBean.getMediaCode(), music);
+        }
+        mControllerAdapter.addMediaList(mediaList);
+        mControllerAdapter.onMediaSelect(mediaList.get(0).getMediaCode(), startPlay);
 
-        setupControllerView(playerBean, musicAlbumArtBitmap);
+        setupControllerView(musicList.get(0));
     }
 
-    public void playMedia(@NonNull PineMediaPlayerBean mediaBean, Bitmap musicAlbumArtBitmap,
-                          boolean startPlay) {
-        if (mediaBean == null) {
+    public void playMusic(@NonNull ApSheetMusic music, boolean startPlay) {
+        if (music == null) {
             return;
         }
+        PineMediaPlayerBean mediaBean = transferMediaBean(music);
+        mMusicListMap.put(mediaBean.getMediaCode(), music);
         mControllerAdapter.addMedia(mediaBean);
         mControllerAdapter.onMediaSelect(mediaBean.getMediaCode(), startPlay);
-
-        setupControllerView(mediaBean, musicAlbumArtBitmap);
+        setupControllerView(music);
     }
 
-    private void onMediaRemove(PineMediaPlayerBean playerBean) {
+    private PineMediaPlayerBean transferMediaBean(@NonNull ApSheetMusic music) {
+        PineMediaPlayerBean mediaBean = new PineMediaPlayerBean(music.getSongId() + "",
+                music.getName(), Uri.parse(music.getFilePath()),
+                PineMediaPlayerBean.MEDIA_TYPE_VIDEO, null,
+                null, null);
+        return mediaBean;
+    }
+
+    private void onMediaRemove(PineMediaPlayerBean mediaBean) {
         if (mListener != null) {
-            mListener.onMediaRemove(playerBean);
+            ApSheetMusic music = mMusicListMap.get(mediaBean.getMediaCode());
+            mListener.onMediaRemove(music);
         }
-        refreshAudioListRelateState();
+        setupControllerView(mMusicListMap.get(mControllerAdapter.getCurMediaCode()));
     }
 
-    private void onMediaListClear(List<PineMediaPlayerBean> mediaBeanList) {
+    private void onMediaListClear(List<PineMediaPlayerBean> mediaList) {
         if (mListener != null) {
-            mListener.onMediaListClear(mediaBeanList);
+            List<ApSheetMusic> musicList = new ArrayList<>();
+            if (mediaList != null && mediaList.size() > 0) {
+                for (PineMediaPlayerBean mediaBean : mediaList) {
+                    ApSheetMusic music = mMusicListMap.get(mediaBean.getMediaCode());
+                    if (music != null) {
+                        musicList.add(music);
+                    }
+                }
+            }
+            mListener.onMediaListClear(musicList);
         }
-        refreshAudioListRelateState();
+        setupControllerView(null);
     }
 
-    private void setupControllerView(PineMediaPlayerBean playerBean, Bitmap musicAlbumArtBitmap) {
-        if (musicAlbumArtBitmap != null) {
-            cover_iv.setImageBitmap(musicAlbumArtBitmap);
+    private void setupControllerView(ApSheetMusic music) {
+        if (music != null) {
+            Bitmap bitmap = ApLocalMusicUtils.getAlbumArtBitmap(getContext(),
+                    music.getSongId(), music.getAlbumId(), true);
+            if (bitmap != null) {
+                cover_iv.setImageBitmap(bitmap);
+            } else {
+                cover_iv.setImageResource(R.mipmap.res_iv_top_bg);
+            }
+            name_tv.setText(music.getName());
+            desc_tv.setText(music.getAuthor() + " - " + music.getAlbum());
         } else {
             cover_iv.setImageResource(R.mipmap.res_iv_top_bg);
+            name_tv.setText(R.string.ap_sad_play_pine_name);
+            desc_tv.setText(R.string.ap_sad_play_pine_desc);
         }
-        name_tv.setText(playerBean.getMediaName());
-        desc_tv.setText(playerBean.getMediaDesc());
-        refreshAudioListRelateState();
-    }
 
-    private void refreshAudioListRelateState() {
-        list_btn.setEnabled(mControllerAdapter != null && mControllerAdapter.getMediaList().size() > 0);
+        boolean hasMedia = mControllerAdapter != null && mControllerAdapter.getMediaList().size() > 0;
+        next_btn.setEnabled(hasMedia);
+        next_btn.setSelected(hasMedia);
+        list_btn.setEnabled(hasMedia);
+        if (!hasMedia) {
+            if (mMusicListDialog != null && mMusicListDialog.isShowing()) {
+                mMusicListDialog.dismiss();
+            }
+        }
     }
 
     public interface IOnMediaListChangeListener {
-        void onMediaRemove(PineMediaPlayerBean mediaBean);
+        void onMediaRemove(ApSheetMusic music);
 
-        void onMediaListClear(List<PineMediaPlayerBean> mediaBeanList);
+        void onMediaListClear(List<ApSheetMusic> musicList);
     }
 }

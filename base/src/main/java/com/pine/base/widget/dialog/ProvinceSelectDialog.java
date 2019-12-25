@@ -148,7 +148,7 @@ public class ProvinceSelectDialog extends Dialog {
         public ProvinceSelectDialog create(IDialogDateSelected dialogSelect) {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            final ProvinceSelectDialog dialog = new ProvinceSelectDialog(context, R.style.BaseSelectDialogStyle);
+            final ProvinceSelectDialog dialog = new ProvinceSelectDialog(context, R.style.BaseDialogStyle);
             View layout = inflater.inflate(R.layout.base_dialog_locate_select, null);
             cancel_tv = layout.findViewById(R.id.cancel_tv);
             confirm_tv = layout.findViewById(R.id.confirm_tv);

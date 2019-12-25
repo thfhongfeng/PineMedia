@@ -26,7 +26,7 @@ public class ApLocalMusicUtils {
     public static int getAllMusicListCount(Context context) {
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor cursor = context.getContentResolver().query(uri, null,
-                MediaStore.Audio.Media.DURATION + ">=?", new String[]{"20000"}, null);
+                MediaStore.Audio.Media.DURATION + ">=?", new String[]{"60000"}, null);
         int count = cursor.getCount();
         cursor.close();
         return count;
