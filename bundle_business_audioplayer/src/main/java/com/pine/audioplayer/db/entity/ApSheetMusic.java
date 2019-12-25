@@ -24,15 +24,15 @@ public class ApSheetMusic implements Parcelable {
     @ColumnInfo(name = "song_id")
     private long songId;
 
-    @ColumnInfo(name = "music_img_uri")
-    private String musicImgUri;
-
     @NonNull
     private String name;
 
     @NonNull
     @ColumnInfo(name = "file_path")
     private String filePath;
+
+    @ColumnInfo(name = "lyric_file_path")
+    private String lyricFilePath;
 
     private String author;
 
@@ -68,9 +68,9 @@ public class ApSheetMusic implements Parcelable {
         id = in.readLong();
         sheetId = in.readLong();
         songId = in.readLong();
-        musicImgUri = in.readString();
         name = in.readString();
         filePath = in.readString();
+        lyricFilePath = in.readString();
         author = in.readString();
         duration = in.readInt();
         album = in.readString();
@@ -93,9 +93,9 @@ public class ApSheetMusic implements Parcelable {
         dest.writeLong(id);
         dest.writeLong(sheetId);
         dest.writeLong(songId);
-        dest.writeString(musicImgUri);
         dest.writeString(name);
         dest.writeString(filePath);
+        dest.writeString(lyricFilePath);
         dest.writeString(author);
         dest.writeInt(duration);
         dest.writeString(album);
@@ -144,14 +144,6 @@ public class ApSheetMusic implements Parcelable {
         this.songId = songId;
     }
 
-    public String getMusicImgUri() {
-        return musicImgUri;
-    }
-
-    public void setMusicImgUri(String musicImgUri) {
-        this.musicImgUri = musicImgUri;
-    }
-
     @NonNull
     public String getName() {
         return name;
@@ -168,6 +160,14 @@ public class ApSheetMusic implements Parcelable {
 
     public void setFilePath(@NonNull String filePath) {
         this.filePath = filePath;
+    }
+
+    public String getLyricFilePath() {
+        return lyricFilePath;
+    }
+
+    public void setLyricFilePath(String lyricFilePath) {
+        this.lyricFilePath = lyricFilePath;
     }
 
     public String getAuthor() {

@@ -71,6 +71,14 @@ public class ApMusicModel {
         ApSheetMusicRepository.getInstance(context).deleteSheetMusic(apSheetMusic);
     }
 
+    public void removeSheetMusic(Context context, long sheetId, long songId) {
+        ApSheetMusicRepository.getInstance(context).deleteSheetMusic(sheetId, songId);
+    }
+
+    public void clearSheetMusic(Context context, long sheetId) {
+        ApSheetMusicRepository.getInstance(context).deleteSheetAllMusics(sheetId);
+    }
+
     public void removeSheetMusicList(Context context, List<ApSheetMusic> list, long sheetId) {
         ApSheetMusicRepository.getInstance(context).deleteSheetMusicList(list, sheetId);
     }

@@ -8,7 +8,7 @@
 
     <integer-array name="ap_music_item_menu_img">
         <item>@mipmap/res_ic_add_to_favourite</item>
-        <item>@mipmap/res_ic_music_sheet</item>
+        <item>@mipmap/res_ic_add_to_music_sheet_enable</item>
         <item>@mipmap/res_ic_delete_1_1</item>
     </integer-array>
 </resources>

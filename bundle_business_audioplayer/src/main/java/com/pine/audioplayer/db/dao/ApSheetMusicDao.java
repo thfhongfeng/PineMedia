@@ -30,6 +30,9 @@ public interface ApSheetMusicDao {
     @Query("SELECT COUNT(*) FROM ap_sheet_music WHERE sheet_id=:sheetId")
     int querySheetMusicCount(long sheetId);
 
+    @Query("DELETE FROM ap_sheet_music WHERE sheet_id=:sheetId AND song_id=:songId")
+    int deleteBySheetIdSongId(long sheetId, long songId);
+
     @Query("DELETE FROM ap_sheet_music WHERE sheet_id=:sheetId")
     int deleteBySheetId(long sheetId);
 

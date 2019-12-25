@@ -46,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@null"
-                android:drawableTop="@mipmap/res_ic_music_sheet"
+                android:drawableTop="@mipmap/res_ic_add_to_music_sheet_enable"
                 android:drawablePadding="@dimen/dp_5"
                 android:enabled="false"
                 android:gravity="center"

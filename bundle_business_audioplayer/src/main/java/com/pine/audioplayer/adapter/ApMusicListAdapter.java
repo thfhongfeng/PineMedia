@@ -2,7 +2,6 @@ package com.pine.audioplayer.adapter;
 
 import android.content.Context;
 import android.net.Uri;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +25,7 @@ public class ApMusicListAdapter extends BaseNoPaginationListAdapter<ApSheetMusic
     public List<PineMediaPlayerBean> getMediaList() {
         return mMediaList;
     }
-    
+
     @Override
     protected void onDataSet() {
         super.onDataSet();
@@ -35,9 +34,9 @@ public class ApMusicListAdapter extends BaseNoPaginationListAdapter<ApSheetMusic
             for (ApSheetMusic music : mOriginData) {
                 PineMediaPlayerBean bean = new PineMediaPlayerBean(music.getSongId() + "",
                         music.getName(), Uri.parse(music.getFilePath()),
-                        PineMediaPlayerBean.MEDIA_TYPE_VIDEO,
-                        TextUtils.isEmpty(music.getMusicImgUri()) ? null : Uri.parse(music.getMusicImgUri()),
+                        PineMediaPlayerBean.MEDIA_TYPE_VIDEO, null,
                         null, null);
+                bean.setMediaDesc(music.getAuthor() + " - " + music.getAlbum());
                 mMediaList.add(bean);
             }
         }

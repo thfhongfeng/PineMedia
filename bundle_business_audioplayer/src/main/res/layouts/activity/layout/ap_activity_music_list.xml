@@ -132,11 +132,12 @@
                 android:layout_weight="1"></androidx.recyclerview.widget.RecyclerView>
         </LinearLayout>
 
-        <com.pine.base.widget.view.BaseSimpleAudioPlayerView
+        <com.pine.audioplayer.widget.view.ApSimpleAudioPlayerView
             android:id="@+id/audio_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"></com.pine.base.widget.view.BaseSimpleAudioPlayerView>
+            android:background="@color/white"
+            android:layout_alignParentBottom="true"></com.pine.audioplayer.widget.view.ApSimpleAudioPlayerView>
     </RelativeLayout>
 
 </layout>

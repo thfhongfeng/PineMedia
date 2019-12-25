@@ -27,4 +27,12 @@
 
     <string name="ap_amts_title">已选择&#160;%d&#160;首歌</string>
     <string name="ap_amts_create_sheet">新建歌单</string>
+
+    <string name="ap_sad_play_pine_name">Pine Media音乐</string>
+    <string name="ap_sad_play_pine_desc">为您生活的伴奏</string>
+    <string name="ap_sad_title">%s(%d&#160;首)</string>
+    <string name="ap_sad_play_loop_all">列表循环</string>
+    <string name="ap_sad_play_single_loop">单曲循环</string>
+    <string name="ap_sad_play_ord">顺序播放</string>
+    <string name="ap_sad_play_random">随机播放</string>
 </resources>

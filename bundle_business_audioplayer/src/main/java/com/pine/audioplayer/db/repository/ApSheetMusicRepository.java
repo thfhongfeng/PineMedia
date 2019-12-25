@@ -69,7 +69,7 @@ public class ApSheetMusicRepository {
     }
 
     public void addSheetMusicList(final @NonNull List<ApSheetMusic> list, final long sheetId) {
-        if (list.size() < 1) {
+        if (list == null && list.size() < 1) {
             return;
         }
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
@@ -101,6 +101,18 @@ public class ApSheetMusicRepository {
         }
     }
 
+    public void deleteSheetMusic(final @NonNull long sheetId, final long songId) {
+        synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
+            roomDatabase.runInTransaction(new Runnable() {
+                @Override
+                public void run() {
+                    apSheetMusicDao.deleteBySheetIdSongId(sheetId, songId);
+                    updateMusicSheetCount(sheetId);
+                }
+            });
+        }
+    }
+
     public void deleteSheetMusicList(@NonNull final List<ApSheetMusic> list, final long sheetId) {
         if (list.size() < 1) {
             return;
@@ -116,8 +128,19 @@ public class ApSheetMusicRepository {
         }
     }
 
+    public void deleteSheetAllMusics(final @NonNull long sheetId) {
+        roomDatabase.runInTransaction(new Runnable() {
+            @Override
+            public void run() {
+                apSheetMusicDao.deleteBySheetId(sheetId);
+                updateMusicSheetCount(sheetId);
+            }
+        });
+    }
+
     private void updateMusicSheetCount(long sheetId) {
         int count = apSheetMusicDao.querySheetMusicCount(sheetId);
         apMusicSheetDao.updateSheetCount(sheetId, count);
     }
+
 }

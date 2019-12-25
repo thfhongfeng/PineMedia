@@ -2,7 +2,6 @@ package com.pine.player.bean;
 
 import android.content.ContentResolver;
 import android.net.Uri;
-import android.os.Parcelable;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -32,7 +31,8 @@ public class PineMediaPlayerBean implements Serializable {
     private String mediaCode;
     @NonNull
     private String mediaName;
-    @NonNull
+    private String mediaDesc;
+    
     private ArrayList<PineMediaUriSource> mediaUriSourceList;
     private int mediaType = MEDIA_TYPE_VIDEO;
     private Uri mediaImgUri;
@@ -167,6 +167,14 @@ public class PineMediaPlayerBean implements Serializable {
 
     public void setMediaName(String mediaName) {
         this.mediaName = mediaName;
+    }
+
+    public String getMediaDesc() {
+        return mediaDesc;
+    }
+
+    public void setMediaDesc(String mediaDesc) {
+        this.mediaDesc = mediaDesc;
     }
 
     /**

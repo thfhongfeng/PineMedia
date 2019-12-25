@@ -28,8 +28,8 @@
 
             <com.pine.tool.widget.view.CircleImageView
                 android:id="@+id/cover_iv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/dp_40"
+                android:layout_height="@dimen/dp_40"
                 android:layout_marginLeft="@dimen/dp_10"
                 android:layout_marginRight="@dimen/dp_10"
                 android:scaleType="centerCrop" />
@@ -65,42 +65,29 @@
             android:layout_width="@dimen/dp_40"
             android:layout_height="@dimen/dp_40"
             android:layout_marginRight="@dimen/dp_10"
-            android:background="@drawable/base_shape_circle_d3d3d3"
+            android:background="@drawable/res_shape_circle_f8f8ff"
             android:gravity="center"
             android:padding="@dimen/dp_10"
-            android:src="@drawable/base_selector_play_pause_btn" />
+            android:src="@drawable/res_selector_play_pause_btn_2" />
 
         <ImageView
             android:id="@+id/next_btn"
             android:layout_width="@dimen/dp_40"
             android:layout_height="@dimen/dp_40"
             android:layout_marginRight="@dimen/dp_10"
-            android:background="@drawable/base_shape_circle_d3d3d3"
+            android:background="@drawable/res_shape_circle_f8f8ff"
             android:gravity="center"
             android:padding="@dimen/dp_10"
-            android:src="@drawable/base_selector_next_btn" />
+            android:src="@drawable/res_selector_next_btn_2" />
 
         <ImageView
             android:id="@+id/list_btn"
             android:layout_width="@dimen/dp_40"
             android:layout_height="@dimen/dp_40"
             android:layout_marginRight="@dimen/dp_10"
-            android:background="@drawable/base_shape_circle_d3d3d3"
+            android:background="@drawable/res_shape_circle_f8f8ff"
             android:gravity="center"
             android:padding="@dimen/dp_10"
-            android:src="@mipmap/base_ic_player_list" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/play_music_list_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="播放列表"></TextView>
+            android:src="@drawable/res_selector_music_list_btn" />
     </LinearLayout>
 </RelativeLayout>

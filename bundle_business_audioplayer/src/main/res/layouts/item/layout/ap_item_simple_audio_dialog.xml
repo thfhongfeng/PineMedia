@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data class="ApItemSimpleAudioDialogBinding">
+
+        <import type="android.view.View"></import>
+
+        <variable
+            name="mediaBean"
+            type="com.pine.player.bean.PineMediaPlayerBean" />
+
+        <variable
+            name="playingState"
+            type="Integer" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/dp_20"
+        android:paddingRight="@dimen/dp_20">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingTop="@dimen/dp_10"
+            android:paddingBottom="@dimen/dp_10">
+
+            <LinearLayout
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/dp_20"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lines="1"
+                    android:text="@{mediaBean.mediaName}"
+                    android:textColor="@color/dark_black_gray"
+                    android:textSize="@dimen/sp_15"></TextView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lines="1"
+                    android:text="@{mediaBean.mediaDesc}"
+                    android:textColor="@color/black_gray"
+                    android:textSize="@dimen/sp_14"></TextView>
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/play_state_iv"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="@dimen/dp_20"
+                android:padding="@dimen/dp_5"
+                android:src="@drawable/res_anim_playing"
+                android:visibility="@{playingState==0?View.GONE:View.VISIBLE}"></ImageView>
+
+            <ImageView
+                android:id="@+id/delete_iv"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:padding="@dimen/dp_5"
+                android:src="@mipmap/res_ic_cancel_x"></ImageView>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_0_5"
+            android:background="@color/light_gray"></View>
+    </LinearLayout>
+</layout>
