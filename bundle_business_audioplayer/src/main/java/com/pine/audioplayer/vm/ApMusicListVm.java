@@ -59,10 +59,6 @@ public class ApMusicListVm extends ViewModel {
         }
     }
 
-    public List<ApSheetMusic> getRecentMusicList() {
-        return mModel.getSheetMusicList(getContext(), mRecentSheet.getId());
-    }
-
     public void addMusicToFavourite(ApSheetMusic music) {
         mModel.addSheetMusic(getContext(), music, mModel.getFavouriteSheet(getContext()).getId());
     }

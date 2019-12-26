@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.NonNull;
+
 import com.pine.audioplayer.R;
 import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.player.component.PineMediaWidget;
@@ -21,8 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
-import androidx.annotation.NonNull;
 
 public class ApSimpleAudioControllerAdapter extends PineMediaController.AbstractMediaControllerAdapter {
     private Context mContext;
@@ -49,6 +49,8 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
         mMediaCodeListMap = new HashMap<>();
         if (list == null || list.size() < 1) {
             mPlayer.release();
+            mPlayer.setPlayingMedia(null);
+            mCurrentMediaCode = "";
         } else {
             addMediaList(list);
         }
@@ -79,15 +81,21 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
     }
 
     public void removeMedia(PineMediaPlayerBean bean) {
-        int position = findMediaPosition(mCurrentMediaCode);
+        int curPos = findMediaPosition(mCurrentMediaCode);
+        if (!bean.getMediaCode().equals(mCurrentMediaCode)
+                && findMediaPosition(bean.getMediaCode()) < curPos) {
+            curPos--;
+        }
         if (mMediaCodeListMap.containsKey(bean.getMediaCode())) {
             mMediaList.remove(mMediaCodeListMap.get(bean.getMediaCode()));
             mMediaCodeListMap.remove(bean.getMediaCode());
         }
         if (mMediaList.size() < 1) {
             mPlayer.release();
+            mPlayer.setPlayingMedia(null);
+            mCurrentMediaCode = "";
         } else {
-            playMedia(position, mPlayer.isPlaying());
+            playMedia(curPos, mPlayer.isPlaying());
         }
     }
 

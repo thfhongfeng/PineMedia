@@ -1,10 +1,14 @@
 package com.pine.audioplayer.vm;
 
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
 import com.pine.audioplayer.ApConstants;
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
+import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.audioplayer.model.ApMusicModel;
 import com.pine.tool.architecture.mvvm.vm.ViewModel;
 
@@ -19,6 +23,14 @@ public class ApSheetListVm extends ViewModel {
     public MutableLiveData<List<ApMusicSheet>> mCustomSheetListData = new MutableLiveData<>();
 
     private ApMusicSheet mAllMusicSheet = new ApMusicSheet();
+
+    private ApMusicSheet mRecentSheet;
+
+    @Override
+    public boolean parseIntentData(@NonNull Bundle bundle) {
+        mRecentSheet = mModel.getRecentSheet(getContext());
+        return false;
+    }
 
     @Override
     public void afterViewInit() {
@@ -40,5 +52,9 @@ public class ApSheetListVm extends ViewModel {
         mFavouriteSheetData.setValue(mModel.getFavouriteSheet(getContext()));
         mRecentSheetData.setValue(mModel.getRecentSheet(getContext()));
         mCustomSheetListData.setValue(mModel.getCustomMusicSheetList(getContext()));
+    }
+
+    public List<ApSheetMusic> getRecentMusicList() {
+        return mModel.getSheetMusicList(getContext(), mRecentSheet.getId());
     }
 }

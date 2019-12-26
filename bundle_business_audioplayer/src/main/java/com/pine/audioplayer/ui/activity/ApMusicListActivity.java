@@ -4,35 +4,36 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import com.pine.audioplayer.R;
-import com.pine.audioplayer.adapter.ApMusicListAdapter;
-import com.pine.audioplayer.databinding.ApMusicListActivityBinding;
-import com.pine.audioplayer.databinding.ApMusicListTopMenuBinding;
-import com.pine.audioplayer.db.entity.ApMusicSheet;
-import com.pine.audioplayer.db.entity.ApSheetMusic;
-import com.pine.audioplayer.vm.ApMusicListVm;
-import com.pine.audioplayer.widget.view.ApSimpleAudioPlayerView;
-import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
-import com.pine.base.recycle_view.adapter.BaseListAdapter;
-import com.pine.base.util.DialogUtils;
-import com.pine.base.widget.dialog.SelectItemDialog;
-import com.pine.player.bean.PineMediaPlayerBean;
-import com.pine.tool.util.ResourceUtils;
-import com.pine.tool.widget.dialog.PopupMenu;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.pine.audioplayer.R;
+import com.pine.audioplayer.adapter.ApMusicListAdapter;
+import com.pine.audioplayer.databinding.ApMusicListActivityBinding;
+import com.pine.audioplayer.databinding.ApMusicListTopMenuBinding;
+import com.pine.audioplayer.db.entity.ApMusicSheet;
+import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.manager.ApFloatViewManager;
+import com.pine.audioplayer.vm.ApMusicListVm;
+import com.pine.audioplayer.widget.view.ApSimpleAudioPlayerView;
+import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
+import com.pine.base.recycle_view.adapter.BaseListAdapter;
+import com.pine.base.util.DialogUtils;
+import com.pine.base.widget.dialog.SelectItemDialog;
+import com.pine.tool.util.ResourceUtils;
+import com.pine.tool.widget.dialog.PopupMenu;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicListActivityBinding, ApMusicListVm> {
 
     private ApMusicListAdapter mMusicListAdapter;
     private PopupMenu mTopPopupMenu;
+    private ApSimpleAudioPlayerView mFloatingSimpleAudioPlayerView;
 
     @Override
     public void observeInitLiveData(Bundle savedInstanceState) {
@@ -82,36 +83,24 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         mBinding.recycleView.setLayoutManager(layoutManager);
         mBinding.recycleView.setAdapter(mMusicListAdapter);
-        mBinding.audioView.init(this, TAG, new ApSimpleAudioPlayerView.IOnMediaListChangeListener() {
-            @Override
-            public void onMediaRemove(ApSheetMusic music) {
-                mViewModel.removeMusicFromRecent(music.getSongId());
-            }
 
-            @Override
-            public void onMediaListClear(List<ApSheetMusic> musicList) {
-                mViewModel.clearRecentSheetMusic();
-            }
-        });
-        List<ApSheetMusic> recentMusicList = mViewModel.getRecentMusicList();
-        if (recentMusicList != null && recentMusicList.size() > 0) {
-            mBinding.audioView.playMusicList(recentMusicList, false);
-        }
+        mFloatingSimpleAudioPlayerView = ApFloatViewManager.getInstance().getFloatSimpleAudioPlayer();
     }
 
     @Override
     protected void onRealResume() {
         super.onRealResume();
+        ApFloatViewManager.getInstance().showSimpleAudioPlayerView();
         mViewModel.refreshData();
     }
 
     private void playAllMusicList(@NonNull List<ApSheetMusic> musicList, boolean startPlay) {
-        mBinding.audioView.playMusicList(musicList, startPlay);
+        mFloatingSimpleAudioPlayerView.playMusicList(musicList, startPlay);
         mViewModel.addAllMusicsToRecent();
     }
 
     private void playMusic(@NonNull ApSheetMusic music, boolean startPlay) {
-        mBinding.audioView.playMusic(music, startPlay);
+        mFloatingSimpleAudioPlayerView.playMusic(music, startPlay);
         mViewModel.addMusicToRecent(music);
     }
 

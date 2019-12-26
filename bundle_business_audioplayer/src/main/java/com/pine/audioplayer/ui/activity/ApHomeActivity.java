@@ -3,6 +3,7 @@ package com.pine.audioplayer.ui.activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -14,14 +15,18 @@ import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicSheetAdapter;
 import com.pine.audioplayer.databinding.ApHomeActivityBinding;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
+import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.manager.ApFloatViewManager;
 import com.pine.audioplayer.vm.ApSheetListVm;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
 import com.pine.base.util.DialogUtils;
 import com.pine.base.widget.dialog.InputTextDialog;
+import com.pine.tool.permission.PermissionsAnnotation;
 
 import java.util.List;
 
+@PermissionsAnnotation(Permissions = {Settings.ACTION_MANAGE_OVERLAY_PERMISSION})
 public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBinding, ApSheetListVm> {
     private ApMusicSheetAdapter mMusicSheetAdapter;
 
@@ -79,12 +84,26 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
         linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mBinding.sheetRv.setLayoutManager(linearLayoutManager);
         mBinding.sheetRv.setAdapter(mMusicSheetAdapter);
+
+        ApFloatViewManager.getInstance().setupFloatSimpleAudioPlayerView();
+
+        List<ApSheetMusic> recentMusicList = mViewModel.getRecentMusicList();
+        if (recentMusicList != null && recentMusicList.size() > 0) {
+            ApFloatViewManager.getInstance().getFloatSimpleAudioPlayer().playMusicList(recentMusicList, false);
+        }
     }
 
     @Override
     protected void onRealResume() {
         super.onRealResume();
+        ApFloatViewManager.getInstance().showSimpleAudioPlayerView();
         mViewModel.refreshData();
+    }
+
+    @Override
+    protected void onDestroy() {
+        ApFloatViewManager.getInstance().clearFloatSimpleAudioPlayer();
+        super.onDestroy();
     }
 
     private void goMusicListActivity(ApMusicSheet sheet) {

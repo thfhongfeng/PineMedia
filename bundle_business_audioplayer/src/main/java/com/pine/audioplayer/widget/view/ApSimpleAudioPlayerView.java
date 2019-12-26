@@ -1,9 +1,13 @@
 package com.pine.audioplayer.widget.view;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,13 +34,18 @@ import com.pine.player.component.PineMediaWidget;
 import com.pine.player.component.PinePlayState;
 import com.pine.player.widget.PineMediaController;
 import com.pine.player.widget.PineMediaPlayerView;
-import com.pine.tool.ui.Activity;
+import com.pine.tool.RootApplication;
+import com.pine.tool.util.LogUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class ApSimpleAudioPlayerView extends RelativeLayout {
+    private final String TAG = LogUtils.makeLogTag(this.getClass());
+
     private View mRoot;
     private View controller_view;
     private ImageView cover_iv, next_btn, list_btn;
@@ -53,9 +62,18 @@ public class ApSimpleAudioPlayerView extends RelativeLayout {
     private HashMap<String, ApSheetMusic> mMusicListMap = new HashMap<>();
     private ApSheetMusic mCurPlayMusic;
 
+    private HandlerThread mAlbumArtBitmapThread;
+    private Handler mAlbumArtBitmapThreadHandler;
+    private HashMap<String, Bitmap> mAlbumArtBitmapMap = new HashMap<>();
+
     private CustomListDialog mMusicListDialog;
 
-    private IOnMediaListChangeListener mListener;
+    private IOnMediaListChangeListener mMediaListChangeListener;
+    private IOnListDialogListener mListDialogListener;
+
+    public void setOnListDialogListener(IOnListDialogListener listDialogListener) {
+        mListDialogListener = listDialogListener;
+    }
 
     public ApSimpleAudioPlayerView(Context context) {
         super(context);
@@ -91,7 +109,7 @@ public class ApSimpleAudioPlayerView extends RelativeLayout {
                 if (mMusicListDialog != null && mMusicListDialog.isShowing()) {
                     mMusicListDialog.dismiss();
                 }
-                mMusicListDialog = DialogUtils.createCustomListDialog(getContext(), R.layout.ap_simple_audio_dialog_title_layout,
+                mMusicListDialog = DialogUtils.createCustomListDialog(RootApplication.mCurResumedActivity, R.layout.ap_simple_audio_dialog_title_layout,
                         R.layout.ap_item_simple_audio_dialog, mControllerAdapter.getMediaList(),
                         new CustomListDialog.IOnViewBindCallback<PineMediaPlayerBean>() {
                             @Override
@@ -127,6 +145,9 @@ public class ApSimpleAudioPlayerView extends RelativeLayout {
                                 PineMediaPlayerBean playerBean = mMediaPlayer.getMediaPlayerBean();
                                 int playState = playerBean != null && playerBean.getMediaCode().equals(data.getMediaCode()) ? (mMediaPlayer.isPlaying() ? 2 : 1) : 0;
                                 binding.setPlayingState(playState);
+                                if (binding.playStateIv.getDrawable() instanceof AnimationDrawable) {
+                                    ((AnimationDrawable) binding.playStateIv.getDrawable()).stop();
+                                }
                                 if (playState == 2) {
                                     binding.playStateIv.setImageResource(R.drawable.res_anim_playing);
                                     AnimationDrawable playAnim = (AnimationDrawable) binding.playStateIv.getDrawable();
@@ -149,12 +170,28 @@ public class ApSimpleAudioPlayerView extends RelativeLayout {
                                 binding.getRoot().setOnClickListener(new OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        playMusic(mMusicListMap.get(data.getMediaCode()), true);
+                                        playMusicFromPlayList(mMusicListMap.get(data.getMediaCode()), true);
                                     }
                                 });
                                 binding.executePendingBindings();
                             }
                         });
+                mMusicListDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        if (mListDialogListener != null) {
+                            mListDialogListener.onListDialogStateChange(true);
+                        }
+                    }
+                });
+                mMusicListDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        if (mListDialogListener != null) {
+                            mListDialogListener.onListDialogStateChange(false);
+                        }
+                    }
+                });
                 mMusicListDialog.show();
             }
         });
@@ -163,15 +200,47 @@ public class ApSimpleAudioPlayerView extends RelativeLayout {
     }
 
     @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (mAlbumArtBitmapThread == null) {
+            mAlbumArtBitmapThread = new HandlerThread(TAG);
+            mAlbumArtBitmapThread.start();
+        }
+        if (mAlbumArtBitmapThreadHandler == null) {
+            mAlbumArtBitmapThreadHandler = new Handler(mAlbumArtBitmapThread.getLooper());
+        }
+    }
+
+    @Override
     protected void onDetachedFromWindow() {
         if (mMusicListDialog != null && mMusicListDialog.isShowing()) {
             mMusicListDialog.dismiss();
         }
+        clearBitmap();
+        if (mAlbumArtBitmapThreadHandler != null) {
+            mAlbumArtBitmapMap.clear();
+            mAlbumArtBitmapThreadHandler.removeCallbacksAndMessages(null);
+            mAlbumArtBitmapThreadHandler = null;
+        }
+        if (mAlbumArtBitmapThread != null) {
+            mAlbumArtBitmapThread.quit();
+            mAlbumArtBitmapThread = null;
+        }
         super.onDetachedFromWindow();
     }
 
-    public void init(Activity context, String tag, IOnMediaListChangeListener listener) {
-        mListener = listener;
+    private void clearBitmap() {
+        Iterator<Map.Entry<String, Bitmap>> iterator = mAlbumArtBitmapMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Bitmap bitmap = iterator.next().getValue();
+            if (bitmap != null) {
+                bitmap.recycle();
+            }
+        }
+    }
+
+    public void init(Context context, String tag, IOnMediaListChangeListener mediaListChangeListener) {
+        mMediaListChangeListener = mediaListChangeListener;
         mMediaController = new PineMediaController(getContext());
         mMediaPlayerView.init(tag, mMediaController);
         mMediaPlayer = mMediaPlayerView.getMediaPlayer();
@@ -181,12 +250,12 @@ public class ApSimpleAudioPlayerView extends RelativeLayout {
         mMediaPlayer.addMediaPlayerListener(new PineMediaWidget.PineMediaPlayerListener() {
             @Override
             public void onStateChange(PineMediaPlayerBean playerBean, PinePlayState fromState, PinePlayState toState) {
-                boolean mediaChange = mCurPlayMusic == null || !playerBean.getMediaCode().equals(mCurPlayMusic.getSongId() + "");
+                boolean mediaChange = mCurPlayMusic == null || mMediaPlayer.isInPlaybackState() && !playerBean.getMediaCode().equals(mCurPlayMusic.getSongId() + "");
                 boolean playStateChange = fromState != toState;
                 if (mediaChange || playStateChange) {
                     mCurPlayMusic = mMusicListMap.get(playerBean.getMediaCode());
                     setupControllerView(mCurPlayMusic);
-                    if (mMusicListDialog != null) {
+                    if (mMusicListDialog != null && mMusicListDialog.isShowing()) {
                         mMusicListDialog.getListAdapter().notifyDataSetChangedSafely();
                     }
                 }
@@ -222,6 +291,16 @@ public class ApSimpleAudioPlayerView extends RelativeLayout {
         setupControllerView(music);
     }
 
+    private void playMusicFromPlayList(@NonNull ApSheetMusic music, boolean startPlay) {
+        if (music == null) {
+            return;
+        }
+        PineMediaPlayerBean mediaBean = transferMediaBean(music);
+        mMusicListMap.put(mediaBean.getMediaCode(), music);
+        mControllerAdapter.onMediaSelect(mediaBean.getMediaCode(), startPlay);
+        setupControllerView(music);
+    }
+
     private PineMediaPlayerBean transferMediaBean(@NonNull ApSheetMusic music) {
         PineMediaPlayerBean mediaBean = new PineMediaPlayerBean(music.getSongId() + "",
                 music.getName(), Uri.parse(music.getFilePath()),
@@ -231,15 +310,15 @@ public class ApSimpleAudioPlayerView extends RelativeLayout {
     }
 
     private void onMediaRemove(PineMediaPlayerBean mediaBean) {
-        if (mListener != null) {
+        if (mMediaListChangeListener != null) {
             ApSheetMusic music = mMusicListMap.get(mediaBean.getMediaCode());
-            mListener.onMediaRemove(music);
+            mMediaListChangeListener.onMediaRemove(music);
         }
         setupControllerView(mMusicListMap.get(mControllerAdapter.getCurMediaCode()));
     }
 
     private void onMediaListClear(List<PineMediaPlayerBean> mediaList) {
-        if (mListener != null) {
+        if (mMediaListChangeListener != null) {
             List<ApSheetMusic> musicList = new ArrayList<>();
             if (mediaList != null && mediaList.size() > 0) {
                 for (PineMediaPlayerBean mediaBean : mediaList) {
@@ -249,19 +328,23 @@ public class ApSimpleAudioPlayerView extends RelativeLayout {
                     }
                 }
             }
-            mListener.onMediaListClear(musicList);
+            mMediaListChangeListener.onMediaListClear(musicList);
         }
         setupControllerView(null);
     }
 
     private void setupControllerView(ApSheetMusic music) {
         if (music != null) {
-            Bitmap bitmap = ApLocalMusicUtils.getAlbumArtBitmap(getContext(),
-                    music.getSongId(), music.getAlbumId(), true);
-            if (bitmap != null) {
-                cover_iv.setImageBitmap(bitmap);
+            final String mediaCode = music.getSongId() + "";
+            if (!mAlbumArtBitmapMap.containsKey(mediaCode)) {
+                getAlbumArtBitmapInBackground(mediaCode, music.getSongId(), music.getAlbumId());
             } else {
-                cover_iv.setImageResource(R.mipmap.res_iv_top_bg);
+                Bitmap bitmap = mAlbumArtBitmapMap.get(mediaCode);
+                if (bitmap != null) {
+                    cover_iv.setImageBitmap(bitmap);
+                } else {
+                    cover_iv.setImageResource(R.mipmap.res_iv_top_bg);
+                }
             }
             name_tv.setText(music.getName());
             desc_tv.setText(music.getAuthor() + " - " + music.getAlbum());
@@ -282,9 +365,38 @@ public class ApSimpleAudioPlayerView extends RelativeLayout {
         }
     }
 
+    private void getAlbumArtBitmapInBackground(final String mediaCode, final long songId, final long albumId) {
+        if (mAlbumArtBitmapThreadHandler == null) {
+            cover_iv.setImageResource(R.mipmap.res_iv_top_bg);
+            return;
+        }
+        mAlbumArtBitmapThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                final Bitmap bitmap = ApLocalMusicUtils.getAlbumArtBitmap(getContext(),
+                        songId, albumId, true);
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAlbumArtBitmapMap.put(mediaCode, bitmap);
+                        if (bitmap != null) {
+                            cover_iv.setImageBitmap(bitmap);
+                        } else {
+                            cover_iv.setImageResource(R.mipmap.res_iv_top_bg);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
     public interface IOnMediaListChangeListener {
         void onMediaRemove(ApSheetMusic music);
 
         void onMediaListClear(List<ApSheetMusic> musicList);
+    }
+
+    public interface IOnListDialogListener {
+        void onListDialogStateChange(boolean isShown);
     }
 }

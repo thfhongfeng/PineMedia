@@ -165,7 +165,7 @@ public class ApLocalMusicUtils {
             //根据options参数，减少所需要的内存
             bm = BitmapFactory.decodeFileDescriptor(fd, null, options);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+
         }
         return bm;
     }
