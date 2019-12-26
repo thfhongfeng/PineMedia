@@ -12,6 +12,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.bean.ApPlayListType;
 import com.pine.audioplayer.databinding.ApItemSimpleAudioDialogBinding;
@@ -23,6 +27,7 @@ import com.pine.base.util.DialogUtils;
 import com.pine.base.widget.dialog.CustomListDialog;
 import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.player.component.PineMediaWidget;
+import com.pine.player.component.PinePlayState;
 import com.pine.player.widget.PineMediaController;
 import com.pine.player.widget.PineMediaPlayerView;
 import com.pine.tool.ui.Activity;
@@ -30,10 +35,6 @@ import com.pine.tool.ui.Activity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
 
 public class ApSimpleAudioPlayerView extends RelativeLayout {
     private View mRoot;
@@ -179,7 +180,7 @@ public class ApSimpleAudioPlayerView extends RelativeLayout {
         mMediaController.setMediaControllerAdapter(mControllerAdapter);
         mMediaPlayer.addMediaPlayerListener(new PineMediaWidget.PineMediaPlayerListener() {
             @Override
-            public void onStateChange(PineMediaPlayerBean playerBean, int fromState, int toState) {
+            public void onStateChange(PineMediaPlayerBean playerBean, PinePlayState fromState, PinePlayState toState) {
                 boolean mediaChange = mCurPlayMusic == null || !playerBean.getMediaCode().equals(mCurPlayMusic.getSongId() + "");
                 boolean playStateChange = fromState != toState;
                 if (mediaChange || playStateChange) {
