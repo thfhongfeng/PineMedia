@@ -15,6 +15,7 @@ import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.player.component.PineMediaWidget;
 import com.pine.player.widget.PineMediaController;
+import com.pine.player.widget.view.PineProgressBar;
 import com.pine.player.widget.viewholder.PineBackgroundViewHolder;
 import com.pine.player.widget.viewholder.PineControllerViewHolder;
 import com.pine.player.widget.viewholder.PineRightViewHolder;
@@ -219,8 +220,8 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
             PineControllerViewHolder viewHolder, View root) {
         viewHolder.setPausePlayButton(root.findViewById(R.id.sapv_play_pause_btn));
         viewHolder.setNextButton(root.findViewById(R.id.sapv_next_btn));
-//        SeekBar seekBar = root.findViewById(R.id.progress_bar);
-//        viewHolder.setPlayProgressBar(seekBar);
+        PineProgressBar progressBar = root.findViewById(R.id.sapv_progress_bar);
+        viewHolder.setCustomProgressBar(progressBar);
     }
 
     @Override

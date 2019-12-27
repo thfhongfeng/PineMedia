@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
@@ -61,15 +62,34 @@
             </LinearLayout>
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/sapv_play_pause_btn"
-            android:layout_width="@dimen/dp_40"
-            android:layout_height="@dimen/dp_40"
-            android:layout_marginRight="@dimen/dp_10"
-            android:background="@drawable/res_shape_circle_f8f8ff"
-            android:gravity="center"
-            android:padding="@dimen/dp_10"
-            android:src="@drawable/res_selector_play_pause_btn_2" />
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/dp_10">
+
+            <com.pine.player.widget.view.PineRingProgressBar
+                android:id="@+id/sapv_progress_bar"
+                android:layout_width="@dimen/dp_46"
+                android:layout_height="@dimen/dp_46"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:gravity="center"
+                app:backgroundColor="@color/transparent"
+                app:progressColor="@color/red"
+                app:radius="@dimen/dp_21"
+                app:startAngle="-90"
+                app:strokeWidth="@dimen/dp_2" />
+
+            <ImageView
+                android:id="@+id/sapv_play_pause_btn"
+                android:layout_width="@dimen/dp_40"
+                android:layout_height="@dimen/dp_40"
+                android:layout_centerInParent="true"
+                android:background="@drawable/res_shape_circle_f8f8ff"
+                android:gravity="center"
+                android:padding="@dimen/dp_10"
+                android:src="@drawable/res_selector_play_pause_btn_2" />
+        </RelativeLayout>
 
         <ImageView
             android:id="@+id/sapv_next_btn"
