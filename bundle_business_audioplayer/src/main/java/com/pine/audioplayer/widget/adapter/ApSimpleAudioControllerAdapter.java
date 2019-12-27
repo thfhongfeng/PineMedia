@@ -10,6 +10,8 @@ import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 
 import com.pine.audioplayer.R;
+import com.pine.audioplayer.bean.ApPlayListType;
+import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.player.component.PineMediaWidget;
 import com.pine.player.widget.PineMediaController;
@@ -26,71 +28,142 @@ import java.util.List;
 
 public class ApSimpleAudioControllerAdapter extends PineMediaController.AbstractMediaControllerAdapter {
     private Context mContext;
-    private ViewGroup mRoot;
+    private ViewGroup mControllerView;
     private PineBackgroundViewHolder mBackgroundViewHolder;
     private PineControllerViewHolder mControllerViewHolder;
     private RelativeLayout mBackgroundView;
-    private ViewGroup mControllerView;
-    private List<PineMediaPlayerBean> mMediaList = new LinkedList<>();
-    private HashMap<String, PineMediaPlayerBean> mMediaCodeListMap = new HashMap<>();
+
+    private List<ApSheetMusic> mMusicList = new LinkedList<>();
+    private HashMap<String, PineMediaPlayerBean> mCodeMediaListMap = new HashMap<>();
+    private HashMap<String, ApSheetMusic> mCodeMusicListMap = new HashMap<>();
     private String mCurrentMediaCode = "";
+
+    private List<ApPlayListType> mPlayTypeList;
+    private int mCurPlayTypePos = 0;
+
+    public ApSimpleAudioControllerAdapter(Context context) {
+        mContext = context;
+        mPlayTypeList = ApPlayListType.getDefaultList(mContext);
+    }
 
     public ApSimpleAudioControllerAdapter(Context context, ViewGroup root) {
         mContext = context;
-        mRoot = root;
+        mControllerView = root;
+        mPlayTypeList = ApPlayListType.getDefaultList(mContext);
+    }
+
+    public void setControllerView(ViewGroup root) {
+        mControllerView = root;
+        mBackgroundViewHolder = null;
+        mControllerViewHolder = null;
+        mBackgroundView = null;
+    }
+
+    public List<ApSheetMusic> getMusicList() {
+        return mMusicList;
+    }
+
+    public void setCurMediaCode(String curMediaCode) {
+        mCurrentMediaCode = curMediaCode;
     }
 
     public String getCurMediaCode() {
         return mCurrentMediaCode;
     }
 
-    public void setMediaList(List<PineMediaPlayerBean> list) {
-        mMediaList = new ArrayList<>();
-        mMediaCodeListMap = new HashMap<>();
+    public ApSheetMusic getCurMusic() {
+        return mCodeMusicListMap.get(mCurrentMediaCode);
+    }
+
+    public ApSheetMusic getListedMusic(String mediaCode) {
+        return mCodeMusicListMap.get(mediaCode);
+    }
+
+    public ApPlayListType getCurPlayType() {
+        return mPlayTypeList.get(mCurPlayTypePos % mPlayTypeList.size());
+    }
+
+    public ApPlayListType getNextPlayType() {
+        return mPlayTypeList.get((mCurPlayTypePos + 1) % mPlayTypeList.size());
+    }
+
+    public ApPlayListType goNextPlayType() {
+        return mPlayTypeList.get((++mCurPlayTypePos) % mPlayTypeList.size());
+    }
+
+    public String getMediaCode(@NonNull ApSheetMusic music) {
+        return music.getSongId() + "";
+    }
+
+    public PineMediaPlayerBean transferMediaBean(@NonNull ApSheetMusic music) {
+        PineMediaPlayerBean mediaBean = new PineMediaPlayerBean(getMediaCode(music),
+                music.getName(), Uri.parse(music.getFilePath()),
+                PineMediaPlayerBean.MEDIA_TYPE_VIDEO, null,
+                null, null);
+        return mediaBean;
+    }
+
+    public void setMusicList(List<ApSheetMusic> list, boolean startPlay) {
+        mMusicList = new ArrayList<>();
+        mCodeMediaListMap = new HashMap<>();
+        mCodeMusicListMap = new HashMap<>();
         if (list == null || list.size() < 1) {
             mPlayer.release();
             mPlayer.setPlayingMedia(null);
             mCurrentMediaCode = "";
         } else {
-            addMediaList(list);
+            addMusicList(list, startPlay);
         }
     }
 
-    public List<PineMediaPlayerBean> getMediaList() {
-        return mMediaList;
-    }
-
-    public void addMedia(PineMediaPlayerBean bean) {
-        if (mMediaCodeListMap.containsKey(bean.getMediaCode())) {
-            mMediaList.remove(mMediaCodeListMap.get(bean.getMediaCode()));
-        }
-        mMediaList.add(0, bean);
-        mMediaCodeListMap.put(bean.getMediaCode(), bean);
-    }
-
-    public void addMediaList(List<PineMediaPlayerBean> list) {
-        if (list == null) {
+    public void addMusic(ApSheetMusic music, boolean startPlay) {
+        if (music == null) {
             return;
         }
-        removeDuplicateBean(list);
-        for (int i = list.size() - 1; i >= 0; i--) {
-            PineMediaPlayerBean bean = list.get(i);
-            mMediaList.add(0, bean);
-            mMediaCodeListMap.put(bean.getMediaCode(), bean);
+        String mediaCode = getMediaCode(music);
+        if (mCodeMusicListMap.containsKey(mediaCode)) {
+            mMusicList.remove(mCodeMusicListMap.get(mediaCode));
         }
+        PineMediaPlayerBean mediaBean = transferMediaBean(music);
+        mMusicList.add(0, music);
+        mCodeMusicListMap.put(mediaBean.getMediaCode(), music);
+        mCodeMediaListMap.put(mediaBean.getMediaCode(), mediaBean);
+        onMediaSelect(getMediaCode(music), startPlay);
     }
 
-    public void removeMedia(PineMediaPlayerBean bean) {
-        int curPos = findMediaPosition(mCurrentMediaCode);
-        if (!bean.getMediaCode().equals(mCurrentMediaCode)
-                && findMediaPosition(bean.getMediaCode()) < curPos) {
+    public void addMusicList(List<ApSheetMusic> list, boolean startPlay) {
+        if (list == null && list.size() < 1) {
+            return;
+        }
+        for (ApSheetMusic music : list) {
+            String mediaCode = getMediaCode(music);
+            if (mCodeMusicListMap.containsKey(mediaCode)) {
+                mMusicList.remove(mCodeMusicListMap.get(mediaCode));
+            }
+        }
+        for (int i = list.size() - 1; i >= 0; i--) {
+            ApSheetMusic music = list.get(i);
+            PineMediaPlayerBean mediaBean = transferMediaBean(music);
+            mMusicList.add(0, music);
+            mCodeMediaListMap.put(mediaBean.getMediaCode(), mediaBean);
+            mCodeMusicListMap.put(mediaBean.getMediaCode(), music);
+        }
+        onMediaSelect(getMediaCode(mMusicList.get(0)), startPlay);
+    }
+
+    public void removeMusic(ApSheetMusic music) {
+        int curPos = findMusicPosition(mCurrentMediaCode);
+        String musicMediaCode = getMediaCode(music);
+        if (!musicMediaCode.equals(mCurrentMediaCode)
+                && findMusicPosition(getMediaCode(music)) < curPos) {
             curPos--;
         }
-        if (mMediaCodeListMap.containsKey(bean.getMediaCode())) {
-            mMediaList.remove(mMediaCodeListMap.get(bean.getMediaCode()));
-            mMediaCodeListMap.remove(bean.getMediaCode());
+        if (mCodeMusicListMap.containsKey(musicMediaCode)) {
+            mMusicList.remove(mCodeMusicListMap.get(musicMediaCode));
+            mCodeMediaListMap.remove(musicMediaCode);
+            mCodeMusicListMap.remove(musicMediaCode);
         }
-        if (mMediaList.size() < 1) {
+        if (mMusicList.size() < 1) {
             mPlayer.release();
             mPlayer.setPlayingMedia(null);
             mCurrentMediaCode = "";
@@ -99,14 +172,15 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
         }
     }
 
-    private void removeDuplicateBean(@NonNull List<PineMediaPlayerBean> list) {
-        List<PineMediaPlayerBean> duplicateItemList = new ArrayList<>();
-        for (PineMediaPlayerBean bean : list) {
-            if (mMediaCodeListMap.containsKey(bean.getMediaCode())) {
-                duplicateItemList.add(mMediaCodeListMap.get(bean.getMediaCode()));
+    private void refreshPreNextBtnState(int curPosition) {
+        if (mControllerViewHolder != null) {
+            if (mControllerViewHolder.getPrevButton() != null) {
+                mControllerViewHolder.getPrevButton().setEnabled(curPosition > 0);
+            }
+            if (mControllerViewHolder.getNextButton() != null) {
+                mControllerViewHolder.getNextButton().setEnabled(curPosition < mMusicList.size() - 1);
             }
         }
-        mMediaList.removeAll(duplicateItemList);
     }
 
     @Override
@@ -143,8 +217,8 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
 
     private final void initControllerViewHolder(
             PineControllerViewHolder viewHolder, View root) {
-        viewHolder.setPausePlayButton(root.findViewById(R.id.play_pause_btn));
-        viewHolder.setNextButton(root.findViewById(R.id.next_btn));
+        viewHolder.setPausePlayButton(root.findViewById(R.id.sapv_play_pause_btn));
+        viewHolder.setNextButton(root.findViewById(R.id.sapv_next_btn));
 //        SeekBar seekBar = root.findViewById(R.id.progress_bar);
 //        viewHolder.setPlayProgressBar(seekBar);
     }
@@ -154,9 +228,6 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
             PineMediaWidget.IPineMediaPlayer player, boolean isFullScreenMode) {
         if (mControllerViewHolder == null) {
             mControllerViewHolder = new PineControllerViewHolder();
-            if (mControllerView == null) {
-                mControllerView = mRoot;
-            }
             initControllerViewHolder(mControllerViewHolder, mControllerView);
         }
         mControllerViewHolder.setContainer(mControllerView);
@@ -176,10 +247,10 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
     }
 
 
-    private int findMediaPosition(String mediaCode) {
-        if (mMediaList != null && mMediaList.size() > 0) {
-            for (int i = 0; i < mMediaList.size(); i++) {
-                if (mediaCode.equals(mMediaList.get(i).getMediaCode())) {
+    private int findMusicPosition(String mediaCode) {
+        if (mMusicList != null && mMusicList.size() > 0) {
+            for (int i = 0; i < mMusicList.size(); i++) {
+                if (mediaCode.equals(getMediaCode(mMusicList.get(i)))) {
                     return i;
                 }
             }
@@ -189,7 +260,7 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
 
     @Override
     public boolean onPreMediaSelect(@NonNull String curMediaCode, boolean startPlay) {
-        int position = findMediaPosition(curMediaCode);
+        int position = findMusicPosition(curMediaCode);
         if (position == -1) {
             return false;
         }
@@ -199,7 +270,7 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
 
     @Override
     public boolean onNextMediaSelect(@NonNull String curMediaCode, boolean startPlay) {
-        int position = findMediaPosition(curMediaCode);
+        int position = findMusicPosition(curMediaCode);
         if (position == -1) {
             return false;
         }
@@ -209,7 +280,7 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
 
     @Override
     public boolean onMediaSelect(String mediaCode, boolean startPlay) {
-        int position = findMediaPosition(mediaCode);
+        int position = findMusicPosition(mediaCode);
         if (position == -1) {
             return false;
         }
@@ -217,25 +288,20 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
     }
 
     private boolean playMedia(int position, boolean startPlay) {
-        position = position % mMediaList.size();
-        if (mControllerViewHolder != null) {
-            if (mControllerViewHolder.getPrevButton() != null) {
-                mControllerViewHolder.getPrevButton().setEnabled(position > 0);
+        position = position % mMusicList.size();
+        refreshPreNextBtnState(position);
+        if (mPlayer != null) {
+            if (position >= 0 && position < mMusicList.size()) {
+                String mediaCode = getMediaCode(mMusicList.get(position));
+                if (mCurrentMediaCode != mediaCode) {
+                    mPlayer.setPlayingMedia(mCodeMediaListMap.get(mediaCode));
+                }
+                if (startPlay) {
+                    mPlayer.start();
+                }
+                mCurrentMediaCode = mediaCode;
+                return true;
             }
-            if (mControllerViewHolder.getNextButton() != null) {
-                mControllerViewHolder.getNextButton().setEnabled(position < mMediaList.size() - 1);
-            }
-        }
-        if (position >= 0 && position < mMediaList.size()) {
-            PineMediaPlayerBean mediaBean = mMediaList.get(position);
-            if (mCurrentMediaCode != mediaBean.getMediaCode()) {
-                mPlayer.setPlayingMedia(mediaBean);
-            }
-            if (startPlay) {
-                mPlayer.start();
-            }
-            mCurrentMediaCode = mediaBean.getMediaCode();
-            return true;
         }
         return false;
     }

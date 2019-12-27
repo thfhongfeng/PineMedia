@@ -2,7 +2,6 @@ package com.pine.welcome.ui.activity;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.widget.Toast;
 
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.base.router.command.RouterMainCommand;
@@ -14,6 +13,8 @@ import com.pine.welcome.remote.WelcomeRouterClient;
 import com.pine.welcome.vm.WelcomeVm;
 
 public class WelcomeActivity extends BaseMvvmNoActionBarActivity<WelcomeActivityBinding, WelcomeVm> {
+    private final static int WELCOME_STAY_MIN_TIME = 1000;
+    private long mStartTimeMillis;
 
     @Override
     public void observeInitLiveData(Bundle savedInstanceState) {
@@ -27,10 +28,13 @@ public class WelcomeActivity extends BaseMvvmNoActionBarActivity<WelcomeActivity
 
     @Override
     protected void init(Bundle savedInstanceState) {
+        mStartTimeMillis = System.currentTimeMillis();
         goMainHomeActivity();
     }
 
     private void goMainHomeActivity() {
+        long delay = WELCOME_STAY_MIN_TIME - (System.currentTimeMillis() - mStartTimeMillis);
+        delay = delay > 0 ? delay : 0;
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -48,7 +52,7 @@ public class WelcomeActivity extends BaseMvvmNoActionBarActivity<WelcomeActivity
                     }
                 });
             }
-        }, 1000);
+        }, delay);
     }
 
     @Override

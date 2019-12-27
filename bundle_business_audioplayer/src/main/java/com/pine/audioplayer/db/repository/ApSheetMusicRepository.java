@@ -58,12 +58,7 @@ public class ApSheetMusicRepository {
             roomDatabase.runInTransaction(new Runnable() {
                 @Override
                 public void run() {
-                    if (apSheetMusicDao.checkSheetMusic(sheetId, apSheetMusic.getSongId(), apSheetMusic.getFilePath()) == null) {
-                        apSheetMusic.setId(0);
-                        apSheetMusic.setSheetId(sheetId);
-                        apSheetMusic.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
-                        apSheetMusic.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
-                        apSheetMusicDao.insert(apSheetMusic);
+                    if (insertOrUpdateSheetMusic(apSheetMusic, sheetId)) {
                         updateMusicSheetCount(apSheetMusic.getSheetId());
                     }
                 }
@@ -80,17 +75,27 @@ public class ApSheetMusicRepository {
                 @Override
                 public void run() {
                     for (ApSheetMusic music : list) {
-                        if (apSheetMusicDao.checkSheetMusic(sheetId, music.getSongId(), music.getFilePath()) == null) {
-                            music.setId(0);
-                            music.setSheetId(sheetId);
-                            music.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
-                            music.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
-                            apSheetMusicDao.insert(music);
-                        }
+                        insertOrUpdateSheetMusic(music, sheetId);
                     }
                     updateMusicSheetCount(sheetId);
                 }
             });
+        }
+    }
+
+    private boolean insertOrUpdateSheetMusic(@NonNull ApSheetMusic music, final long sheetId) {
+        ApSheetMusic dbMusic = apSheetMusicDao.checkSheetMusic(sheetId, music.getSongId(), music.getFilePath());
+        if (dbMusic == null) {
+            music.setId(0);
+            music.setSheetId(sheetId);
+            music.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+            music.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
+            apSheetMusicDao.insert(music);
+            return true;
+        } else {
+            dbMusic.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+            apSheetMusicDao.update(music);
+            return false;
         }
     }
 

@@ -21,13 +21,13 @@ public interface ApMusicSheetDao {
     @Update
     int update(ApMusicSheet apMusicSheet);
 
-    @Query("SELECT * FROM ap_music_sheet WHERE sheet_type IN (:sheetTypes)")
+    @Query("SELECT * FROM ap_music_sheet WHERE sheet_type IN (:sheetTypes) ORDER BY update_time_stamp DESC")
     List<ApMusicSheet> querySheetListByTypes(List<Integer> sheetTypes);
 
-    @Query("SELECT *FROM ap_music_sheet WHERE sheet_type=:sheetType")
+    @Query("SELECT *FROM ap_music_sheet WHERE sheet_type=:sheetType ORDER BY update_time_stamp DESC")
     List<ApMusicSheet> querySheetListByType(int sheetType);
 
-    @Query("SELECT *FROM ap_music_sheet WHERE sheet_type=:sheetType AND _id NOT IN (:excludeIds)")
+    @Query("SELECT *FROM ap_music_sheet WHERE sheet_type=:sheetType AND _id NOT IN (:excludeIds) ORDER BY update_time_stamp DESC")
     List<ApMusicSheet> querySheetListByType(int sheetType, long... excludeIds);
 
     @Query("SELECT *FROM ap_music_sheet WHERE _id=:sheetId")

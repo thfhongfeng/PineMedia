@@ -9,7 +9,7 @@
     <string name="ap_home_my_music_sheet">自建歌单&#160;%d</string>
     <string name="ap_home_create_sheet_title">新建歌单</string>
     <string name="ap_home_sheet_item_desc">%d&#160;首歌曲</string>
-    <string name="ap_home_tmp_play_name">播放列表</string>
+    <string name="ap_home_play_list_name">播放列表</string>
     <string name="ap_home_sheet_name_non_empty">歌单名称不能为空</string>
 
     <string name="ap_ml_play_all">播放全部</string>

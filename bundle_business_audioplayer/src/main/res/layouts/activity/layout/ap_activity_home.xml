@@ -122,8 +122,13 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/sheet_rv"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"></androidx.recyclerview.widget.RecyclerView>
-
+                android:layout_height="@dimen/dp_0"
+                android:layout_weight="1"></androidx.recyclerview.widget.RecyclerView>
         </LinearLayout>
+
+        <com.pine.audioplayer.widget.view.ApSimpleAudioPlayerView
+            android:id="@+id/player_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"></com.pine.audioplayer.widget.view.ApSimpleAudioPlayerView>
     </LinearLayout>
 </layout>

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,9 +15,8 @@ import com.pine.audioplayer.databinding.ApMusicListActivityBinding;
 import com.pine.audioplayer.databinding.ApMusicListTopMenuBinding;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
-import com.pine.audioplayer.manager.ApFloatViewManager;
+import com.pine.audioplayer.manager.ApSimpleAudioPlayerHelper;
 import com.pine.audioplayer.vm.ApMusicListVm;
-import com.pine.audioplayer.widget.view.ApSimpleAudioPlayerView;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
 import com.pine.base.util.DialogUtils;
@@ -33,7 +31,6 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
 
     private ApMusicListAdapter mMusicListAdapter;
     private PopupMenu mTopPopupMenu;
-    private ApSimpleAudioPlayerView mFloatingSimpleAudioPlayerView;
 
     @Override
     public void observeInitLiveData(Bundle savedInstanceState) {
@@ -74,7 +71,7 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
                         showMusicItemMenu(sheetMusic);
                         break;
                     default:
-                        playMusic(sheetMusic, true);
+                        ApSimpleAudioPlayerHelper.getInstance().playMusic(mBinding.playerView, sheetMusic, true);
                         break;
                 }
             }
@@ -83,25 +80,13 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         mBinding.recycleView.setLayoutManager(layoutManager);
         mBinding.recycleView.setAdapter(mMusicListAdapter);
-
-        mFloatingSimpleAudioPlayerView = ApFloatViewManager.getInstance().getFloatSimpleAudioPlayer();
     }
 
     @Override
     protected void onRealResume() {
         super.onRealResume();
-        ApFloatViewManager.getInstance().showSimpleAudioPlayerView();
+        ApSimpleAudioPlayerHelper.getInstance().attachGlobalController(this, mBinding.playerView);
         mViewModel.refreshData();
-    }
-
-    private void playAllMusicList(@NonNull List<ApSheetMusic> musicList, boolean startPlay) {
-        mFloatingSimpleAudioPlayerView.playMusicList(musicList, startPlay);
-        mViewModel.addAllMusicsToRecent();
-    }
-
-    private void playMusic(@NonNull ApSheetMusic music, boolean startPlay) {
-        mFloatingSimpleAudioPlayerView.playMusic(music, startPlay);
-        mViewModel.addMusicToRecent(music);
     }
 
     private void showMusicItemMenu(final ApSheetMusic sheetMusic) {
@@ -145,7 +130,7 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
             } else {
                 List<ApSheetMusic> sheetMusicList = mMusicListAdapter.getOriginData();
                 if (sheetMusicList != null && sheetMusicList.size() > 0) {
-                    playAllMusicList(sheetMusicList, true);
+                    ApSimpleAudioPlayerHelper.getInstance().playMusicList(mBinding.playerView, sheetMusicList, true);
                 }
             }
         }

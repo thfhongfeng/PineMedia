@@ -24,7 +24,7 @@ public interface ApSheetMusicDao {
     @Query("SELECT * FROM ap_sheet_music WHERE sheet_id=:sheetId AND song_id=:songId AND file_path=:filePath")
     ApSheetMusic checkSheetMusic(long sheetId, long songId, String filePath);
 
-    @Query("SELECT * FROM ap_sheet_music WHERE sheet_id=:sheetId")
+    @Query("SELECT * FROM ap_sheet_music WHERE sheet_id=:sheetId ORDER BY update_time_stamp DESC")
     List<ApSheetMusic> querySheetMusic(long sheetId);
 
     @Query("SELECT COUNT(*) FROM ap_sheet_music WHERE sheet_id=:sheetId")

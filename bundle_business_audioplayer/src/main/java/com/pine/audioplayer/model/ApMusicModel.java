@@ -22,6 +22,10 @@ public class ApMusicModel {
         return ApMusicSheetRepository.getInstance(context).querySheetByType(ApConstants.MUSIC_SHEET_TYPE_RECENT);
     }
 
+    public ApMusicSheet getPlayListSheet(Context context) {
+        return ApMusicSheetRepository.getInstance(context).querySheetByType(ApConstants.MUSIC_SHEET_TYPE_PLAY_LIST);
+    }
+
     public ApMusicSheet getCustomSheet(Context context, long sheetId) {
         return ApMusicSheetRepository.getInstance(context).querySheetById(sheetId);
     }
@@ -44,6 +48,7 @@ public class ApMusicModel {
     public void removeMusicSheet(Context context, ApMusicSheet apMusicSheet) {
         ApMusicSheetRepository.getInstance(context).deleteMusicSheet(apMusicSheet);
     }
+
 
     public int getAllMusicListCount(Context context) {
         return ApLocalMusicUtils.getAllMusicListCount(context);

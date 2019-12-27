@@ -33,8 +33,8 @@ public class ApApplication extends BaseApplication {
             recentSheet.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
             list.add(recentSheet);
             ApMusicSheet tmpPlaySheet = new ApMusicSheet();
-            tmpPlaySheet.setSheetType(ApConstants.MUSIC_SHEET_TYPE_TMP_PLAY);
-            tmpPlaySheet.setName(mApplication.getString(R.string.ap_home_tmp_play_name));
+            tmpPlaySheet.setSheetType(ApConstants.MUSIC_SHEET_TYPE_PLAY_LIST);
+            tmpPlaySheet.setName(mApplication.getString(R.string.ap_home_play_list_name));
             recentSheet.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
             recentSheet.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
             list.add(tmpPlaySheet);

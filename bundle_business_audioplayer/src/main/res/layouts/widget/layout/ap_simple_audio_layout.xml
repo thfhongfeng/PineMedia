@@ -6,12 +6,12 @@
     android:clickable="true">
 
     <com.pine.player.widget.PineMediaPlayerView
-        android:id="@+id/player_view"
+        android:id="@+id/sapv_player_view"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_0"></com.pine.player.widget.PineMediaPlayerView>
 
     <LinearLayout
-        android:id="@+id/controller_view"
+        android:id="@+id/sapv_controller_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
@@ -19,7 +19,7 @@
         android:padding="@dimen/dp_10">
 
         <LinearLayout
-            android:id="@+id/content_ll"
+            android:id="@+id/sapv_content_ll"
             android:layout_width="@dimen/dp_0"
             android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/dp_30"
@@ -28,7 +28,7 @@
             android:orientation="horizontal">
 
             <com.pine.tool.widget.view.CircleImageView
-                android:id="@+id/cover_iv"
+                android:id="@+id/sapv_cover_iv"
                 android:layout_width="@dimen/dp_40"
                 android:layout_height="@dimen/dp_40"
                 android:layout_marginLeft="@dimen/dp_10"
@@ -43,7 +43,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/name_tv"
+                    android:id="@+id/sapv_name_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/dp_3"
@@ -52,7 +52,7 @@
                     android:textSize="@dimen/sp_14"></TextView>
 
                 <TextView
-                    android:id="@+id/desc_tv"
+                    android:id="@+id/sapv_desc_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:singleLine="true"
@@ -62,7 +62,7 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/play_pause_btn"
+            android:id="@+id/sapv_play_pause_btn"
             android:layout_width="@dimen/dp_40"
             android:layout_height="@dimen/dp_40"
             android:layout_marginRight="@dimen/dp_10"
@@ -72,7 +72,7 @@
             android:src="@drawable/res_selector_play_pause_btn_2" />
 
         <ImageView
-            android:id="@+id/next_btn"
+            android:id="@+id/sapv_next_btn"
             android:layout_width="@dimen/dp_40"
             android:layout_height="@dimen/dp_40"
             android:layout_marginRight="@dimen/dp_10"
@@ -82,7 +82,7 @@
             android:src="@drawable/res_selector_next_btn_2" />
 
         <ImageView
-            android:id="@+id/list_btn"
+            android:id="@+id/sapv_list_btn"
             android:layout_width="@dimen/dp_40"
             android:layout_height="@dimen/dp_40"
             android:layout_marginRight="@dimen/dp_10"
