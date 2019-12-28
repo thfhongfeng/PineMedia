@@ -63,7 +63,7 @@ public class ApPlayListType {
                 context.getString(R.string.ap_sad_play_ord), R.mipmap.res_ic_play_order);
         playTypeList.add(playType);
         playType = new ApPlayListType(ApPlayListType.TYPE_RANDOM,
-                context.getString(R.string.ap_sad_play_loop_all), R.mipmap.res_ic_play_random);
+                context.getString(R.string.ap_sad_play_random), R.mipmap.res_ic_play_random);
         playTypeList.add(playType);
         return playTypeList;
     }

@@ -12,7 +12,6 @@ import com.pine.audioplayer.bean.ApPlayListType;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.player.component.PineMediaWidget;
-import com.pine.player.component.PinePlayState;
 import com.pine.player.widget.PineMediaController;
 import com.pine.player.widget.view.PineProgressBar;
 import com.pine.player.widget.viewholder.PineBackgroundViewHolder;
@@ -25,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import androidx.annotation.NonNull;
 
@@ -45,8 +45,23 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
 
     private PineMediaWidget.PineMediaPlayerListener mPlayerListener = new PineMediaWidget.PineMediaPlayerListener() {
         @Override
-        public void onStateChange(PineMediaPlayerBean playerBean, PinePlayState fromState, PinePlayState toState) {
-
+        public boolean onComplete(PineMediaPlayerBean playerBean) {
+            switch (getCurPlayType().getType()) {
+                case ApPlayListType.TYPE_ORDER:
+                    onNextMediaSelect(mCurrentMediaCode, true);
+                    break;
+                case ApPlayListType.TYPE_ALL_LOOP:
+                    onNextMediaSelect(mCurrentMediaCode, true);
+                    break;
+                case ApPlayListType.TYPE_SING_LOOP:
+                    onMediaSelect(mCurrentMediaCode, true);
+                    break;
+                case ApPlayListType.TYPE_RANDOM:
+                    int randomPos = new Random().nextInt(10000) % mMusicList.size();
+                    onMediaSelect(getMediaCode(mMusicList.get(randomPos)), true);
+                    break;
+            }
+            return false;
         }
     };
 
@@ -182,7 +197,7 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
             mPlayer.setPlayingMedia(null);
             mCurrentMediaCode = "";
         } else {
-            if(removeMediaCode.equals(mCurrentMediaCode)) {
+            if (removeMediaCode.equals(mCurrentMediaCode)) {
                 playMedia(curPos, mPlayer.isPlaying());
             }
         }
@@ -304,10 +319,15 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
     }
 
     private boolean playMedia(int position, boolean startPlay) {
-        position = position % mMusicList.size();
+        int curPlayType = getCurPlayType().getType();
+        if (curPlayType == ApPlayListType.TYPE_ALL_LOOP ||
+                curPlayType == ApPlayListType.TYPE_RANDOM ||
+                curPlayType == ApPlayListType.TYPE_SING_LOOP) {
+            position = position % mMusicList.size();
+        }
         refreshPreNextBtnState(position);
-        if (mPlayer != null) {
-            if (position >= 0 && position < mMusicList.size()) {
+        if (position >= 0 && position < mMusicList.size()) {
+            if (mPlayer != null) {
                 String mediaCode = getMediaCode(mMusicList.get(position));
                 if (mCurrentMediaCode != mediaCode) {
                     mPlayer.setPlayingMedia(mCodeMediaListMap.get(mediaCode));
