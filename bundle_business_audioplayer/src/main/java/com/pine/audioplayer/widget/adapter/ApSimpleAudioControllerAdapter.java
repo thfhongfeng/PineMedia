@@ -7,13 +7,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import androidx.annotation.NonNull;
-
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.bean.ApPlayListType;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.player.component.PineMediaWidget;
+import com.pine.player.component.PinePlayState;
 import com.pine.player.widget.PineMediaController;
 import com.pine.player.widget.view.PineProgressBar;
 import com.pine.player.widget.viewholder.PineBackgroundViewHolder;
@@ -26,6 +25,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
 
 public class ApSimpleAudioControllerAdapter extends PineMediaController.AbstractMediaControllerAdapter {
     private Context mContext;
@@ -42,6 +43,13 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
     private List<ApPlayListType> mPlayTypeList;
     private int mCurPlayTypePos = 0;
 
+    private PineMediaWidget.PineMediaPlayerListener mPlayerListener = new PineMediaWidget.PineMediaPlayerListener() {
+        @Override
+        public void onStateChange(PineMediaPlayerBean playerBean, PinePlayState fromState, PinePlayState toState) {
+
+        }
+    };
+
     public ApSimpleAudioControllerAdapter(Context context) {
         mContext = context;
         mPlayTypeList = ApPlayListType.getDefaultList(mContext);
@@ -51,6 +59,18 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
         mContext = context;
         mControllerView = root;
         mPlayTypeList = ApPlayListType.getDefaultList(mContext);
+    }
+
+    private PineMediaWidget.IPineMediaPlayer mPlayer;
+
+    public void setupPlayer(PineMediaWidget.IPineMediaPlayer player) {
+        mPlayer = player;
+        mPlayer.addMediaPlayerListener(mPlayerListener);
+    }
+
+    public void destroy() {
+        mPlayer.removeMediaPlayerListener(mPlayerListener);
+        setMusicList(null, false);
     }
 
     public void setControllerView(ViewGroup root) {
@@ -84,11 +104,7 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
         return mPlayTypeList.get(mCurPlayTypePos % mPlayTypeList.size());
     }
 
-    public ApPlayListType getNextPlayType() {
-        return mPlayTypeList.get((mCurPlayTypePos + 1) % mPlayTypeList.size());
-    }
-
-    public ApPlayListType goNextPlayType() {
+    public ApPlayListType getAndGoNextPlayType() {
         return mPlayTypeList.get((++mCurPlayTypePos) % mPlayTypeList.size());
     }
 
@@ -154,22 +170,21 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
 
     public void removeMusic(ApSheetMusic music) {
         int curPos = findMusicPosition(mCurrentMediaCode);
-        String musicMediaCode = getMediaCode(music);
-        if (!musicMediaCode.equals(mCurrentMediaCode)
-                && findMusicPosition(getMediaCode(music)) < curPos) {
-            curPos--;
-        }
-        if (mCodeMusicListMap.containsKey(musicMediaCode)) {
-            mMusicList.remove(mCodeMusicListMap.get(musicMediaCode));
-            mCodeMediaListMap.remove(musicMediaCode);
-            mCodeMusicListMap.remove(musicMediaCode);
+        String removeMediaCode = getMediaCode(music);
+        int removePos = findMusicPosition(removeMediaCode);
+        if (mCodeMusicListMap.containsKey(removeMediaCode)) {
+            mMusicList.remove(mCodeMusicListMap.get(removeMediaCode));
+            mCodeMediaListMap.remove(removeMediaCode);
+            mCodeMusicListMap.remove(removeMediaCode);
         }
         if (mMusicList.size() < 1) {
             mPlayer.release();
             mPlayer.setPlayingMedia(null);
             mCurrentMediaCode = "";
         } else {
-            playMedia(curPos, mPlayer.isPlaying());
+            if(removeMediaCode.equals(mCurrentMediaCode)) {
+                playMedia(curPos, mPlayer.isPlaying());
+            }
         }
     }
 

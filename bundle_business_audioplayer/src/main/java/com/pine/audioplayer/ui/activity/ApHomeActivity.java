@@ -91,7 +91,7 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
 
     @Override
     protected void onDestroy() {
-        ApSimpleAudioPlayerHelper.getInstance().release();
+        ApSimpleAudioPlayerHelper.getInstance().destroy();
         super.onDestroy();
     }
 

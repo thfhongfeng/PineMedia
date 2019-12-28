@@ -61,9 +61,9 @@ public class ApSimpleAudioPlayerHelper {
         }
     }
 
-    public void release() {
+    public void destroy() {
         if (mControllerAdapter != null) {
-            mControllerAdapter.setMusicList(null, false);
+            mControllerAdapter.destroy();
             mControllerAdapter = null;
         }
         mAppContext = null;
