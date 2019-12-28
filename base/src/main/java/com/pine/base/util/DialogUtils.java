@@ -17,10 +17,6 @@ import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-
 import com.pine.base.R;
 import com.pine.base.component.share.bean.ShareBean;
 import com.pine.base.component.share.manager.ShareManager;
@@ -29,7 +25,6 @@ import com.pine.base.widget.dialog.DateSelectDialog;
 import com.pine.base.widget.dialog.InputTextDialog;
 import com.pine.base.widget.dialog.ProgressDialog;
 import com.pine.base.widget.dialog.ProvinceSelectDialog;
-import com.pine.base.widget.dialog.SelectItemBean;
 import com.pine.base.widget.dialog.SelectItemDialog;
 import com.pine.base.widget.dialog.SelectMultiItemsDialog;
 import com.pine.base.widget.dialog.TimeSelectDialog;
@@ -38,6 +33,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
 
 /**
  * Created by tanghongfeng on 2018/9/7.

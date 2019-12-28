@@ -37,6 +37,12 @@ public class LoadingActivity extends BaseMvvmNoActionBarActivity<LoadingActivity
     private ProgressDialog mUpdateProgressDialog;
 
     @Override
+    protected boolean beforeInitOnCreate(@Nullable Bundle savedInstanceState) {
+        super.beforeInitOnCreate(savedInstanceState);
+        return !isTaskRoot();
+    }
+
+    @Override
     public void observeInitLiveData(Bundle savedInstanceState) {
         mViewModel.getNewVersionNameData().observe(this, new Observer<String>() {
             @Override

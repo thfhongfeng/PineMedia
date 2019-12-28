@@ -12,8 +12,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-
 import com.aigestudio.wheelpicker.WheelPicker;
 import com.pine.base.R;
 
@@ -30,6 +28,8 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+
+import androidx.annotation.NonNull;
 
 /**
  * Created by tanghongfeng on 2018/10/30
