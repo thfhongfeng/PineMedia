@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.bean.ApPlayListType;
@@ -43,27 +42,26 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 
-public class ApSimpleAudioPlayerView extends RelativeLayout implements IAudioPlayerView {
+public class ApMainAudioPlayerView extends RelativeLayout implements IAudioPlayerView {
     private final String TAG = LogUtils.makeLogTag(this.getClass());
 
     private View mRoot;
-    private ViewGroup sapv_controller_view, sapv_content_ll;
-    private ImageView sapv_cover_iv, sapv_media_list_btn;
-    private TextView sapv_name_tv, sapv_desc_tv;
+    private ImageView mapv_loop_type_btn, mapv_media_list_btn, mapv_favourite_btn;
 
     private PineMediaPlayerView mMediaPlayerView;
     private PineMediaController mMediaController;
     private PineMediaWidget.IPineMediaPlayer mMediaPlayer;
     private ApAudioControllerAdapter mControllerAdapter;
 
-    private HandlerThread mAlbumArtBitmapThread;
-    private Handler mAlbumArtBitmapThreadHandler;
+    private HandlerThread mWorkThread;
+    private Handler mWorkThreadHandler;
     private HashMap<String, Bitmap> mAlbumArtBitmapMap = new HashMap<>();
+    private HashMap<String, String> mLyricMap = new HashMap<>();
 
     private CustomListDialog mMusicListDialog;
 
-    private IAudioPlayerView.IPlayerViewListener mPlayerViewListener;
-    private IAudioPlayerView.IOnListDialogListener mListDialogListener;
+    private IPlayerViewListener mPlayerViewListener;
+    private IOnListDialogListener mListDialogListener;
 
     private PineMediaWidget.PineMediaPlayerListener mPlayerListener = new PineMediaWidget.PineMediaPlayerListener() {
         @Override
@@ -80,36 +78,54 @@ public class ApSimpleAudioPlayerView extends RelativeLayout implements IAudioPla
         }
     };
 
-    public void setOnListDialogListener(IAudioPlayerView.IOnListDialogListener listDialogListener) {
+    public void setOnListDialogListener(IOnListDialogListener listDialogListener) {
         mListDialogListener = listDialogListener;
     }
 
-    public ApSimpleAudioPlayerView(Context context) {
+    public ApMainAudioPlayerView(Context context) {
         super(context);
         initView();
     }
 
-    public ApSimpleAudioPlayerView(Context context, @Nullable AttributeSet attrs) {
+    public ApMainAudioPlayerView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         initView();
     }
 
-    public ApSimpleAudioPlayerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public ApMainAudioPlayerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initView();
     }
 
     private void initView() {
-        mRoot = LayoutInflater.from(getContext()).inflate(R.layout.ap_simple_audio_player_view, this, true);
+        mRoot = LayoutInflater.from(getContext()).inflate(R.layout.ap_main_audio_player_view, this, true);
         mMediaPlayerView = mRoot.findViewById(R.id.media_player_view);
-        sapv_controller_view = mRoot.findViewById(R.id.sapv_controller_view);
-        sapv_content_ll = mRoot.findViewById(R.id.sapv_content_ll);
-        sapv_cover_iv = mRoot.findViewById(R.id.sapv_cover_iv);
-        sapv_name_tv = mRoot.findViewById(R.id.sapv_name_tv);
-        sapv_desc_tv = mRoot.findViewById(R.id.sapv_desc_tv);
-        sapv_media_list_btn = mRoot.findViewById(R.id.sapv_media_list_btn);
+        mapv_loop_type_btn = mRoot.findViewById(R.id.mapv_loop_type_btn);
+        mapv_media_list_btn = mRoot.findViewById(R.id.mapv_media_list_btn);
+        mapv_favourite_btn = mRoot.findViewById(R.id.mapv_favourite_btn);
 
-        sapv_media_list_btn.setOnClickListener(new OnClickListener() {
+        mapv_loop_type_btn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mControllerAdapter.getAndGoNextPlayType();
+                ApPlayListType playListType = mControllerAdapter.getCurPlayType();
+                switch (playListType.getType()) {
+                    case ApPlayListType.TYPE_ORDER:
+                        mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_order_1_1);
+                        break;
+                    case ApPlayListType.TYPE_ALL_LOOP:
+                        mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_all_loop_1_1);
+                        break;
+                    case ApPlayListType.TYPE_SING_LOOP:
+                        mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_single_loop_1_1);
+                        break;
+                    case ApPlayListType.TYPE_RANDOM:
+                        mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_random_1_1);
+                        break;
+                }
+            }
+        });
+        mapv_media_list_btn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mMusicListDialog != null && mMusicListDialog.isShowing()) {
@@ -222,11 +238,11 @@ public class ApSimpleAudioPlayerView extends RelativeLayout implements IAudioPla
                 mMusicListDialog.show();
             }
         });
-        sapv_content_ll.setOnClickListener(new OnClickListener() {
+        mapv_favourite_btn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mPlayerViewListener != null) {
-                    mPlayerViewListener.onViewClick(sapv_content_ll, "content");
+                    mPlayerViewListener.onViewClick(mapv_favourite_btn, "favourite");
                 }
             }
         });
@@ -237,12 +253,12 @@ public class ApSimpleAudioPlayerView extends RelativeLayout implements IAudioPla
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        if (mAlbumArtBitmapThread == null) {
-            mAlbumArtBitmapThread = new HandlerThread(TAG);
-            mAlbumArtBitmapThread.start();
+        if (mWorkThread == null) {
+            mWorkThread = new HandlerThread(TAG);
+            mWorkThread.start();
         }
-        if (mAlbumArtBitmapThreadHandler == null) {
-            mAlbumArtBitmapThreadHandler = new Handler(mAlbumArtBitmapThread.getLooper());
+        if (mWorkThreadHandler == null) {
+            mWorkThreadHandler = new Handler(mWorkThread.getLooper());
         }
     }
 
@@ -253,14 +269,14 @@ public class ApSimpleAudioPlayerView extends RelativeLayout implements IAudioPla
         }
         mMediaPlayer.removeMediaPlayerListener(mPlayerListener);
         clearBitmap();
-        if (mAlbumArtBitmapThreadHandler != null) {
+        if (mWorkThreadHandler != null) {
             mAlbumArtBitmapMap.clear();
-            mAlbumArtBitmapThreadHandler.removeCallbacksAndMessages(null);
-            mAlbumArtBitmapThreadHandler = null;
+            mWorkThreadHandler.removeCallbacksAndMessages(null);
+            mWorkThreadHandler = null;
         }
-        if (mAlbumArtBitmapThread != null) {
-            mAlbumArtBitmapThread.quit();
-            mAlbumArtBitmapThread = null;
+        if (mWorkThread != null) {
+            mWorkThread.quit();
+            mWorkThread = null;
         }
         super.onDetachedFromWindow();
     }
@@ -277,7 +293,7 @@ public class ApSimpleAudioPlayerView extends RelativeLayout implements IAudioPla
 
     @Override
     public void init(Context context, String tag, ApAudioControllerAdapter controllerAdapter,
-                     IAudioPlayerView.IPlayerViewListener playerViewListener,
+                     IPlayerViewListener playerViewListener,
                      ILyricUpdateListener lyricUpdateListener) {
         mPlayerViewListener = playerViewListener;
         mMediaController = new PineMediaController(getContext());
@@ -285,7 +301,7 @@ public class ApSimpleAudioPlayerView extends RelativeLayout implements IAudioPla
         mMediaPlayer = mMediaPlayerView.getMediaPlayer();
         mMediaPlayer.setAutocephalyPlayMode(true);
         mControllerAdapter = controllerAdapter;
-        mControllerAdapter.setControllerView(sapv_controller_view, ApPlayListType.getDefaultList(getContext()));
+        mControllerAdapter.setControllerView((ViewGroup) mRoot, ApPlayListType.getDefaultList(getContext()));
         mControllerAdapter.setPlayerViewListener(mPlayerViewListener);
         mControllerAdapter.setLyricUpdateListener(lyricUpdateListener);
         mMediaController.setMediaControllerAdapter(mControllerAdapter);
@@ -346,26 +362,35 @@ public class ApSimpleAudioPlayerView extends RelativeLayout implements IAudioPla
             final String mediaCode = music.getSongId() + "";
             if (!mAlbumArtBitmapMap.containsKey(mediaCode)) {
                 getAlbumArtBitmapInBackground(mediaCode, music.getSongId(), music.getAlbumId());
-            } else {
-                Bitmap bitmap = mAlbumArtBitmapMap.get(mediaCode);
-                if (bitmap != null) {
-                    sapv_cover_iv.setImageBitmap(bitmap);
-                } else {
-                    sapv_cover_iv.setImageResource(R.mipmap.res_iv_top_bg);
-                }
             }
-            sapv_name_tv.setText(music.getName());
-            sapv_desc_tv.setText(music.getAuthor() + " - " + music.getAlbum());
-        } else {
-            sapv_cover_iv.setImageResource(R.mipmap.res_iv_top_bg);
-            sapv_name_tv.setText(R.string.ap_sad_play_pine_name);
-            sapv_desc_tv.setText(R.string.ap_sad_play_pine_desc);
+            if (!mLyricMap.containsKey(mediaCode)) {
+                getLyricInBackground(mediaCode, music.getSongId(), music.getAlbumId());
+            }
+        }
+        if (mControllerAdapter != null) {
+            ApPlayListType playListType = mControllerAdapter.getCurPlayType();
+            switch (playListType.getType()) {
+                case ApPlayListType.TYPE_ORDER:
+                    mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_order_1_1);
+                    break;
+                case ApPlayListType.TYPE_ALL_LOOP:
+                    mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_all_loop_1_1);
+                    break;
+                case ApPlayListType.TYPE_SING_LOOP:
+                    mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_single_loop_1_1);
+                    break;
+                case ApPlayListType.TYPE_RANDOM:
+                    mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_random_1_1);
+                    break;
+            }
         }
         if (mControllerAdapter != null) {
             mControllerAdapter.refreshPreNextBtnState();
         }
         boolean hasMedia = mControllerAdapter != null && mControllerAdapter.getMusicList().size() > 0;
-        sapv_media_list_btn.setEnabled(hasMedia);
+        mapv_loop_type_btn.setEnabled(hasMedia);
+        mapv_media_list_btn.setEnabled(hasMedia);
+        mapv_favourite_btn.setEnabled(hasMedia);
         if (!hasMedia) {
             if (mMusicListDialog != null && mMusicListDialog.isShowing()) {
                 mMusicListDialog.dismiss();
@@ -374,11 +399,10 @@ public class ApSimpleAudioPlayerView extends RelativeLayout implements IAudioPla
     }
 
     private void getAlbumArtBitmapInBackground(final String mediaCode, final long songId, final long albumId) {
-        if (mAlbumArtBitmapThreadHandler == null) {
-            sapv_cover_iv.setImageResource(R.mipmap.res_iv_top_bg);
+        if (mWorkThreadHandler == null) {
             return;
         }
-        mAlbumArtBitmapThreadHandler.post(new Runnable() {
+        mWorkThreadHandler.post(new Runnable() {
             @Override
             public void run() {
                 final Bitmap bitmap = ApLocalMusicUtils.getAlbumArtBitmap(getContext(),
@@ -387,10 +411,30 @@ public class ApSimpleAudioPlayerView extends RelativeLayout implements IAudioPla
                     @Override
                     public void run() {
                         mAlbumArtBitmapMap.put(mediaCode, bitmap);
-                        if (bitmap != null) {
-                            sapv_cover_iv.setImageBitmap(bitmap);
-                        } else {
-                            sapv_cover_iv.setImageResource(R.mipmap.res_iv_top_bg);
+                    }
+                });
+            }
+        });
+    }
+
+    private void getLyricInBackground(final String mediaCode, final long songId, final long albumId) {
+        if (mWorkThreadHandler == null) {
+            return;
+        }
+        mWorkThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                final String filePath = ApLocalMusicUtils.getLyric(getContext(),
+                        songId, albumId);
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mLyricMap.put(mediaCode, filePath);
+                        if (mPlayerViewListener != null && mControllerAdapter != null) {
+                            ApSheetMusic music = mControllerAdapter.onLyricDownloaded(mediaCode, filePath);
+                            if (music != null) {
+                                mPlayerViewListener.onLyricDownloaded(music, filePath);
+                            }
                         }
                     }
                 });

@@ -6,8 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.databinding.DataBindingUtil;
-
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.databinding.ApItemSheetMusicBinding;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
@@ -18,6 +16,8 @@ import com.pine.player.bean.PineMediaPlayerBean;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.databinding.DataBindingUtil;
 
 public class ApMusicListAdapter extends BaseNoPaginationListAdapter<ApSheetMusic> {
     private List<PineMediaPlayerBean> mMediaList = new ArrayList<>();

@@ -5,14 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.databinding.DataBindingUtil;
-
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.databinding.ApItemMusicSheetBinding;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.base.recycle_view.BaseListViewHolder;
 import com.pine.base.recycle_view.adapter.BaseNoPaginationListAdapter;
 import com.pine.base.recycle_view.bean.BaseListAdapterItemProperty;
+
+import androidx.databinding.DataBindingUtil;
 
 public class ApMusicSheetAdapter extends BaseNoPaginationListAdapter<ApMusicSheet> {
 

@@ -5,11 +5,17 @@ import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
+import com.pine.audioplayer.ApConstants;
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.bean.ApPlayListType;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.widget.IAudioPlayerView;
+import com.pine.audioplayer.widget.plugin.ApOutRootLrcPlugin;
+import com.pine.player.PineConstants;
+import com.pine.player.applet.IPinePlayerPlugin;
 import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.player.component.PineMediaWidget;
 import com.pine.player.widget.PineMediaController;
@@ -21,19 +27,25 @@ import com.pine.player.widget.viewholder.PineWaitingProgressViewHolder;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 import androidx.annotation.NonNull;
 
-public class ApSimpleAudioControllerAdapter extends PineMediaController.AbstractMediaControllerAdapter {
+public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaControllerAdapter {
     private Context mContext;
     private ViewGroup mControllerView;
     private PineBackgroundViewHolder mBackgroundViewHolder;
     private PineControllerViewHolder mControllerViewHolder;
     private RelativeLayout mBackgroundView;
+
+    public PineMediaWidget.IPineMediaPlayer mPlayer;
 
     private List<ApSheetMusic> mMusicList = new LinkedList<>();
     private HashMap<String, PineMediaPlayerBean> mCodeMediaListMap = new HashMap<>();
@@ -42,6 +54,9 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
 
     private List<ApPlayListType> mPlayTypeList;
     private int mCurPlayTypePos = 0;
+
+    private IAudioPlayerView.IPlayerViewListener mPlayerViewListener;
+    private IAudioPlayerView.ILyricUpdateListener mLyricUpdateListener;
 
     private PineMediaWidget.PineMediaPlayerListener mPlayerListener = new PineMediaWidget.PineMediaPlayerListener() {
         @Override
@@ -65,18 +80,16 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
         }
     };
 
-    public ApSimpleAudioControllerAdapter(Context context) {
+    public ApAudioControllerAdapter(Context context) {
         mContext = context;
         mPlayTypeList = ApPlayListType.getDefaultList(mContext);
     }
 
-    public ApSimpleAudioControllerAdapter(Context context, ViewGroup root) {
+    public ApAudioControllerAdapter(Context context, ViewGroup root) {
         mContext = context;
         mControllerView = root;
         mPlayTypeList = ApPlayListType.getDefaultList(mContext);
     }
-
-    private PineMediaWidget.IPineMediaPlayer mPlayer;
 
     public void setupPlayer(PineMediaWidget.IPineMediaPlayer player) {
         mPlayer = player;
@@ -88,7 +101,8 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
         setMusicList(null, false);
     }
 
-    public void setControllerView(ViewGroup root) {
+    public void setControllerView(ViewGroup root, List<ApPlayListType> playTypeList) {
+        mPlayTypeList = playTypeList;
         mControllerView = root;
         mBackgroundViewHolder = null;
         mControllerViewHolder = null;
@@ -127,11 +141,55 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
         return music.getSongId() + "";
     }
 
+    public void setPlayerViewListener(@NonNull IAudioPlayerView.IPlayerViewListener playerViewListener) {
+        mPlayerViewListener = playerViewListener;
+    }
+
+    public ApSheetMusic onLyricDownloaded(String mediaCode, String filePath) {
+        ApSheetMusic music = mCodeMusicListMap.get(mediaCode);
+        if (music == null) {
+            return null;
+        }
+        music.setLyricFilePath(filePath);
+        PineMediaPlayerBean bean = mCodeMediaListMap.get(mediaCode);
+        HashMap<Integer, IPinePlayerPlugin> pluginHashMap = bean.getPlayerPluginMap();
+        if (pluginHashMap != null) {
+            IPinePlayerPlugin plugin = pluginHashMap.get(ApConstants.PLUGIN_LRC_SUBTITLE);
+            if (plugin != null && plugin instanceof ApOutRootLrcPlugin) {
+                ((ApOutRootLrcPlugin) plugin).setSubtitle(filePath, PineConstants.PATH_STORAGE, "GBK");
+            }
+        }
+        return music;
+    }
+
+    public void setLyricUpdateListener(@NonNull IAudioPlayerView.ILyricUpdateListener lyricUpdateListener) {
+        mLyricUpdateListener = lyricUpdateListener;
+        if (mCodeMediaListMap != null && mCodeMediaListMap.size() > 0) {
+            Iterator<Map.Entry<String, PineMediaPlayerBean>> iterator = mCodeMediaListMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, PineMediaPlayerBean> entity = iterator.next();
+                HashMap<Integer, IPinePlayerPlugin> pluginHashMap = entity.getValue().getPlayerPluginMap();
+                if (pluginHashMap != null) {
+                    IPinePlayerPlugin plugin = pluginHashMap.get(ApConstants.PLUGIN_LRC_SUBTITLE);
+                    if (plugin != null && plugin instanceof ApOutRootLrcPlugin) {
+                        ((ApOutRootLrcPlugin) plugin).setLyricUpdateListener(mLyricUpdateListener);
+                    }
+                }
+            }
+        }
+    }
+
     public PineMediaPlayerBean transferMediaBean(@NonNull ApSheetMusic music) {
         PineMediaPlayerBean mediaBean = new PineMediaPlayerBean(getMediaCode(music),
                 music.getName(), Uri.parse(music.getFilePath()),
                 PineMediaPlayerBean.MEDIA_TYPE_VIDEO, null,
                 null, null);
+        HashMap<Integer, IPinePlayerPlugin> pluginHashMap = new HashMap<>();
+        ApOutRootLrcPlugin playerPlugin = new ApOutRootLrcPlugin(mContext, music.getLyricFilePath(),
+                "GBK");
+        playerPlugin.setLyricUpdateListener(mLyricUpdateListener);
+        pluginHashMap.put(ApConstants.PLUGIN_LRC_SUBTITLE, playerPlugin);
+        mediaBean.setPlayerPluginMap(pluginHashMap);
         return mediaBean;
     }
 
@@ -186,7 +244,6 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
     public void removeMusic(ApSheetMusic music) {
         int curPos = findMusicPosition(mCurrentMediaCode);
         String removeMediaCode = getMediaCode(music);
-        int removePos = findMusicPosition(removeMediaCode);
         if (mCodeMusicListMap.containsKey(removeMediaCode)) {
             mMusicList.remove(mCodeMusicListMap.get(removeMediaCode));
             mCodeMediaListMap.remove(removeMediaCode);
@@ -203,13 +260,14 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
         }
     }
 
-    private void refreshPreNextBtnState(int curPosition) {
+    public void refreshPreNextBtnState() {
+        int position = findMusicPosition(mCurrentMediaCode);
         if (mControllerViewHolder != null) {
             if (mControllerViewHolder.getPrevButton() != null) {
-                mControllerViewHolder.getPrevButton().setEnabled(curPosition > 0);
+                mControllerViewHolder.getPrevButton().setEnabled(isLoopMode() || position > 0);
             }
             if (mControllerViewHolder.getNextButton() != null) {
-                mControllerViewHolder.getNextButton().setEnabled(curPosition < mMusicList.size() - 1);
+                mControllerViewHolder.getNextButton().setEnabled(isLoopMode() || position < mMusicList.size() - 1 && position >= 0);
             }
         }
     }
@@ -248,10 +306,23 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
 
     private final void initControllerViewHolder(
             PineControllerViewHolder viewHolder, View root) {
-        viewHolder.setPausePlayButton(root.findViewById(R.id.sapv_play_pause_btn));
-        viewHolder.setNextButton(root.findViewById(R.id.sapv_next_btn));
-        PineProgressBar progressBar = root.findViewById(R.id.sapv_progress_bar);
-        viewHolder.setCustomProgressBar(progressBar);
+        if (root.findViewById(R.id.player_play_pause_btn) != null) {
+            viewHolder.setPausePlayButton(root.findViewById(R.id.player_play_pause_btn));
+        }
+        if (root.findViewById(R.id.player_next_btn) != null) {
+            viewHolder.setNextButton(root.findViewById(R.id.player_next_btn));
+        }
+        if (root.findViewById(R.id.player_pre_btn) != null) {
+            viewHolder.setPrevButton(root.findViewById(R.id.player_pre_btn));
+        }
+        if (root.findViewById(R.id.player_progress_bar) != null) {
+            View progressBarView = root.findViewById(R.id.player_progress_bar);
+            if (progressBarView instanceof PineProgressBar) {
+                viewHolder.setCustomProgressBar((PineProgressBar) progressBarView);
+            } else if (progressBarView instanceof ProgressBar) {
+                viewHolder.setPlayProgressBar((ProgressBar) progressBarView);
+            }
+        }
     }
 
     @Override
@@ -262,6 +333,7 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
             initControllerViewHolder(mControllerViewHolder, mControllerView);
         }
         mControllerViewHolder.setContainer(mControllerView);
+        refreshPreNextBtnState();
         return mControllerViewHolder;
     }
 
@@ -318,33 +390,56 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
         return playMedia(position, startPlay);
     }
 
-    private boolean playMedia(int position, boolean startPlay) {
+    private boolean isLoopMode() {
         int curPlayType = getCurPlayType().getType();
         if (curPlayType == ApPlayListType.TYPE_ALL_LOOP ||
-                curPlayType == ApPlayListType.TYPE_RANDOM ||
-                curPlayType == ApPlayListType.TYPE_SING_LOOP) {
+                curPlayType == ApPlayListType.TYPE_RANDOM) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean playMedia(int position, boolean startPlay) {
+        if (isLoopMode()) {
             position = position % mMusicList.size();
         }
-        refreshPreNextBtnState(position);
         if (position >= 0 && position < mMusicList.size()) {
             if (mPlayer != null) {
-                String mediaCode = getMediaCode(mMusicList.get(position));
+                ApSheetMusic music = mMusicList.get(position);
+                String mediaCode = getMediaCode(music);
+                PineMediaPlayerBean bean = mCodeMediaListMap.get(mediaCode);
                 if (mCurrentMediaCode != mediaCode) {
-                    mPlayer.setPlayingMedia(mCodeMediaListMap.get(mediaCode));
+                    mPlayer.setPlayingMedia(bean);
                 }
                 if (startPlay) {
                     mPlayer.start();
                 }
+                String oldMediaCode = mCurrentMediaCode;
                 mCurrentMediaCode = mediaCode;
+                if (mPlayerViewListener != null) {
+                    mPlayerViewListener.onPlayMusic(mPlayer, mCodeMusicListMap.get(oldMediaCode), music);
+                }
+                refreshPreNextBtnState();
                 return true;
             }
         }
+        refreshPreNextBtnState();
         return false;
     }
 
     @Override
     protected PineMediaController.ControllersActionListener onCreateControllersActionListener() {
         return new PineMediaController.ControllersActionListener() {
+            @Override
+            public boolean onPreBtnClick(View preBtn, PineMediaWidget.IPineMediaPlayer player) {
+                PineMediaPlayerBean mediaPlayerBean = player.getMediaPlayerBean();
+                if (mediaPlayerBean != null) {
+                    onPreMediaSelect(mediaPlayerBean.getMediaCode(), true);
+                    return true;
+                }
+                return false;
+            }
+
             @Override
             public boolean onNextBtnClick(View nextBtn, PineMediaWidget.IPineMediaPlayer player) {
                 PineMediaPlayerBean mediaPlayerBean = player.getMediaPlayerBean();
@@ -355,6 +450,21 @@ public class ApSimpleAudioControllerAdapter extends PineMediaController.Abstract
                 return false;
             }
         };
+    }
+
+    private String stringForTime(int timeMs) {
+        int totalSeconds = timeMs / 1000;
+        int seconds = totalSeconds % 60;
+        int minutes = (totalSeconds / 60) % 60;
+        int hours = totalSeconds / 3600;
+        StringBuilder formatBuilder = new StringBuilder();
+        Formatter formatter = new Formatter(formatBuilder, Locale.getDefault());
+        formatBuilder.setLength(0);
+        if (hours > 0) {
+            return formatter.format("%d:%02d:%02d", hours, minutes, seconds).toString();
+        } else {
+            return formatter.format("%02d:%02d", minutes, seconds).toString();
+        }
     }
 }
 

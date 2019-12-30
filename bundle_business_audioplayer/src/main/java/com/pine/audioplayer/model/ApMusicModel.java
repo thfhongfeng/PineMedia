@@ -70,6 +70,12 @@ public class ApMusicModel {
         ApSheetMusicRepository.getInstance(context).addSheetMusicList(list, sheetId);
     }
 
+    public void updateMusicLyric(Context context, ApSheetMusic music, String filePath) {
+        music.setLyricFilePath(filePath);
+        music.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+        ApSheetMusicRepository.getInstance(context).updateSheetMusic(music);
+    }
+
     public void removeSheetMusic(Context context, ApSheetMusic apSheetMusic) {
         ApSheetMusicRepository.getInstance(context).deleteSheetMusic(apSheetMusic);
     }

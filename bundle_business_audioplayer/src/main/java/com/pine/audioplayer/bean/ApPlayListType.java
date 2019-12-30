@@ -2,9 +2,6 @@ package com.pine.audioplayer.bean;
 
 import android.content.Context;
 
-import androidx.annotation.DrawableRes;
-import androidx.annotation.IdRes;
-
 import com.pine.audioplayer.R;
 
 import java.util.ArrayList;
@@ -18,13 +15,10 @@ public class ApPlayListType {
 
     private int type;
     private String name;
-    @IdRes
-    private int imageResId;
 
-    public ApPlayListType(int type, String name, @DrawableRes int imageResId) {
+    public ApPlayListType(int type, String name) {
         this.type = type;
         this.name = name;
-        this.imageResId = imageResId;
     }
 
     public int getType() {
@@ -43,27 +37,19 @@ public class ApPlayListType {
         this.name = name;
     }
 
-    public int getImageResId() {
-        return imageResId;
-    }
-
-    public void setImageResId(int imageResId) {
-        this.imageResId = imageResId;
-    }
-
     public static List<ApPlayListType> getDefaultList(Context context) {
         List<ApPlayListType> playTypeList = new ArrayList<>();
         ApPlayListType playType = new ApPlayListType(ApPlayListType.TYPE_ALL_LOOP,
-                context.getString(R.string.ap_sad_play_loop_all), R.mipmap.res_ic_play_all_loop);
+                context.getString(R.string.ap_sad_play_loop_all));
         playTypeList.add(playType);
         playType = new ApPlayListType(ApPlayListType.TYPE_SING_LOOP,
-                context.getString(R.string.ap_sad_play_single_loop), R.mipmap.res_ic_play_single_loop);
+                context.getString(R.string.ap_sad_play_single_loop));
         playTypeList.add(playType);
         playType = new ApPlayListType(ApPlayListType.TYPE_ORDER,
-                context.getString(R.string.ap_sad_play_ord), R.mipmap.res_ic_play_order);
+                context.getString(R.string.ap_sad_play_ord));
         playTypeList.add(playType);
         playType = new ApPlayListType(ApPlayListType.TYPE_RANDOM,
-                context.getString(R.string.ap_sad_play_random), R.mipmap.res_ic_play_random);
+                context.getString(R.string.ap_sad_play_random));
         playTypeList.add(playType);
         return playTypeList;
     }

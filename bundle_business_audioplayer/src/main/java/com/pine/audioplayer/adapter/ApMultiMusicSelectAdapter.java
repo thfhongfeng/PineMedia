@@ -5,8 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.databinding.DataBindingUtil;
-
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.databinding.ApItemMultiMusicSelectBinding;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
@@ -18,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
+
+import androidx.databinding.DataBindingUtil;
 
 public class ApMultiMusicSelectAdapter extends BaseNoPaginationListAdapter<ApSheetMusic> {
     private HashSet<ApSheetMusic> mSelectSet = new HashSet<>();

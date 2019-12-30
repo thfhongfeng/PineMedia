@@ -5,24 +5,33 @@
 
     </data>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <com.pine.player.widget.PineMediaPlayerView
-            android:id="@+id/player_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"></com.pine.player.widget.PineMediaPlayerView>
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="@dimen/dp_10">
+            android:layout_height="@dimen/dp_0"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
 
-            <include
-                android:id="@+id/controller_include"
-                layout="@layout/ap_audio_controller_layout"></include>
+            <TextView
+                android:id="@+id/subtitle_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp_10"
+                android:gravity="center"
+                android:textColor="@color/dark_black_gray"
+                android:textSize="@dimen/sp_14" />
         </LinearLayout>
-    </RelativeLayout>
+
+        <com.pine.audioplayer.widget.view.ApMainAudioPlayerView
+            android:id="@+id/player_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"></com.pine.audioplayer.widget.view.ApMainAudioPlayerView>
+    </LinearLayout>
 </layout>

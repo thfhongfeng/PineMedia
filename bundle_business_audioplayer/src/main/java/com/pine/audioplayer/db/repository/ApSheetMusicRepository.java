@@ -2,8 +2,6 @@ package com.pine.audioplayer.db.repository;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
-
 import com.pine.audioplayer.db.ApRoomDatabase;
 import com.pine.audioplayer.db.dao.ApMusicSheetDao;
 import com.pine.audioplayer.db.dao.ApSheetMusicDao;
@@ -12,6 +10,8 @@ import com.pine.tool.util.LogUtils;
 
 import java.util.Calendar;
 import java.util.List;
+
+import androidx.annotation.NonNull;
 
 public class ApSheetMusicRepository {
     private final String TAG = LogUtils.makeLogTag(this.getClass());
@@ -97,6 +97,10 @@ public class ApSheetMusicRepository {
             apSheetMusicDao.update(music);
             return false;
         }
+    }
+
+    public void updateSheetMusic(@NonNull ApSheetMusic music) {
+        apSheetMusicDao.update(music);
     }
 
     public void deleteSheetMusic(final @NonNull ApSheetMusic apSheetMusic) {

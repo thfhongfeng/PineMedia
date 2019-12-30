@@ -1,11 +1,11 @@
 package com.pine.audioplayer.db.entity;
 
+import java.io.Serializable;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-
-import java.io.Serializable;
 
 @Entity(tableName = "ap_music_sheet")
 public class ApMusicSheet implements Serializable {

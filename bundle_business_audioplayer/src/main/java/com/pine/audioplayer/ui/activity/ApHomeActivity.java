@@ -6,15 +6,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicSheetAdapter;
 import com.pine.audioplayer.databinding.ApHomeActivityBinding;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
-import com.pine.audioplayer.manager.ApSimpleAudioPlayerHelper;
+import com.pine.audioplayer.manager.ApAudioPlayerHelper;
 import com.pine.audioplayer.vm.ApSheetListVm;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
@@ -22,6 +18,10 @@ import com.pine.base.util.DialogUtils;
 import com.pine.base.widget.dialog.InputTextDialog;
 
 import java.util.List;
+
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBinding, ApSheetListVm> {
     private ApMusicSheetAdapter mMusicSheetAdapter;
@@ -85,13 +85,13 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
     @Override
     protected void onRealResume() {
         super.onRealResume();
-        ApSimpleAudioPlayerHelper.getInstance().attachGlobalController(this, mBinding.playerView);
+        ApAudioPlayerHelper.getInstance().attachGlobalController(this, mBinding.playerView);
         mViewModel.refreshData();
     }
 
     @Override
     protected void onDestroy() {
-        ApSimpleAudioPlayerHelper.getInstance().destroy();
+        ApAudioPlayerHelper.getInstance().destroy();
         super.onDestroy();
     }
 

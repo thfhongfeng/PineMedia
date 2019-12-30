@@ -7,10 +7,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApAddMusicToSheetAdapter;
 import com.pine.audioplayer.databinding.ApAddMusicToSheetActivityBinding;
@@ -23,6 +19,10 @@ import com.pine.base.util.DialogUtils;
 import com.pine.base.widget.dialog.InputTextDialog;
 
 import java.util.List;
+
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class ApAddMusicToSheetActivity extends BaseMvvmActionBarActivity<ApAddMusicToSheetActivityBinding, ApAddMusicToSheetVm> {
     private ApAddMusicToSheetAdapter mAdapter;

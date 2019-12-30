@@ -2,12 +2,6 @@ package com.pine.audioplayer.db;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
-import androidx.room.Database;
-import androidx.room.Room;
-import androidx.room.RoomDatabase;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-
 import com.pine.audioplayer.db.dao.ApMusicSheetDao;
 import com.pine.audioplayer.db.dao.ApSheetMusicDao;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
@@ -19,6 +13,12 @@ import com.tencent.wcdb.database.SQLiteCipherSpec;
 import com.tencent.wcdb.room.db.WCDBOpenHelperFactory;
 
 import java.io.File;
+
+import androidx.annotation.NonNull;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 @Database(entities = {ApMusicSheet.class, ApSheetMusic.class}, version = 1, exportSchema = false)
 public abstract class ApRoomDatabase extends RoomDatabase {

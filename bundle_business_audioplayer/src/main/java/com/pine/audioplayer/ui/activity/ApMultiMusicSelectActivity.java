@@ -6,10 +6,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMultiMusicSelectAdapter;
 import com.pine.audioplayer.databinding.ApMultiMusicSelectActivityBinding;
@@ -21,6 +17,10 @@ import com.pine.base.recycle_view.adapter.BaseListAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class ApMultiMusicSelectActivity extends BaseMvvmActionBarImageMenuActivity<ApMultiMusicSelectActivityBinding, ApMusicListVm> {
     private TextView mTitleTv;

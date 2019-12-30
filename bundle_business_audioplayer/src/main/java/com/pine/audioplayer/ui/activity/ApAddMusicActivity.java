@@ -6,10 +6,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicSheetAdapter;
 import com.pine.audioplayer.databinding.ApAddMusicActivityBinding;
@@ -20,6 +16,10 @@ import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmActionBarActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
 
 import java.util.List;
+
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class ApAddMusicActivity extends BaseMvvmActionBarActivity<ApAddMusicActivityBinding, ApAddMusicVm> {
     private final int REQUEST_CODE_GO_MULTI_MUSIC_SELECT = 1;

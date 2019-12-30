@@ -12,9 +12,13 @@ import java.util.List;
  * Created by tanghongfeng on 2018/1/11.
  */
 
-public interface IPinePlayerPlugin<T extends List> extends Serializable {
+public interface IPinePlayerPlugin<T extends List> {
+    // 插件View位于PlayerView内部，宽高与controller view匹配
     int TYPE_MATCH_CONTROLLER = 1;
+    // 插件View位于PlayerView内部，宽高与surface view匹配
     int TYPE_MATCH_SURFACE = 2;
+    // 插件View位于PlayerView外部
+    int TYPE_OUT_ROOT = 3;
 
     PinePluginViewHolder createViewHolder(Context context, boolean isFullScreen);
 

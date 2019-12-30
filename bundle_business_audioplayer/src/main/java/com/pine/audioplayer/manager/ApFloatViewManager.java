@@ -10,7 +10,10 @@ import android.view.WindowManager;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.audioplayer.model.ApMusicModel;
+import com.pine.audioplayer.widget.IAudioPlayerView;
+import com.pine.audioplayer.widget.adapter.ApAudioControllerAdapter;
 import com.pine.audioplayer.widget.view.ApSimpleAudioPlayerView;
+import com.pine.player.component.PineMediaWidget;
 import com.pine.tool.RootApplication;
 import com.pine.tool.util.AppUtils;
 import com.pine.tool.util.LogUtils;
@@ -83,18 +86,35 @@ public class ApFloatViewManager {
         layoutParams.gravity = Gravity.BOTTOM;
         mWindowManager.addView(mFloatingSimpleAudioPlayerView, layoutParams);
 
-        mFloatingSimpleAudioPlayerView.init(mAppContext, TAG, new ApSimpleAudioPlayerView.IOnMediaListChangeListener() {
-            @Override
-            public void onMediaRemove(ApSheetMusic music) {
-                mModel.removeSheetMusic(mAppContext, mRecentSheet.getId(), music.getSongId());
-            }
+        mFloatingSimpleAudioPlayerView.init(mAppContext, TAG, new ApAudioControllerAdapter(mAppContext),
+                new IAudioPlayerView.IPlayerViewListener() {
+                    @Override
+                    public void onPlayMusic(PineMediaWidget.IPineMediaPlayer player,
+                                            ApSheetMusic oldPlayMusic, ApSheetMusic newPlayMusic) {
 
-            @Override
-            public void onMediaListClear(List<ApSheetMusic> musicList) {
-                mModel.clearSheetMusic(mAppContext, mRecentSheet.getId());
-            }
-        });
-        mFloatingSimpleAudioPlayerView.setOnListDialogListener(new ApSimpleAudioPlayerView.IOnListDialogListener() {
+                    }
+
+                    @Override
+                    public void onLyricDownloaded(ApSheetMusic music, String filePath) {
+
+                    }
+
+                    @Override
+                    public void onMusicRemove(ApSheetMusic music) {
+                        mModel.removeSheetMusic(mAppContext, mRecentSheet.getId(), music.getSongId());
+                    }
+
+                    @Override
+                    public void onMusicListClear(List<ApSheetMusic> musicList) {
+                        mModel.clearSheetMusic(mAppContext, mRecentSheet.getId());
+                    }
+
+                    @Override
+                    public void onViewClick(View view, String tag) {
+
+                    }
+                }, null);
+        mFloatingSimpleAudioPlayerView.setOnListDialogListener(new IAudioPlayerView.IOnListDialogListener() {
             @Override
             public void onListDialogStateChange(boolean isShown) {
                 mFloatingSimpleAudioPlayerView.setVisibility(isShown ? View.GONE : View.VISIBLE);

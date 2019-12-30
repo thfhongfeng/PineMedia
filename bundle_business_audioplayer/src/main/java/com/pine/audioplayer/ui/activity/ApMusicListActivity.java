@@ -4,18 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicListAdapter;
 import com.pine.audioplayer.databinding.ApMusicListActivityBinding;
 import com.pine.audioplayer.databinding.ApMusicListTopMenuBinding;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
-import com.pine.audioplayer.manager.ApSimpleAudioPlayerHelper;
+import com.pine.audioplayer.manager.ApAudioPlayerHelper;
 import com.pine.audioplayer.vm.ApMusicListVm;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
@@ -26,6 +21,11 @@ import com.pine.tool.widget.dialog.PopupMenu;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicListActivityBinding, ApMusicListVm> {
 
@@ -71,7 +71,7 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
                         showMusicItemMenu(sheetMusic);
                         break;
                     default:
-                        ApSimpleAudioPlayerHelper.getInstance().playMusic(mBinding.playerView, sheetMusic, true);
+                        ApAudioPlayerHelper.getInstance().playMusic(mBinding.playerView, sheetMusic, true);
                         break;
                 }
             }
@@ -85,7 +85,7 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
     @Override
     protected void onRealResume() {
         super.onRealResume();
-        ApSimpleAudioPlayerHelper.getInstance().attachGlobalController(this, mBinding.playerView);
+        ApAudioPlayerHelper.getInstance().attachGlobalController(this, mBinding.playerView);
         mViewModel.refreshData();
     }
 
@@ -130,7 +130,7 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
             } else {
                 List<ApSheetMusic> sheetMusicList = mMusicListAdapter.getOriginData();
                 if (sheetMusicList != null && sheetMusicList.size() > 0) {
-                    ApSimpleAudioPlayerHelper.getInstance().playMusicList(mBinding.playerView, sheetMusicList, true);
+                    ApAudioPlayerHelper.getInstance().playMusicList(mBinding.playerView, sheetMusicList, true);
                 }
             }
         }

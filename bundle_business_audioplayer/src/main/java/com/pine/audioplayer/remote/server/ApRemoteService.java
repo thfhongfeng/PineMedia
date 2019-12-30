@@ -4,12 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-
 import com.pine.audioplayer.ui.activity.ApHomeActivity;
 import com.pine.base.router.command.RouterAudioPlayerCommand;
 import com.pine.tool.router.IServiceCallback;
 import com.pine.tool.router.annotation.RouterCommand;
+
+import androidx.annotation.NonNull;
 
 /**
  * Created by tanghongfeng on 2018/9/13
