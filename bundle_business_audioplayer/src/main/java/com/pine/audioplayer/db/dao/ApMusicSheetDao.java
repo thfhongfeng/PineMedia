@@ -4,6 +4,7 @@ import com.pine.audioplayer.db.entity.ApMusicSheet;
 
 import java.util.List;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -33,8 +34,14 @@ public interface ApMusicSheetDao {
     @Query("SELECT *FROM ap_music_sheet WHERE _id=:sheetId")
     ApMusicSheet querySheetById(long sheetId);
 
+    @Query("SELECT *FROM ap_music_sheet WHERE _id=:sheetId")
+    LiveData<ApMusicSheet> syncSheetById(long sheetId);
+
     @Query("SELECT *FROM ap_music_sheet WHERE sheet_type=:sheetType")
     ApMusicSheet querySheetByType(int sheetType);
+
+    @Query("SELECT *FROM ap_music_sheet WHERE sheet_type=:sheetType")
+    LiveData<ApMusicSheet> syncSheetByType(int sheetType);
 
     @Query("UPDATE ap_music_sheet SET count=:count WHERE _id=:sheetId")
     int updateSheetCount(long sheetId, int count);

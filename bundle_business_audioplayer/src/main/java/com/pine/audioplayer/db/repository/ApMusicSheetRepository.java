@@ -11,6 +11,7 @@ import com.pine.tool.util.LogUtils;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 
 public class ApMusicSheetRepository {
     private final String TAG = LogUtils.makeLogTag(this.getClass());
@@ -52,9 +53,21 @@ public class ApMusicSheetRepository {
         }
     }
 
+    public LiveData<ApMusicSheet> syncSheetById(long sheetId) {
+        synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
+            return apMusicSheetDao.syncSheetById(sheetId);
+        }
+    }
+
     public ApMusicSheet querySheetByType(int sheetType) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
             return apMusicSheetDao.querySheetByType(sheetType);
+        }
+    }
+
+    public LiveData<ApMusicSheet> syncSheetByType(int sheetType) {
+        synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
+            return apMusicSheetDao.syncSheetByType(sheetType);
         }
     }
 

@@ -91,7 +91,7 @@ public class ApFloatViewManager {
                     @Override
                     public void onPlayMusic(PineMediaWidget.IPineMediaPlayer player,
                                             ApSheetMusic oldPlayMusic, ApSheetMusic newPlayMusic) {
-
+                        mModel.addSheetMusic(mAppContext, newPlayMusic, mRecentSheet.getId());
                     }
 
                     @Override

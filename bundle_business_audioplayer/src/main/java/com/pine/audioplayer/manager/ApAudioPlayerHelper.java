@@ -32,7 +32,7 @@ public class ApAudioPlayerHelper {
                 @Override
                 public void onPlayMusic(PineMediaWidget.IPineMediaPlayer player,
                                         ApSheetMusic oldPlayMusic, ApSheetMusic newPlayMusic) {
-
+                    mModel.addSheetMusic(mAppContext, newPlayMusic, mRecentSheet.getId());
                 }
 
                 @Override
@@ -112,7 +112,6 @@ public class ApAudioPlayerHelper {
         }
         playerView.playMusic(music, startPlay);
         mModel.addSheetMusic(mAppContext, music, mPlayListSheet.getId());
-        mModel.addSheetMusic(mAppContext, music, mRecentSheet.getId());
     }
 
     public void playMusicList(@NonNull IAudioPlayerView playerView,
@@ -122,6 +121,5 @@ public class ApAudioPlayerHelper {
         }
         playerView.playMusicList(musicList, startPlay);
         mModel.addSheetMusicList(mAppContext, musicList, mPlayListSheet.getId());
-        mModel.addSheetMusicList(mAppContext, musicList, mRecentSheet.getId());
     }
 }

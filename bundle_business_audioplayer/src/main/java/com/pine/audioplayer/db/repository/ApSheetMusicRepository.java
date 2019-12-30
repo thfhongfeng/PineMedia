@@ -93,7 +93,7 @@ public class ApSheetMusicRepository {
             apSheetMusicDao.insert(music);
             return true;
         } else {
-            dbMusic.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+            music.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
             apSheetMusicDao.update(music);
             return false;
         }

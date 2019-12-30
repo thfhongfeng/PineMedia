@@ -40,12 +40,6 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
                 mBinding.setFavouriteSheet(apMusicSheet);
             }
         });
-        mViewModel.mRecentSheetData.observe(this, new Observer<ApMusicSheet>() {
-            @Override
-            public void onChanged(ApMusicSheet apMusicSheet) {
-                mBinding.setRecentSheet(apMusicSheet);
-            }
-        });
         mViewModel.mCustomSheetListData.observe(this, new Observer<List<ApMusicSheet>>() {
             @Override
             public void onChanged(List<ApMusicSheet> list) {
@@ -57,7 +51,14 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
 
     @Override
     public void observeSyncLiveData(int liveDataObjTag) {
-
+        if (liveDataObjTag == ApSheetListVm.LIVE_DATA_TAG_RECENT_SHEET) {
+            mViewModel.mRecentSheetData.observe(this, new Observer<ApMusicSheet>() {
+                @Override
+                public void onChanged(ApMusicSheet apMusicSheet) {
+                    mBinding.setRecentSheet(apMusicSheet);
+                }
+            });
+        }
     }
 
     @Override

@@ -12,6 +12,8 @@ import com.pine.audioplayer.uitls.ApLocalMusicUtils;
 import java.util.Calendar;
 import java.util.List;
 
+import androidx.lifecycle.LiveData;
+
 public class ApMusicModel {
 
     public ApMusicSheet getFavouriteSheet(Context context) {
@@ -20,6 +22,10 @@ public class ApMusicModel {
 
     public ApMusicSheet getRecentSheet(Context context) {
         return ApMusicSheetRepository.getInstance(context).querySheetByType(ApConstants.MUSIC_SHEET_TYPE_RECENT);
+    }
+
+    public LiveData<ApMusicSheet> syncRecentSheet(Context context) {
+        return ApMusicSheetRepository.getInstance(context).syncSheetByType(ApConstants.MUSIC_SHEET_TYPE_RECENT);
     }
 
     public ApMusicSheet getPlayListSheet(Context context) {
