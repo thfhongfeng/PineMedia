@@ -108,21 +108,7 @@ public class ApMainAudioPlayerView extends RelativeLayout implements IAudioPlaye
             @Override
             public void onClick(View v) {
                 mControllerAdapter.getAndGoNextPlayType();
-                ApPlayListType playListType = mControllerAdapter.getCurPlayType();
-                switch (playListType.getType()) {
-                    case ApPlayListType.TYPE_ORDER:
-                        mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_order_1_1);
-                        break;
-                    case ApPlayListType.TYPE_ALL_LOOP:
-                        mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_all_loop_1_1);
-                        break;
-                    case ApPlayListType.TYPE_SING_LOOP:
-                        mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_single_loop_1_1);
-                        break;
-                    case ApPlayListType.TYPE_RANDOM:
-                        mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_random_1_1);
-                        break;
-                }
+                setupPlayTypeImage(mapv_loop_type_btn);
             }
         });
         mapv_media_list_btn.setOnClickListener(new OnClickListener() {
@@ -134,29 +120,41 @@ public class ApMainAudioPlayerView extends RelativeLayout implements IAudioPlaye
                 mMusicListDialog = DialogUtils.createCustomListDialog(RootApplication.mCurResumedActivity, R.layout.ap_audio_dialog_title_layout,
                         R.layout.ap_item_audio_dialog, mControllerAdapter.getMusicList(),
                         new CustomListDialog.IOnViewBindCallback<ApSheetMusic>() {
+                            private void setupPlayTypeImageInDialog(ImageView imageView) {
+                                if (mControllerAdapter == null) {
+                                    imageView.setImageResource(R.mipmap.res_ic_play_all_loop);
+                                    return;
+                                }
+                                ApPlayListType playListType = mControllerAdapter.getCurPlayType();
+                                switch (playListType.getType()) {
+                                    case ApPlayListType.TYPE_ORDER:
+                                        imageView.setImageResource(R.mipmap.res_ic_play_order);
+                                        break;
+                                    case ApPlayListType.TYPE_ALL_LOOP:
+                                        imageView.setImageResource(R.mipmap.res_ic_play_all_loop);
+                                        break;
+                                    case ApPlayListType.TYPE_SING_LOOP:
+                                        imageView.setImageResource(R.mipmap.res_ic_play_single_loop);
+                                        break;
+                                    case ApPlayListType.TYPE_RANDOM:
+                                        imageView.setImageResource(R.mipmap.res_ic_play_random);
+                                        break;
+                                }
+                            }
+
                             @Override
                             public void onTitleBind(View titleView, final CustomListDialog dialog) {
                                 final ApSimpleAudioDialogTitleBinding binding = DataBindingUtil.bind(titleView);
                                 binding.setPlayType(mControllerAdapter.getCurPlayType());
+                                setupPlayTypeImageInDialog(binding.loopTypeBtn);
                                 binding.setMediaCount(mControllerAdapter.getMusicList().size());
                                 binding.playTypeLl.setOnClickListener(new OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
                                         binding.setPlayType(mControllerAdapter.getAndGoNextPlayType());
-                                        ApPlayListType playListType = mControllerAdapter.getCurPlayType();
-                                        switch (playListType.getType()) {
-                                            case ApPlayListType.TYPE_ORDER:
-                                                binding.loopTypeBtn.setImageResource(R.mipmap.res_ic_play_order);
-                                                break;
-                                            case ApPlayListType.TYPE_ALL_LOOP:
-                                                binding.loopTypeBtn.setImageResource(R.mipmap.res_ic_play_all_loop);
-                                                break;
-                                            case ApPlayListType.TYPE_SING_LOOP:
-                                                binding.loopTypeBtn.setImageResource(R.mipmap.res_ic_play_single_loop);
-                                                break;
-                                            case ApPlayListType.TYPE_RANDOM:
-                                                binding.loopTypeBtn.setImageResource(R.mipmap.res_ic_play_random);
-                                                break;
+                                        setupPlayTypeImageInDialog(binding.loopTypeBtn);
+                                        if (mControllerAdapter != null) {
+                                            setupPlayTypeImage(mapv_loop_type_btn);
                                         }
                                     }
                                 });
@@ -260,6 +258,15 @@ public class ApMainAudioPlayerView extends RelativeLayout implements IAudioPlaye
         if (mWorkThreadHandler == null) {
             mWorkThreadHandler = new Handler(mWorkThread.getLooper());
         }
+
+        ApSheetMusic curMusic = mControllerAdapter.getCurMusic();
+        if (curMusic == null) {
+            if (mControllerAdapter.getMusicList() != null && mControllerAdapter.getMusicList().size() > 0) {
+                curMusic = mControllerAdapter.getMusicList().get(0);
+                mControllerAdapter.onMediaSelect(mControllerAdapter.getMediaCode(curMusic), false);
+            }
+        }
+        setupControllerView(curMusic);
     }
 
     @Override
@@ -307,16 +314,6 @@ public class ApMainAudioPlayerView extends RelativeLayout implements IAudioPlaye
         mMediaController.setMediaControllerAdapter(mControllerAdapter);
         mControllerAdapter.setupPlayer(mMediaPlayer);
         mMediaPlayer.addMediaPlayerListener(mPlayerListener);
-
-        ApSheetMusic curMusic = mControllerAdapter.getCurMusic();
-        if (curMusic == null) {
-            if (mControllerAdapter.getMusicList() != null && mControllerAdapter.getMusicList().size() > 0) {
-                curMusic = mControllerAdapter.getMusicList().get(0);
-                mControllerAdapter.onMediaSelect(mControllerAdapter.getMediaCode(curMusic), false);
-            }
-        }
-
-        setupControllerView(curMusic);
     }
 
     public void playMusicList(@NonNull List<ApSheetMusic> musicList, boolean startPlay) {
@@ -331,7 +328,6 @@ public class ApMainAudioPlayerView extends RelativeLayout implements IAudioPlaye
             return;
         }
         mControllerAdapter.addMusic(music, startPlay);
-        mControllerAdapter.onMediaSelect(mControllerAdapter.getMediaCode(music), startPlay);
         setupControllerView(music);
     }
 
@@ -368,23 +364,7 @@ public class ApMainAudioPlayerView extends RelativeLayout implements IAudioPlaye
             }
         }
         if (mControllerAdapter != null) {
-            ApPlayListType playListType = mControllerAdapter.getCurPlayType();
-            switch (playListType.getType()) {
-                case ApPlayListType.TYPE_ORDER:
-                    mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_order_1_1);
-                    break;
-                case ApPlayListType.TYPE_ALL_LOOP:
-                    mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_all_loop_1_1);
-                    break;
-                case ApPlayListType.TYPE_SING_LOOP:
-                    mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_single_loop_1_1);
-                    break;
-                case ApPlayListType.TYPE_RANDOM:
-                    mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_random_1_1);
-                    break;
-            }
-        }
-        if (mControllerAdapter != null) {
+            setupPlayTypeImage(mapv_loop_type_btn);
             mControllerAdapter.refreshPreNextBtnState();
         }
         boolean hasMedia = mControllerAdapter != null && mControllerAdapter.getMusicList().size() > 0;
@@ -395,6 +375,28 @@ public class ApMainAudioPlayerView extends RelativeLayout implements IAudioPlaye
             if (mMusicListDialog != null && mMusicListDialog.isShowing()) {
                 mMusicListDialog.dismiss();
             }
+        }
+    }
+
+    private void setupPlayTypeImage(ImageView imageView) {
+        if (mControllerAdapter == null) {
+            mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_all_loop_1_1);
+            return;
+        }
+        ApPlayListType playListType = mControllerAdapter.getCurPlayType();
+        switch (playListType.getType()) {
+            case ApPlayListType.TYPE_ORDER:
+                mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_order_1_1);
+                break;
+            case ApPlayListType.TYPE_ALL_LOOP:
+                mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_all_loop_1_1);
+                break;
+            case ApPlayListType.TYPE_SING_LOOP:
+                mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_single_loop_1_1);
+                break;
+            case ApPlayListType.TYPE_RANDOM:
+                mapv_loop_type_btn.setImageResource(R.mipmap.res_ic_play_random_1_1);
+                break;
         }
     }
 

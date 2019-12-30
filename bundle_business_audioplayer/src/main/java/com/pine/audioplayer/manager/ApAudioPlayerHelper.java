@@ -37,7 +37,7 @@ public class ApAudioPlayerHelper {
 
                 @Override
                 public void onLyricDownloaded(ApSheetMusic music, String filePath) {
-                    mModel.updateMusicLyric(mAppContext, music, filePath);
+//                    mModel.updateMusicLyric(mAppContext, music, filePath);
                 }
 
                 @Override
