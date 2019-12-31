@@ -24,6 +24,7 @@ import com.pine.player.widget.viewholder.PineBackgroundViewHolder;
 import com.pine.player.widget.viewholder.PineControllerViewHolder;
 import com.pine.player.widget.viewholder.PineRightViewHolder;
 import com.pine.player.widget.viewholder.PineWaitingProgressViewHolder;
+import com.pine.tool.util.CharsetUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -156,7 +157,8 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         if (pluginHashMap != null) {
             IPinePlayerPlugin plugin = pluginHashMap.get(ApConstants.PLUGIN_LRC_SUBTITLE);
             if (plugin != null && plugin instanceof ApOutRootLrcPlugin) {
-                ((ApOutRootLrcPlugin) plugin).setSubtitle(filePath, PineConstants.PATH_STORAGE, "GBK");
+                ((ApOutRootLrcPlugin) plugin).setSubtitle(filePath, PineConstants.PATH_STORAGE,
+                        CharsetUtils.getCharset(music.getLyricFilePath()));
             }
         }
         return music;
@@ -186,7 +188,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
                 null, null);
         HashMap<Integer, IPinePlayerPlugin> pluginHashMap = new HashMap<>();
         ApOutRootLrcPlugin playerPlugin = new ApOutRootLrcPlugin(mContext, music.getLyricFilePath(),
-                "GBK");
+                CharsetUtils.getCharset(music.getLyricFilePath()));
         playerPlugin.setLyricUpdateListener(mLyricUpdateListener);
         pluginHashMap.put(ApConstants.PLUGIN_LRC_SUBTITLE, playerPlugin);
         mediaBean.setPlayerPluginMap(pluginHashMap);

@@ -2,6 +2,7 @@ package com.pine.audioplayer.ui.activity;
 
 import android.os.Bundle;
 import android.text.Html;
+import android.text.TextUtils;
 
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.databinding.ApMainActivityBinding;
@@ -27,6 +28,7 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
             String text = "";
             if (curSubtitle != null) {
                 text = curSubtitle.getTextBody();
+                text = TextUtils.isEmpty(text) ? "" : text;
                 if (curSubtitle.getTransBody() != null && !curSubtitle.getTransBody().isEmpty()) {
                     text += "<br />" + curSubtitle.getTransBody();
                 }
