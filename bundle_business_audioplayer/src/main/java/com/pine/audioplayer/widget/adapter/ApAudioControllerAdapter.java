@@ -323,6 +323,12 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
                 viewHolder.setPlayProgressBar((ProgressBar) progressBarView);
             }
         }
+        if (root.findViewById(R.id.player_cur_time_tv) != null) {
+            viewHolder.setCurrentTimeText(root.findViewById(R.id.player_cur_time_tv));
+        }
+        if (root.findViewById(R.id.player_end_time_tv) != null) {
+            viewHolder.setEndTimeText(root.findViewById(R.id.player_end_time_tv));
+        }
     }
 
     @Override

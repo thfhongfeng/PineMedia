@@ -308,9 +308,9 @@ public class ApMainAudioPlayerView extends RelativeLayout implements IAudioPlaye
         mMediaPlayer = mMediaPlayerView.getMediaPlayer();
         mMediaPlayer.setAutocephalyPlayMode(true);
         mControllerAdapter = controllerAdapter;
-        mControllerAdapter.setControllerView((ViewGroup) mRoot, ApPlayListType.getDefaultList(getContext()));
         mControllerAdapter.setPlayerViewListener(mPlayerViewListener);
         mControllerAdapter.setLyricUpdateListener(lyricUpdateListener);
+        mControllerAdapter.setControllerView((ViewGroup) mRoot, ApPlayListType.getDefaultList(getContext()));
         mMediaController.setMediaControllerAdapter(mControllerAdapter);
         mControllerAdapter.setupPlayer(mMediaPlayer);
         mMediaPlayer.addMediaPlayerListener(mPlayerListener);

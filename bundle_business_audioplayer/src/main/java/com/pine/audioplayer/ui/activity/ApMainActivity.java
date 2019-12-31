@@ -13,18 +13,22 @@ import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.player.applet.subtitle.bean.PineSubtitleBean;
 import com.pine.player.bean.PineMediaPlayerBean;
 
+import java.util.List;
+
 import androidx.lifecycle.Observer;
 
 public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBinding, ApMainVm> {
 
     private IAudioPlayerView.ILyricUpdateListener mLyricUpdateListener = new IAudioPlayerView.ILyricUpdateListener() {
+
         @Override
-        public void updateLyricText(PineMediaPlayerBean mediaBean, PineSubtitleBean subtitle) {
+        public void updateLyricText(PineMediaPlayerBean mediaBean, List<PineSubtitleBean> allList,
+                                    PineSubtitleBean curSubtitle, int position) {
             String text = "";
-            if (subtitle != null) {
-                text = subtitle.getTextBody();
-                if (subtitle.getTransBody() != null && !subtitle.getTransBody().isEmpty()) {
-                    text += "<br />" + subtitle.getTransBody();
+            if (curSubtitle != null) {
+                text = curSubtitle.getTextBody();
+                if (curSubtitle.getTransBody() != null && !curSubtitle.getTransBody().isEmpty()) {
+                    text += "<br />" + curSubtitle.getTransBody();
                 }
             }
             mBinding.subtitleText.setText(Html.fromHtml(text));

@@ -52,10 +52,13 @@ public class ApAudioPlayerHelper {
 
                 @Override
                 public void onViewClick(View view, String tag) {
-                    Intent intent = new Intent(RootApplication.mCurResumedActivity, ApMainActivity.class);
-                    intent.putExtra("music", mControllerAdapter.getCurMusic());
-                    intent.putExtra("playing", mControllerAdapter.mPlayer != null && mControllerAdapter.mPlayer.isPlaying());
-                    RootApplication.mCurResumedActivity.startActivity(intent);
+                    boolean hasMedia = mControllerAdapter != null && mControllerAdapter.getMusicList().size() > 0;
+                    if (hasMedia) {
+                        Intent intent = new Intent(RootApplication.mCurResumedActivity, ApMainActivity.class);
+                        intent.putExtra("music", mControllerAdapter.getCurMusic());
+                        intent.putExtra("playing", mControllerAdapter.mPlayer != null && mControllerAdapter.mPlayer.isPlaying());
+                        RootApplication.mCurResumedActivity.startActivity(intent);
+                    }
                 }
             };
 

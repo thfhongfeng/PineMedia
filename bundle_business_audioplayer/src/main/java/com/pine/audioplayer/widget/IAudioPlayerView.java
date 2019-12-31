@@ -39,7 +39,8 @@ public interface IAudioPlayerView {
     }
 
     interface ILyricUpdateListener {
-        void updateLyricText(PineMediaPlayerBean mediaBean, PineSubtitleBean subtitle);
+        void updateLyricText(PineMediaPlayerBean mediaBean, List<PineSubtitleBean> allList,
+                             PineSubtitleBean curSubtitle, int position);
 
         void clearLyricText();
     }
