@@ -21,7 +21,7 @@ import com.pine.audioplayer.bean.ApPlayListType;
 import com.pine.audioplayer.databinding.ApItemSimpleAudioDialogBinding;
 import com.pine.audioplayer.databinding.ApSimpleAudioDialogTitleBinding;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
-import com.pine.audioplayer.uitls.ApLocalMusicUtils;
+import com.pine.audioplayer.util.ApLocalMusicUtils;
 import com.pine.audioplayer.widget.IAudioPlayerView;
 import com.pine.audioplayer.widget.adapter.ApAudioControllerAdapter;
 import com.pine.base.util.DialogUtils;

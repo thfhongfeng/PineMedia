@@ -1,4 +1,4 @@
-package com.pine.audioplayer.uitls;
+package com.pine.audioplayer.util;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
