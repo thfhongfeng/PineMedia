@@ -16,6 +16,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.bean.ApPlayListType;
 import com.pine.audioplayer.databinding.ApItemSimpleAudioDialogBinding;
@@ -38,10 +42,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
 
 public class ApSimpleAudioPlayerView extends RelativeLayout implements IAudioPlayerView {
     private final String TAG = LogUtils.makeLogTag(this.getClass());
@@ -299,6 +299,7 @@ public class ApSimpleAudioPlayerView extends RelativeLayout implements IAudioPla
                      ILyricUpdateListener lyricUpdateListener) {
         mPlayerViewListener = playerViewListener;
         mMediaController = new PineMediaController(getContext());
+        mMediaPlayerView.disableBackPressTip();
         mMediaPlayerView.init(tag, mMediaController);
         mMediaPlayer = mMediaPlayerView.getMediaPlayer();
         mMediaPlayer.setAutocephalyPlayMode(true);

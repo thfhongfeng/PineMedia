@@ -7,12 +7,11 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 
 import com.pine.audioplayer.db.entity.ApSheetMusic;
-import com.pine.tool.util.PathUtils;
+import com.pine.tool.util.FileUtils;
 
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
@@ -201,7 +200,11 @@ public class ApLocalMusicUtils {
         return candidate;
     }
 
-    public static String getLyric(Context context, long songId, long albumId) {
-        return PathUtils.getExternalPublicDirectory(Environment.DIRECTORY_MUSIC) + "/Musiclrc/carpenters-yesterday once more.lrc";
+    public static String getLyric(Context context, ApSheetMusic music) {
+        List<String> list = FileUtils.getFileListByMediaStore(context, music.getName(), ".lrc");
+        if (list != null && list.size() > 0) {
+            return list.get(0);
+        }
+        return null;
     }
 }

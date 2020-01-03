@@ -15,6 +15,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.bean.ApPlayListType;
 import com.pine.audioplayer.databinding.ApItemSimpleAudioDialogBinding;
@@ -37,10 +41,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
 
 public class ApMainAudioPlayerView extends RelativeLayout implements IAudioPlayerView {
     private final String TAG = LogUtils.makeLogTag(this.getClass());
@@ -304,6 +304,7 @@ public class ApMainAudioPlayerView extends RelativeLayout implements IAudioPlaye
                      ILyricUpdateListener lyricUpdateListener) {
         mPlayerViewListener = playerViewListener;
         mMediaController = new PineMediaController(getContext());
+        mMediaPlayerView.disableBackPressTip();
         mMediaPlayerView.init(tag, mMediaController);
         mMediaPlayer = mMediaPlayerView.getMediaPlayer();
         mMediaPlayer.setAutocephalyPlayMode(true);
@@ -360,7 +361,7 @@ public class ApMainAudioPlayerView extends RelativeLayout implements IAudioPlaye
                 getAlbumArtBitmapInBackground(mediaCode, music.getSongId(), music.getAlbumId());
             }
             if (!mLyricMap.containsKey(mediaCode)) {
-                getLyricInBackground(mediaCode, music.getSongId(), music.getAlbumId());
+                getLyricInBackground(mediaCode, music);
             }
         }
         if (mControllerAdapter != null) {
@@ -419,7 +420,7 @@ public class ApMainAudioPlayerView extends RelativeLayout implements IAudioPlaye
         });
     }
 
-    private void getLyricInBackground(final String mediaCode, final long songId, final long albumId) {
+    private void getLyricInBackground(final String mediaCode, final ApSheetMusic music) {
         if (mWorkThreadHandler == null) {
             return;
         }
@@ -427,7 +428,10 @@ public class ApMainAudioPlayerView extends RelativeLayout implements IAudioPlaye
             @Override
             public void run() {
                 final String filePath = ApLocalMusicUtils.getLyric(getContext(),
-                        songId, albumId);
+                        music);
+                if (TextUtils.isEmpty(filePath)) {
+                    return;
+                }
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
