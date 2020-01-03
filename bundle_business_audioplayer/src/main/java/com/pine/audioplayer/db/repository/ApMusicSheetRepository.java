@@ -2,16 +2,17 @@ package com.pine.audioplayer.db.repository;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
+
 import com.pine.audioplayer.db.ApRoomDatabase;
 import com.pine.audioplayer.db.dao.ApMusicSheetDao;
 import com.pine.audioplayer.db.dao.ApSheetMusicDao;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.tool.util.LogUtils;
 
+import java.util.Calendar;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
 
 public class ApMusicSheetRepository {
     private final String TAG = LogUtils.makeLogTag(this.getClass());
@@ -91,6 +92,8 @@ public class ApMusicSheetRepository {
 
     public long addMusicSheet(@NonNull ApMusicSheet apMusicSheet) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
+            apMusicSheet.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+            apMusicSheet.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
             return apMusicSheetDao.insert(apMusicSheet);
         }
     }

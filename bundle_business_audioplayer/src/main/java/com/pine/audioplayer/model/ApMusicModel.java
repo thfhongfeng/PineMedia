@@ -2,6 +2,8 @@ package com.pine.audioplayer.model;
 
 import android.content.Context;
 
+import androidx.lifecycle.LiveData;
+
 import com.pine.audioplayer.ApConstants;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
@@ -9,10 +11,7 @@ import com.pine.audioplayer.db.repository.ApMusicSheetRepository;
 import com.pine.audioplayer.db.repository.ApSheetMusicRepository;
 import com.pine.audioplayer.util.ApLocalMusicUtils;
 
-import java.util.Calendar;
 import java.util.List;
-
-import androidx.lifecycle.LiveData;
 
 public class ApMusicModel {
 
@@ -46,8 +45,6 @@ public class ApMusicModel {
 
     public long addMusicSheet(Context context, ApMusicSheet apMusicSheet) {
         apMusicSheet.setSheetType(ApConstants.MUSIC_SHEET_TYPE_CUSTOM);
-        apMusicSheet.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
-        apMusicSheet.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
         return ApMusicSheetRepository.getInstance(context).addMusicSheet(apMusicSheet);
     }
 
@@ -61,25 +58,24 @@ public class ApMusicModel {
     }
 
     public List<ApSheetMusic> getAllMusicList(Context context) {
-        return ApLocalMusicUtils.getAllMusicList(context);
+        List<ApSheetMusic> list = ApLocalMusicUtils.getAllMusicList(context);
+        return list;
     }
 
     public List<ApSheetMusic> getSheetMusicList(Context context, long sheetId) {
         return ApSheetMusicRepository.getInstance(context).querySheetMusicList(sheetId);
     }
 
-    public void addSheetMusic(Context context, ApSheetMusic apSheetMusic, long sheetId) {
-        ApSheetMusicRepository.getInstance(context).addSheetMusic(apSheetMusic, sheetId);
+    public ApSheetMusic addSheetMusic(Context context, ApSheetMusic apSheetMusic, long sheetId) {
+        return ApSheetMusicRepository.getInstance(context).addSheetMusic(apSheetMusic, sheetId);
     }
 
-    public void addSheetMusicList(Context context, List<ApSheetMusic> list, long sheetId) {
-        ApSheetMusicRepository.getInstance(context).addSheetMusicList(list, sheetId);
+    public List<ApSheetMusic> addSheetMusicList(Context context, List<ApSheetMusic> list, long sheetId) {
+        return ApSheetMusicRepository.getInstance(context).addSheetMusicList(list, sheetId);
     }
 
-    public void updateMusicLyric(Context context, ApSheetMusic music, String filePath) {
-        music.setLyricFilePath(filePath);
-        music.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
-        ApSheetMusicRepository.getInstance(context).updateSheetMusic(music);
+    public void updateMusicLyric(Context context, ApSheetMusic music, String lrcFilePath) {
+        ApSheetMusicRepository.getInstance(context).updateMusicLyric(music, lrcFilePath);
     }
 
     public void removeSheetMusic(Context context, ApSheetMusic apSheetMusic) {

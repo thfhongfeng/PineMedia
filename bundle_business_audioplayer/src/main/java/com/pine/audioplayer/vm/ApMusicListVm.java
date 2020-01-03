@@ -2,6 +2,9 @@ package com.pine.audioplayer.vm;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
+
 import com.pine.audioplayer.ApConstants;
 import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
@@ -9,9 +12,6 @@ import com.pine.audioplayer.model.ApMusicModel;
 import com.pine.tool.architecture.mvvm.vm.ViewModel;
 
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.MutableLiveData;
 
 public class ApMusicListVm extends ViewModel {
     private ApMusicModel mModel = new ApMusicModel();
@@ -59,12 +59,12 @@ public class ApMusicListVm extends ViewModel {
         }
     }
 
-    public void addMusicToFavourite(ApSheetMusic music) {
-        mModel.addSheetMusic(getContext(), music, mModel.getFavouriteSheet(getContext()).getId());
+    public ApSheetMusic addMusicToFavourite(ApSheetMusic music) {
+        return mModel.addSheetMusic(getContext(), music, mModel.getFavouriteSheet(getContext()).getId());
     }
 
-    public void addMusicToRecent(ApSheetMusic music) {
-        mModel.addSheetMusic(getContext(), music, mRecentSheet.getId());
+    public ApSheetMusic addMusicToRecent(ApSheetMusic music) {
+        return mModel.addSheetMusic(getContext(), music, mRecentSheet.getId());
     }
 
     public void addAllMusicsToRecent() {

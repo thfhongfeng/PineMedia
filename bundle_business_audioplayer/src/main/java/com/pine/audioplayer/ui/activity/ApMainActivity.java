@@ -4,23 +4,23 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
 
+import androidx.lifecycle.Observer;
+
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.databinding.ApMainActivityBinding;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.audioplayer.manager.ApAudioPlayerHelper;
 import com.pine.audioplayer.vm.ApMainVm;
-import com.pine.audioplayer.widget.IAudioPlayerView;
+import com.pine.audioplayer.widget.plugin.ApOutRootLrcPlugin;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.player.applet.subtitle.bean.PineSubtitleBean;
 import com.pine.player.bean.PineMediaPlayerBean;
 
 import java.util.List;
 
-import androidx.lifecycle.Observer;
-
 public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBinding, ApMainVm> {
 
-    private IAudioPlayerView.ILyricUpdateListener mLyricUpdateListener = new IAudioPlayerView.ILyricUpdateListener() {
+    private ApOutRootLrcPlugin.ILyricUpdateListener mLyricUpdateListener = new ApOutRootLrcPlugin.ILyricUpdateListener() {
 
         @Override
         public void updateLyricText(PineMediaPlayerBean mediaBean, List<PineSubtitleBean> allList,

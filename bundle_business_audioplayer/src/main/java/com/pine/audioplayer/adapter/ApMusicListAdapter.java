@@ -1,10 +1,12 @@
 package com.pine.audioplayer.adapter;
 
 import android.content.Context;
-import android.net.Uri;
+import android.graphics.drawable.AnimationDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.databinding.DataBindingUtil;
 
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.databinding.ApItemSheetMusicBinding;
@@ -12,34 +14,15 @@ import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.base.recycle_view.BaseListViewHolder;
 import com.pine.base.recycle_view.adapter.BaseNoPaginationListAdapter;
 import com.pine.base.recycle_view.bean.BaseListAdapterItemProperty;
-import com.pine.player.bean.PineMediaPlayerBean;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import androidx.databinding.DataBindingUtil;
 
 public class ApMusicListAdapter extends BaseNoPaginationListAdapter<ApSheetMusic> {
-    private List<PineMediaPlayerBean> mMediaList = new ArrayList<>();
+    private ApSheetMusic mPlayMusic;
+    private boolean mIsPlaying;
 
-    public List<PineMediaPlayerBean> getMediaList() {
-        return mMediaList;
-    }
-
-    @Override
-    protected void onDataSet() {
-        super.onDataSet();
-        mMediaList = new ArrayList<>();
-        if (mOriginData != null) {
-            for (ApSheetMusic music : mOriginData) {
-                PineMediaPlayerBean bean = new PineMediaPlayerBean(music.getSongId() + "",
-                        music.getName(), Uri.parse(music.getFilePath()),
-                        PineMediaPlayerBean.MEDIA_TYPE_VIDEO, null,
-                        null, null);
-                bean.setMediaDesc(music.getAuthor() + " - " + music.getAlbum());
-                mMediaList.add(bean);
-            }
-        }
+    public void setPlayMusic(ApSheetMusic playMusic, boolean playing) {
+        mPlayMusic = playMusic;
+        mIsPlaying = playing;
+        notifyDataSetChangedSafely();
     }
 
     @Override
@@ -75,6 +58,19 @@ public class ApMusicListAdapter extends BaseNoPaginationListAdapter<ApSheetMusic
                     }
                 }
             });
+            if (mPlayMusic != null && mPlayMusic.getSongId() == content.getSongId()) {
+                if (mIsPlaying) {
+                    mBinding.playStateIv.setImageResource(R.drawable.res_anim_playing);
+                    AnimationDrawable playAnim = (AnimationDrawable) mBinding.playStateIv.getDrawable();
+                    playAnim.start();
+                } else {
+                    mBinding.playStateIv.setImageResource(R.mipmap.res_ic_playing_1_1);
+                }
+                mBinding.playStateIv.setVisibility(View.VISIBLE);
+            } else {
+                mBinding.playStateIv.setVisibility(View.INVISIBLE);
+            }
+
             // 数据改变时立即刷新数据，解决DataBinding导致的刷新闪烁问题
             mBinding.executePendingBindings();
         }

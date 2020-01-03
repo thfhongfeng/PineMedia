@@ -34,6 +34,9 @@ public class ApSheetMusic implements Parcelable {
     @ColumnInfo(name = "lyric_file_path")
     private String lyricFilePath;
 
+    @ColumnInfo(name = "is_favourite")
+    private boolean isFavourite;
+
     private String author;
 
     private int duration;
@@ -63,62 +66,6 @@ public class ApSheetMusic implements Parcelable {
     public ApSheetMusic() {
 
     }
-
-    protected ApSheetMusic(Parcel in) {
-        id = in.readLong();
-        sheetId = in.readLong();
-        songId = in.readLong();
-        name = in.readString();
-        filePath = in.readString();
-        lyricFilePath = in.readString();
-        author = in.readString();
-        duration = in.readInt();
-        album = in.readString();
-        albumId = in.readLong();
-        year = in.readString();
-        mimeType = in.readString();
-        size = in.readLong();
-        description = in.readString();
-        updateTimeStamp = in.readLong();
-        createTimeStamp = in.readLong();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(id);
-        dest.writeLong(sheetId);
-        dest.writeLong(songId);
-        dest.writeString(name);
-        dest.writeString(filePath);
-        dest.writeString(lyricFilePath);
-        dest.writeString(author);
-        dest.writeInt(duration);
-        dest.writeString(album);
-        dest.writeLong(albumId);
-        dest.writeString(year);
-        dest.writeString(mimeType);
-        dest.writeLong(size);
-        dest.writeString(description);
-        dest.writeLong(updateTimeStamp);
-        dest.writeLong(createTimeStamp);
-    }
-
-    public static final Creator<ApSheetMusic> CREATOR = new Creator<ApSheetMusic>() {
-        @Override
-        public ApSheetMusic createFromParcel(Parcel in) {
-            return new ApSheetMusic(in);
-        }
-
-        @Override
-        public ApSheetMusic[] newArray(int size) {
-            return new ApSheetMusic[size];
-        }
-    };
 
     public long getId() {
         return id;
@@ -168,6 +115,14 @@ public class ApSheetMusic implements Parcelable {
 
     public void setLyricFilePath(String lyricFilePath) {
         this.lyricFilePath = lyricFilePath;
+    }
+
+    public boolean isFavourite() {
+        return isFavourite;
+    }
+
+    public void setFavourite(boolean favourite) {
+        isFavourite = favourite;
     }
 
     public String getAuthor() {
@@ -248,5 +203,63 @@ public class ApSheetMusic implements Parcelable {
 
     public void setCreateTimeStamp(long createTimeStamp) {
         this.createTimeStamp = createTimeStamp;
+    }
+
+    protected ApSheetMusic(Parcel in) {
+        id = in.readLong();
+        sheetId = in.readLong();
+        songId = in.readLong();
+        name = in.readString();
+        filePath = in.readString();
+        lyricFilePath = in.readString();
+        isFavourite = in.readByte() != 0;
+        author = in.readString();
+        duration = in.readInt();
+        album = in.readString();
+        albumId = in.readLong();
+        year = in.readString();
+        mimeType = in.readString();
+        size = in.readLong();
+        description = in.readString();
+        updateTimeStamp = in.readLong();
+        createTimeStamp = in.readLong();
+    }
+
+    public static final Creator<ApSheetMusic> CREATOR = new Creator<ApSheetMusic>() {
+        @Override
+        public ApSheetMusic createFromParcel(Parcel in) {
+            return new ApSheetMusic(in);
+        }
+
+        @Override
+        public ApSheetMusic[] newArray(int size) {
+            return new ApSheetMusic[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeLong(sheetId);
+        dest.writeLong(songId);
+        dest.writeString(name);
+        dest.writeString(filePath);
+        dest.writeString(lyricFilePath);
+        dest.writeByte((byte) (isFavourite ? 1 : 0));
+        dest.writeString(author);
+        dest.writeInt(duration);
+        dest.writeString(album);
+        dest.writeLong(albumId);
+        dest.writeString(year);
+        dest.writeString(mimeType);
+        dest.writeLong(size);
+        dest.writeString(description);
+        dest.writeLong(updateTimeStamp);
+        dest.writeLong(createTimeStamp);
     }
 }

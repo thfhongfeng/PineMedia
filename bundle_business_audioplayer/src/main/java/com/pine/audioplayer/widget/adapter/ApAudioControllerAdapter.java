@@ -8,11 +8,13 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.NonNull;
+
 import com.pine.audioplayer.ApConstants;
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.bean.ApPlayListType;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
-import com.pine.audioplayer.widget.IAudioPlayerView;
+import com.pine.audioplayer.widget.AudioPlayerView;
 import com.pine.audioplayer.widget.plugin.ApOutRootLrcPlugin;
 import com.pine.player.PineConstants;
 import com.pine.player.applet.IPinePlayerPlugin;
@@ -37,8 +39,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
-import androidx.annotation.NonNull;
-
 public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaControllerAdapter {
     private Context mContext;
     private ViewGroup mControllerView;
@@ -56,8 +56,8 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
     private List<ApPlayListType> mPlayTypeList;
     private int mCurPlayTypePos = 0;
 
-    private IAudioPlayerView.IPlayerViewListener mPlayerViewListener;
-    private IAudioPlayerView.ILyricUpdateListener mLyricUpdateListener;
+    private AudioPlayerView.IPlayerViewListener mPlayerViewListener;
+    private ApOutRootLrcPlugin.ILyricUpdateListener mLyricUpdateListener;
 
     private PineMediaWidget.PineMediaPlayerListener mPlayerListener = new PineMediaWidget.PineMediaPlayerListener() {
         @Override
@@ -142,7 +142,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         return music.getSongId() + "";
     }
 
-    public void setPlayerViewListener(@NonNull IAudioPlayerView.IPlayerViewListener playerViewListener) {
+    public void setPlayerViewListener(@NonNull AudioPlayerView.IPlayerViewListener playerViewListener) {
         mPlayerViewListener = playerViewListener;
     }
 
@@ -164,7 +164,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         return music;
     }
 
-    public void setLyricUpdateListener(@NonNull IAudioPlayerView.ILyricUpdateListener lyricUpdateListener) {
+    public void setLyricUpdateListener(@NonNull ApOutRootLrcPlugin.ILyricUpdateListener lyricUpdateListener) {
         mLyricUpdateListener = lyricUpdateListener;
         if (mCodeMediaListMap != null && mCodeMediaListMap.size() > 0) {
             Iterator<Map.Entry<String, PineMediaPlayerBean>> iterator = mCodeMediaListMap.entrySet().iterator();

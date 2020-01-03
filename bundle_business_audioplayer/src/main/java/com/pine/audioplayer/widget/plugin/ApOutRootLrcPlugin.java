@@ -2,16 +2,16 @@ package com.pine.audioplayer.widget.plugin;
 
 import android.content.Context;
 
-import com.pine.audioplayer.widget.IAudioPlayerView;
 import com.pine.player.applet.IPinePlayerPlugin;
 import com.pine.player.applet.subtitle.bean.PineSubtitleBean;
 import com.pine.player.applet.subtitle.plugin.PineLrcParserPlugin;
+import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.player.widget.viewholder.PinePluginViewHolder;
 
 import java.util.List;
 
 public class ApOutRootLrcPlugin<T extends List> extends PineLrcParserPlugin<T> {
-    private IAudioPlayerView.ILyricUpdateListener mLyricUpdateListener;
+    private ILyricUpdateListener mLyricUpdateListener;
 
     public ApOutRootLrcPlugin(Context context, String subtitleFilePath, String charset) {
         super(context, subtitleFilePath, charset);
@@ -21,7 +21,7 @@ public class ApOutRootLrcPlugin<T extends List> extends PineLrcParserPlugin<T> {
         super(context, subtitleFilePath, pathType, charset);
     }
 
-    public void setLyricUpdateListener(IAudioPlayerView.ILyricUpdateListener lyricUpdateListener) {
+    public void setLyricUpdateListener(ILyricUpdateListener lyricUpdateListener) {
         mLyricUpdateListener = lyricUpdateListener;
     }
 
@@ -47,5 +47,12 @@ public class ApOutRootLrcPlugin<T extends List> extends PineLrcParserPlugin<T> {
         if (mLyricUpdateListener != null) {
             mLyricUpdateListener.clearLyricText();
         }
+    }
+
+    public interface ILyricUpdateListener {
+        void updateLyricText(PineMediaPlayerBean mediaBean, List<PineSubtitleBean> allList,
+                             PineSubtitleBean curSubtitle, int position);
+
+        void clearLyricText();
     }
 }

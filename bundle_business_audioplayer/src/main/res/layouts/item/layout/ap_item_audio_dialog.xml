@@ -33,7 +33,6 @@
             <LinearLayout
                 android:layout_width="@dimen/dp_0"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="@dimen/dp_20"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -58,7 +57,8 @@
                 android:id="@+id/play_state_iv"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginRight="@dimen/dp_20"
+                android:layout_marginLeft="@dimen/dp_15"
+                android:layout_marginRight="@dimen/dp_15"
                 android:padding="@dimen/dp_5"
                 android:src="@drawable/res_anim_playing"
                 android:visibility="@{playingState==0?View.INVISIBLE:View.VISIBLE}"></ImageView>

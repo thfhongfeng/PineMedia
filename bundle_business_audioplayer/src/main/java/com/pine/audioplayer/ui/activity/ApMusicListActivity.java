@@ -4,6 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicListAdapter;
 import com.pine.audioplayer.databinding.ApMusicListActivityBinding;
@@ -12,6 +17,7 @@ import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.audioplayer.manager.ApAudioPlayerHelper;
 import com.pine.audioplayer.vm.ApMusicListVm;
+import com.pine.audioplayer.widget.AudioPlayerView;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
 import com.pine.base.util.DialogUtils;
@@ -22,15 +28,16 @@ import com.pine.tool.widget.dialog.PopupMenu;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicListActivityBinding, ApMusicListVm> {
 
     private ApMusicListAdapter mMusicListAdapter;
     private PopupMenu mTopPopupMenu;
+    private AudioPlayerView.IPlayerListener mPlayerListener = new AudioPlayerView.IPlayerListener() {
+        @Override
+        public void onPlayMusic(ApSheetMusic music, boolean isPlaying) {
+            mMusicListAdapter.setPlayMusic(music, isPlaying);
+        }
+    };
 
     @Override
     public void observeInitLiveData(Bundle savedInstanceState) {
@@ -85,7 +92,7 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
     @Override
     protected void onRealResume() {
         super.onRealResume();
-        ApAudioPlayerHelper.getInstance().attachGlobalController(this, mBinding.playerView);
+        ApAudioPlayerHelper.getInstance().attachGlobalController(this, mBinding.playerView, mPlayerListener);
         mViewModel.refreshData();
     }
 
