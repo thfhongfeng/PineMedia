@@ -55,6 +55,10 @@ repositories {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    // android官方 dependency begin
+    implementation build_dependency["android_palette"]
+    // android官方 dependency end
+
     // ARouter配置 begin
     implementation build_dependency["arouter_api"]
     annotationProcessor build_dependency["arouter_compiler"]

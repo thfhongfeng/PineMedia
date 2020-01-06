@@ -36,8 +36,8 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    emptySrc="@{R.mipmap.res_iv_top_bg}"
-                    errorSrc="@{R.mipmap.res_iv_top_bg}"
+                    emptySrc="@{R.mipmap.res_iv_top_bg_horizontal}"
+                    errorSrc="@{R.mipmap.res_iv_top_bg_horizontal}"
                     imageUrl="@{musicSheet.imageUri}"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/dp_200"
@@ -112,7 +112,7 @@
                     android:layout_weight="1"
                     android:padding="@dimen/dp_5"
                     android:text="@{@string/ap_ml_total_count(musicSheet.count)}"
-                    android:textColor="@color/dark_black_gray"
+                    android:textColor="@color/dark_gray_black"
                     android:textSize="@dimen/sp_14"></TextView>
 
                 <ImageView

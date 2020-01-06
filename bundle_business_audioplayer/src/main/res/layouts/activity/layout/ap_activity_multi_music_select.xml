@@ -68,7 +68,7 @@
                 android:onClick="@{presenter::onAllSelectClick}"
                 android:padding="@dimen/dp_10"
                 android:text="@string/ap_mms_all_select"
-                android:textColor="@color/dark_black_gray"
+                android:textColor="@color/dark_gray_black"
                 android:textSize="@dimen/sp_13" />
 
             <TextView

@@ -57,7 +57,7 @@ public class ApSimpleAudioPlayerView extends AudioPlayerView {
                 onViewClick(sapv_content_ll, "content");
             }
         });
-
+        enableAlbumArt(true, false, true);
         return (ViewGroup) mRoot;
     }
 
@@ -72,11 +72,11 @@ public class ApSimpleAudioPlayerView extends AudioPlayerView {
     }
 
     @Override
-    public void setupAlbumArtBitmapView(Bitmap smallBitmap, Bitmap bigBitmap) {
+    public void setupAlbumArt(Bitmap smallBitmap, Bitmap bigBitmap, int mainColor) {
         if (smallBitmap != null) {
             sapv_cover_iv.setImageBitmap(smallBitmap);
         } else {
-            sapv_cover_iv.setImageResource(R.mipmap.res_iv_top_bg);
+            sapv_cover_iv.setImageResource(R.mipmap.res_iv_top_bg_horizontal);
         }
     }
 
@@ -86,7 +86,7 @@ public class ApSimpleAudioPlayerView extends AudioPlayerView {
             sapv_name_tv.setText(music.getName());
             sapv_desc_tv.setText(music.getAuthor() + " - " + music.getAlbum());
         } else {
-            sapv_cover_iv.setImageResource(R.mipmap.res_iv_top_bg);
+            sapv_cover_iv.setImageResource(R.mipmap.res_iv_top_bg_horizontal);
             sapv_name_tv.setText(R.string.ap_sad_play_pine_name);
             sapv_desc_tv.setText(R.string.ap_sad_play_pine_desc);
         }

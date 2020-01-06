@@ -2,6 +2,7 @@ package com.pine.audioplayer.db.entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -33,6 +34,9 @@ public class ApSheetMusic implements Parcelable {
 
     @ColumnInfo(name = "lyric_file_path")
     private String lyricFilePath;
+
+    @ColumnInfo(name = "lyric_charset", defaultValue = "GBK")
+    private String lyricCharset;
 
     @ColumnInfo(name = "is_favourite")
     private boolean isFavourite;
@@ -115,6 +119,17 @@ public class ApSheetMusic implements Parcelable {
 
     public void setLyricFilePath(String lyricFilePath) {
         this.lyricFilePath = lyricFilePath;
+    }
+
+    public String getLyricCharset() {
+        if (TextUtils.isEmpty(lyricCharset)) {
+            return "GBK";
+        }
+        return lyricCharset;
+    }
+
+    public void setLyricCharset(String lyricCharset) {
+        this.lyricCharset = lyricCharset;
     }
 
     public boolean isFavourite() {
@@ -212,6 +227,7 @@ public class ApSheetMusic implements Parcelable {
         name = in.readString();
         filePath = in.readString();
         lyricFilePath = in.readString();
+        lyricCharset = in.readString();
         isFavourite = in.readByte() != 0;
         author = in.readString();
         duration = in.readInt();
@@ -250,6 +266,7 @@ public class ApSheetMusic implements Parcelable {
         dest.writeString(name);
         dest.writeString(filePath);
         dest.writeString(lyricFilePath);
+        dest.writeString(lyricCharset);
         dest.writeByte((byte) (isFavourite ? 1 : 0));
         dest.writeString(author);
         dest.writeInt(duration);

@@ -25,7 +25,7 @@
 
             <com.pine.tool.widget.view.RoundImageView
                 android:id="@+id/img_iv"
-                emptySrc="@{R.mipmap.res_iv_top_bg}"
+                emptySrc="@{R.mipmap.res_iv_top_bg_horizontal}"
                 imageUrl="@{sheetBean.imageUri}"
                 android:layout_width="@dimen/dp_48"
                 android:layout_height="@dimen/dp_48"
@@ -44,7 +44,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/dp_5"
                     android:text="@{sheetBean.name}"
-                    android:textColor="@color/dark_black_gray"
+                    android:textColor="@color/dark_gray_black"
                     android:textSize="@dimen/sp_15"
                     android:textStyle="bold"></TextView>
 
@@ -53,7 +53,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{@string/ap_home_sheet_item_desc(sheetBean.count)}"
-                    android:textColor="@color/dark_black_gray"
+                    android:textColor="@color/dark_gray_black"
                     android:textSize="@dimen/sp_14"></TextView>
             </LinearLayout>
 

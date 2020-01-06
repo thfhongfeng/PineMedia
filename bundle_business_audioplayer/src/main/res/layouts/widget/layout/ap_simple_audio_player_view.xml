@@ -49,7 +49,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/dp_3"
                     android:singleLine="true"
-                    android:textColor="@color/dark_black_gray"
+                    android:textColor="@color/dark_gray_black"
                     android:textSize="@dimen/sp_14"></TextView>
 
                 <TextView
@@ -88,7 +88,7 @@
                 android:background="@drawable/res_shape_circle_f8f8ff"
                 android:gravity="center"
                 android:padding="@dimen/dp_10"
-                android:src="@drawable/res_selector_play_pause_btn_2" />
+                android:src="@drawable/res_selector_play_pause_btn_2_1" />
         </RelativeLayout>
 
         <ImageView
@@ -99,7 +99,7 @@
             android:background="@drawable/res_shape_circle_f8f8ff"
             android:gravity="center"
             android:padding="@dimen/dp_10"
-            android:src="@drawable/res_selector_next_btn_2" />
+            android:src="@drawable/res_selector_next_btn_2_1" />
 
         <ImageView
             android:id="@+id/sapv_media_list_btn"
@@ -109,6 +109,6 @@
             android:background="@drawable/res_shape_circle_f8f8ff"
             android:gravity="center"
             android:padding="@dimen/dp_10"
-            android:src="@drawable/res_selector_music_list_btn" />
+            android:src="@drawable/res_selector_music_list_btn_1_2" />
     </LinearLayout>
 </RelativeLayout>

@@ -57,7 +57,7 @@
                     android:layout_marginLeft="@dimen/dp_20"
                     android:layout_weight="1"
                     android:text="@string/ap_home_all_music_name"
-                    android:textColor="@color/dark_black_gray"
+                    android:textColor="@color/dark_gray_black"
                     android:textSize="@dimen/sp_14" />
 
                 <TextView
@@ -67,7 +67,7 @@
                     android:drawableRight="@mipmap/res_ic_right_arrow_2_1"
                     android:drawablePadding="@dimen/dp_15"
                     android:text="@{String.valueOf(allMusicSheet.count)}"
-                    android:textColor="@color/dark_black_gray"
+                    android:textColor="@color/dark_gray_black"
                     android:textSize="@dimen/sp_14" />
             </LinearLayout>
 
@@ -96,7 +96,7 @@
                     android:layout_marginLeft="@dimen/dp_20"
                     android:layout_weight="1"
                     android:text="@string/ap_home_recent_music_name"
-                    android:textColor="@color/dark_black_gray"
+                    android:textColor="@color/dark_gray_black"
                     android:textSize="@dimen/sp_14" />
 
                 <TextView
@@ -106,7 +106,7 @@
                     android:drawableRight="@mipmap/res_ic_right_arrow_2_1"
                     android:drawablePadding="@dimen/dp_15"
                     android:text="@{String.valueOf(recentSheet.count)}"
-                    android:textColor="@color/dark_black_gray"
+                    android:textColor="@color/dark_gray_black"
                     android:textSize="@dimen/sp_14" />
             </LinearLayout>
 
@@ -135,7 +135,7 @@
                     android:layout_marginLeft="@dimen/dp_20"
                     android:layout_weight="1"
                     android:text="@string/ap_home_my_favourite_name"
-                    android:textColor="@color/dark_black_gray"
+                    android:textColor="@color/dark_gray_black"
                     android:textSize="@dimen/sp_14" />
 
                 <TextView
@@ -145,7 +145,7 @@
                     android:drawableRight="@mipmap/res_ic_right_arrow_2_1"
                     android:drawablePadding="@dimen/dp_15"
                     android:text="@{String.valueOf(favouriteSheet.count)}"
-                    android:textColor="@color/dark_black_gray"
+                    android:textColor="@color/dark_gray_black"
                     android:textSize="@dimen/sp_14" />
             </LinearLayout>
 

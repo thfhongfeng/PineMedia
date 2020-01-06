@@ -74,8 +74,8 @@ public class ApMusicModel {
         return ApSheetMusicRepository.getInstance(context).addSheetMusicList(list, sheetId);
     }
 
-    public void updateMusicLyric(Context context, ApSheetMusic music, String lrcFilePath) {
-        ApSheetMusicRepository.getInstance(context).updateMusicLyric(music, lrcFilePath);
+    public void updateMusicLyric(Context context, ApSheetMusic music, String lrcFilePath, String charset) {
+        ApSheetMusicRepository.getInstance(context).updateMusicLyric(music, lrcFilePath, charset);
     }
 
     public void removeSheetMusic(Context context, ApSheetMusic apSheetMusic) {

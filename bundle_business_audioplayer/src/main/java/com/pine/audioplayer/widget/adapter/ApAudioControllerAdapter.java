@@ -26,7 +26,6 @@ import com.pine.player.widget.viewholder.PineBackgroundViewHolder;
 import com.pine.player.widget.viewholder.PineControllerViewHolder;
 import com.pine.player.widget.viewholder.PineRightViewHolder;
 import com.pine.player.widget.viewholder.PineWaitingProgressViewHolder;
-import com.pine.tool.util.CharsetUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -146,19 +145,20 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         mPlayerViewListener = playerViewListener;
     }
 
-    public ApSheetMusic onLyricDownloaded(String mediaCode, String filePath) {
+    public ApSheetMusic onLyricDownloaded(String mediaCode, String filePath, String charset) {
         ApSheetMusic music = mCodeMusicListMap.get(mediaCode);
         if (music == null) {
             return null;
         }
         music.setLyricFilePath(filePath);
+        music.setLyricCharset(charset);
         PineMediaPlayerBean bean = mCodeMediaListMap.get(mediaCode);
         HashMap<Integer, IPinePlayerPlugin> pluginHashMap = bean.getPlayerPluginMap();
         if (pluginHashMap != null) {
             IPinePlayerPlugin plugin = pluginHashMap.get(ApConstants.PLUGIN_LRC_SUBTITLE);
             if (plugin != null && plugin instanceof ApOutRootLrcPlugin) {
                 ((ApOutRootLrcPlugin) plugin).setSubtitle(filePath, PineConstants.PATH_STORAGE,
-                        CharsetUtils.getCharset(music.getLyricFilePath()));
+                        music.getLyricCharset());
             }
         }
         return music;
@@ -188,7 +188,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
                 null, null);
         HashMap<Integer, IPinePlayerPlugin> pluginHashMap = new HashMap<>();
         ApOutRootLrcPlugin playerPlugin = new ApOutRootLrcPlugin(mContext, music.getLyricFilePath(),
-                CharsetUtils.getCharset(music.getLyricFilePath()));
+                music.getLyricCharset());
         playerPlugin.setLyricUpdateListener(mLyricUpdateListener);
         pluginHashMap.put(ApConstants.PLUGIN_LRC_SUBTITLE, playerPlugin);
         mediaBean.setPlayerPluginMap(pluginHashMap);

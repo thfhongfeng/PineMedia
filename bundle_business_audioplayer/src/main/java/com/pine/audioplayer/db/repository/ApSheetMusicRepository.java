@@ -121,8 +121,8 @@ public class ApSheetMusicRepository {
         }
     }
 
-    public void updateMusicLyric(@NonNull ApSheetMusic music, String lrcFilePath) {
-        apSheetMusicDao.updateMusicLyric(music.getSongId(), lrcFilePath, Calendar.getInstance().getTimeInMillis());
+    public void updateMusicLyric(@NonNull ApSheetMusic music, String lrcFilePath, String charset) {
+        apSheetMusicDao.updateMusicLyric(music.getSongId(), lrcFilePath, charset, Calendar.getInstance().getTimeInMillis());
     }
 
     public void deleteSheetMusic(final @NonNull ApSheetMusic music) {

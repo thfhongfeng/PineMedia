@@ -36,8 +36,8 @@ public interface ApSheetMusicDao {
     @Query("SELECT COUNT(*) FROM ap_sheet_music WHERE sheet_id=:sheetId")
     int querySheetMusicCount(long sheetId);
 
-    @Query("UPDATE ap_sheet_music SET lyric_file_path=:lrcFilePath,update_time_stamp=:updateTimeStamp WHERE song_id=:songId")
-    int updateMusicLyric(long songId, String lrcFilePath, long updateTimeStamp);
+    @Query("UPDATE ap_sheet_music SET lyric_file_path=:lrcFilePath,lyric_charset=:charset,update_time_stamp=:updateTimeStamp WHERE song_id=:songId")
+    int updateMusicLyric(long songId, String lrcFilePath, String charset, long updateTimeStamp);
 
     @Query("UPDATE ap_sheet_music SET is_favourite=:isFavourite WHERE song_id=:songId")
     int updateMusicFavourite(long songId, boolean isFavourite);

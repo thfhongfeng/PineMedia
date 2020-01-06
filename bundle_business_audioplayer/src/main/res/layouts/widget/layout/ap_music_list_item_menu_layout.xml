@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="@dimen/dp_5"
                 android:text="@string/ap_ml_menu_add_music"
-                android:textColor="@color/dark_black_gray"
+                android:textColor="@color/dark_gray_black"
                 android:textSize="@dimen/sp_14"></TextView>
         </LinearLayout>
 
@@ -55,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="@dimen/dp_5"
                 android:text="@string/ap_ml_menu_delete_sheet"
-                android:textColor="@color/dark_black_gray"
+                android:textColor="@color/dark_gray_black"
                 android:textSize="@dimen/sp_14"></TextView>
         </LinearLayout>
     </LinearLayout>

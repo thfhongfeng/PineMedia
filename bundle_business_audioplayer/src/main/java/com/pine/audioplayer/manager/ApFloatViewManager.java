@@ -44,8 +44,8 @@ public class ApFloatViewManager {
                 }
 
                 @Override
-                public void onLyricDownloaded(ApSheetMusic music, String filePath) {
-                    mModel.updateMusicLyric(mAppContext, music, filePath);
+                public void onLyricDownloaded(ApSheetMusic music, String filePath, String charset) {
+                    mModel.updateMusicLyric(mAppContext, music, filePath, charset);
                 }
 
                 @Override
@@ -116,6 +116,8 @@ public class ApFloatViewManager {
 
     public void clear() {
         RootApplication.removeAppLifecycleListener(mAppLifecycleListener);
+        clearFloatSimpleAudioPlayer();
+        mInstance = null;
     }
 
     RootApplication.IOnAppLifecycleListener mAppLifecycleListener = new RootApplication.IOnAppLifecycleListener() {
@@ -130,6 +132,7 @@ public class ApFloatViewManager {
     };
 
     public void setupFloatSimpleAudioPlayerView() {
+        clearFloatSimpleAudioPlayer();
         mFloatingSimpleAudioPlayerView = new ApSimpleAudioPlayerView(mAppContext);
         //设置WindowManger布局参数以及相关属性
         final WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
@@ -163,6 +166,7 @@ public class ApFloatViewManager {
 
     public void clearFloatSimpleAudioPlayer() {
         if (mFloatingSimpleAudioPlayerView != null) {
+            mFloatingSimpleAudioPlayerView.detachView();
             mWindowManager.removeView(mFloatingSimpleAudioPlayerView);
             mFloatingSimpleAudioPlayerView = null;
         }

@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.pine.audioplayer.ApConstants;
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicListAdapter;
 import com.pine.audioplayer.databinding.ApMusicListActivityBinding;
@@ -36,6 +37,11 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
         @Override
         public void onPlayMusic(ApSheetMusic music, boolean isPlaying) {
             mMusicListAdapter.setPlayMusic(music, isPlaying);
+        }
+
+        @Override
+        public void onAlbumArtThemeChange(ApSheetMusic music, int mainColor) {
+
         }
     };
 
@@ -92,14 +98,24 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
     @Override
     protected void onRealResume() {
         super.onRealResume();
-        ApAudioPlayerHelper.getInstance().attachGlobalController(this, mBinding.playerView, mPlayerListener);
+        ApAudioPlayerHelper.getInstance().attachPlayerViewFromGlobalController(this, mBinding.playerView, mPlayerListener);
         mViewModel.refreshData();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        ApAudioPlayerHelper.getInstance().detachPlayerViewFromGlobalController(mBinding.playerView);
+    }
+
     private void showMusicItemMenu(final ApSheetMusic sheetMusic) {
+        int[] menuImages = ResourceUtils.getResIdArray(ApMusicListActivity.this,
+                mViewModel.mSheetData.getValue().getSheetType() == ApConstants.MUSIC_SHEET_TYPE_ALL ?
+                        R.array.ap_all_music_item_menu_img : R.array.ap_music_item_menu_img);
+        String[] menuNames = getResources().getStringArray(mViewModel.mSheetData.getValue().getSheetType() == ApConstants.MUSIC_SHEET_TYPE_ALL ?
+                R.array.ap_all_music_item_menu_name : R.array.ap_music_item_menu_name);
         DialogUtils.createItemSelectDialog(ApMusicListActivity.this, sheetMusic.getName(),
-                ResourceUtils.getResIdArray(ApMusicListActivity.this, R.array.ap_music_item_menu_img),
-                getResources().getStringArray(R.array.ap_music_item_menu_name),
+                menuImages, menuNames,
                 new SelectItemDialog.IDialogSelectListener() {
                     @Override
                     public void onSelect(String selectText, int position) {

@@ -33,7 +33,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/dp_5"
                     android:text="@{musicBean.name}"
-                    android:textColor="@color/dark_black_gray"
+                    android:textColor="@color/dark_gray_black"
                     android:textSize="@dimen/sp_15"
                     android:textStyle="bold"></TextView>
 
@@ -42,7 +42,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text='@{musicBean.author + " - " + musicBean.album}'
-                    android:textColor="@color/dark_black_gray"
+                    android:textColor="@color/dark_gray_black"
                     android:textSize="@dimen/sp_14"></TextView>
             </LinearLayout>
 

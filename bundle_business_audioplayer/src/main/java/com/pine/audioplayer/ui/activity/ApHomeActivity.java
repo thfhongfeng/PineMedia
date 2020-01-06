@@ -6,6 +6,10 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicSheetAdapter;
 import com.pine.audioplayer.databinding.ApHomeActivityBinding;
@@ -18,10 +22,6 @@ import com.pine.base.util.DialogUtils;
 import com.pine.base.widget.dialog.InputTextDialog;
 
 import java.util.List;
-
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBinding, ApSheetListVm> {
     private ApMusicSheetAdapter mMusicSheetAdapter;
@@ -86,8 +86,14 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
     @Override
     protected void onRealResume() {
         super.onRealResume();
-        ApAudioPlayerHelper.getInstance().attachGlobalController(this, mBinding.playerView);
+        ApAudioPlayerHelper.getInstance().attachPlayerViewFromGlobalController(this, mBinding.playerView);
         mViewModel.refreshData();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        ApAudioPlayerHelper.getInstance().detachPlayerViewFromGlobalController(mBinding.playerView);
     }
 
     @Override

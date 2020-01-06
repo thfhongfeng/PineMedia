@@ -41,7 +41,7 @@
                     android:layout_height="wrap_content"
                     android:lines="1"
                     android:text="@{music.name}"
-                    android:textColor="@color/dark_black_gray"
+                    android:textColor="@color/dark_gray_black"
                     android:textSize="@dimen/sp_15"></TextView>
 
                 <TextView
@@ -49,7 +49,7 @@
                     android:layout_height="wrap_content"
                     android:lines="1"
                     android:text='@{music.album+" - "+music.album}'
-                    android:textColor="@color/black_gray"
+                    android:textColor="@color/gray_black"
                     android:textSize="@dimen/sp_14"></TextView>
             </LinearLayout>
 

@@ -3,6 +3,7 @@ package com.pine.audioplayer.widget;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -16,6 +17,7 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
+import androidx.palette.graphics.Palette;
 
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.bean.ApPlayListType;
@@ -33,6 +35,8 @@ import com.pine.player.component.PinePlayState;
 import com.pine.player.widget.PineMediaController;
 import com.pine.player.widget.PineMediaPlayerView;
 import com.pine.tool.RootApplication;
+import com.pine.tool.util.CharsetUtils;
+import com.pine.tool.util.ImageUtils;
 import com.pine.tool.util.LogUtils;
 
 import java.io.File;
@@ -48,17 +52,37 @@ public abstract class AudioPlayerView extends RelativeLayout {
     private ViewGroup mControllerRoot;
 
     private PineMediaPlayerView mMediaPlayerView;
-    public PineMediaController mMediaController;
-    private ApAudioControllerAdapter mControllerAdapter;
+    private PineMediaController mMediaController;
+    protected ApAudioControllerAdapter mControllerAdapter;
     private PineMediaWidget.IPineMediaPlayer mMediaPlayer;
 
     private HandlerThread mWorkThread;
-    private Handler mWorkThreadHandler;
+    private Handler mAlbumArtWorkHandler, mLrcWorkHandler;
     private Handler mMainHandler = new Handler(Looper.getMainLooper());
-    private volatile HashMap<String, Bitmap> mSmallAlbumArtBitmapMap = new HashMap<>();
-    private volatile HashMap<String, Bitmap> mBigAlbumArtBitmapMap = new HashMap<>();
-    private volatile ArrayDeque<String> mBigAlbumArtDeque = new ArrayDeque<>();
+
     private final int MAX_BIG_ALBUM_ART_CACHE_COUNT = 10;
+    private final int MAX_ALBUM_ART_REQUEST_COUNT = 2;
+    private int DEFAULT_ALBUM_ART_MAIN_COLOR = Color.TRANSPARENT;
+    private Bitmap mDefaultSmallAlbumArtBitmap = null;
+    private Bitmap mDefaultBigAlbumArtBitmap = null;
+    private HashMap<String, Bitmap> mSmallAlbumArtBitmapMap = new HashMap<>();
+    private HashMap<String, Bitmap> mBigAlbumArtBitmapMap = new HashMap<>();
+    private HashMap<String, Integer> mMainAlbumArtColorMap = new HashMap<>();
+    private ArrayDeque<String> mBigAlbumArtDeque = new ArrayDeque<>();
+    private HashMap<String, Boolean> mAlbumArtBitmapRequestingMap = new HashMap<>();
+    protected int mPreMainColor = DEFAULT_ALBUM_ART_MAIN_COLOR;
+    protected boolean mEnableSmallAlbumArt = false;
+    protected boolean mEnableBigAlbumArt = false;
+    protected boolean mEnableMainAlbumArtColor = false;
+
+    protected int[] mPlayTypeResIds = {R.mipmap.res_ic_play_order_1_1,
+            R.mipmap.res_ic_play_all_loop_1_1,
+            R.mipmap.res_ic_play_single_loop_1_1,
+            R.mipmap.res_ic_play_random_1_1};
+    protected int[] mDialogPlayTypeResIds = {R.mipmap.res_ic_play_order_1_2,
+            R.mipmap.res_ic_play_all_loop_1_2,
+            R.mipmap.res_ic_play_single_loop_1_2,
+            R.mipmap.res_ic_play_random_1_2};
 
     private CustomListDialog mMusicListDialog;
 
@@ -107,18 +131,41 @@ public abstract class AudioPlayerView extends RelativeLayout {
     private void initAudioPlayerView() {
         mControllerRoot = initView();
         mMediaPlayerView = getMediaPlayerView();
-        setupControllerView(null);
+        setBackgroundColor(mPreMainColor);
     }
 
     @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
+    protected void onDetachedFromWindow() {
+        LogUtils.d(TAG, "onDetachedFromWindow");
+        detachView();
+        super.onDetachedFromWindow();
+    }
+
+    public void attachView() {
+        if (mDefaultSmallAlbumArtBitmap != null) {
+            mDefaultSmallAlbumArtBitmap.recycle();
+            mDefaultSmallAlbumArtBitmap = null;
+        }
+        if (mDefaultBigAlbumArtBitmap != null) {
+            mDefaultBigAlbumArtBitmap.recycle();
+            mDefaultBigAlbumArtBitmap = null;
+        }
+        mDefaultSmallAlbumArtBitmap = ImageUtils.getBitmap(getContext(),
+                R.mipmap.res_iv_top_bg_vertical);
+        mDefaultBigAlbumArtBitmap = ImageUtils.getBitmap(getContext(),
+                R.mipmap.res_iv_top_bg_vertical);
+        Palette palette = new Palette.Builder(mDefaultSmallAlbumArtBitmap).generate();
+        DEFAULT_ALBUM_ART_MAIN_COLOR = palette.getDominantColor(DEFAULT_ALBUM_ART_MAIN_COLOR);
+
         if (mWorkThread == null) {
             mWorkThread = new HandlerThread(TAG);
             mWorkThread.start();
         }
-        if (mWorkThreadHandler == null) {
-            mWorkThreadHandler = new Handler(mWorkThread.getLooper());
+        if (mAlbumArtWorkHandler == null) {
+            mAlbumArtWorkHandler = new Handler(mWorkThread.getLooper());
+        }
+        if (mLrcWorkHandler == null) {
+            mLrcWorkHandler = new Handler(mWorkThread.getLooper());
         }
 
         ApSheetMusic curMusic = mControllerAdapter.getCurMusic();
@@ -131,25 +178,27 @@ public abstract class AudioPlayerView extends RelativeLayout {
         setupControllerView(curMusic);
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
+    public void detachView() {
         if (mMusicListDialog != null && mMusicListDialog.isShowing()) {
             mMusicListDialog.dismiss();
         }
         mPlayerListener = null;
         mMediaPlayer.removeMediaPlayerListener(mMediaPlayerListener);
         clearAlbumArtBitmap();
-        if (mWorkThreadHandler != null) {
+        if (mAlbumArtWorkHandler != null) {
             mSmallAlbumArtBitmapMap.clear();
             mBigAlbumArtBitmapMap.clear();
-            mWorkThreadHandler.removeCallbacksAndMessages(null);
-            mWorkThreadHandler = null;
+            mAlbumArtWorkHandler.removeCallbacksAndMessages(null);
+            mAlbumArtWorkHandler = null;
+        }
+        if (mLrcWorkHandler != null) {
+            mLrcWorkHandler.removeCallbacksAndMessages(null);
+            mLrcWorkHandler = null;
         }
         if (mWorkThread != null) {
             mWorkThread.quit();
             mWorkThread = null;
         }
-        super.onDetachedFromWindow();
     }
 
     private void clearAlbumArtBitmap() {
@@ -168,6 +217,14 @@ public abstract class AudioPlayerView extends RelativeLayout {
             }
         }
         mBigAlbumArtDeque.clear();
+        if (mDefaultSmallAlbumArtBitmap != null) {
+            mDefaultSmallAlbumArtBitmap.recycle();
+            mDefaultSmallAlbumArtBitmap = null;
+        }
+        if (mDefaultBigAlbumArtBitmap != null) {
+            mDefaultBigAlbumArtBitmap.recycle();
+            mDefaultBigAlbumArtBitmap = null;
+        }
     }
 
     public void init(Context context, String tag, ApAudioControllerAdapter controllerAdapter,
@@ -191,6 +248,8 @@ public abstract class AudioPlayerView extends RelativeLayout {
         if (mPlayerListener != null && mControllerAdapter.getCurMusic() != null) {
             mPlayerListener.onPlayMusic(mControllerAdapter.getCurMusic(), mMediaPlayer.isPlaying());
         }
+
+        attachView();
     }
 
     public void showMusicListDialog() {
@@ -200,22 +259,22 @@ public abstract class AudioPlayerView extends RelativeLayout {
                     new CustomListDialog.IOnViewBindCallback<ApSheetMusic>() {
                         private void setupPlayTypeImageInDialog(ImageView imageView) {
                             if (mControllerAdapter == null) {
-                                imageView.setImageResource(R.mipmap.res_ic_play_all_loop);
+                                imageView.setImageResource(mDialogPlayTypeResIds[0]);
                                 return;
                             }
                             ApPlayListType playListType = mControllerAdapter.getCurPlayType();
                             switch (playListType.getType()) {
                                 case ApPlayListType.TYPE_ORDER:
-                                    imageView.setImageResource(R.mipmap.res_ic_play_order);
+                                    imageView.setImageResource(mDialogPlayTypeResIds[0]);
                                     break;
                                 case ApPlayListType.TYPE_ALL_LOOP:
-                                    imageView.setImageResource(R.mipmap.res_ic_play_all_loop);
+                                    imageView.setImageResource(mDialogPlayTypeResIds[1]);
                                     break;
                                 case ApPlayListType.TYPE_SING_LOOP:
-                                    imageView.setImageResource(R.mipmap.res_ic_play_single_loop);
+                                    imageView.setImageResource(mDialogPlayTypeResIds[2]);
                                     break;
                                 case ApPlayListType.TYPE_RANDOM:
-                                    imageView.setImageResource(R.mipmap.res_ic_play_random);
+                                    imageView.setImageResource(mDialogPlayTypeResIds[3]);
                                     break;
                             }
                         }
@@ -357,6 +416,39 @@ public abstract class AudioPlayerView extends RelativeLayout {
         mControllerAdapter.onMediaSelect(mControllerAdapter.getMediaCode(music), startPlay);
     }
 
+    public ApSheetMusic getCurMusic() {
+        if (mControllerAdapter != null) {
+            return mControllerAdapter.getCurMusic();
+        }
+        return null;
+    }
+
+    public void enableAlbumArt(boolean enableSmallAlbumArt, boolean enableBigAlbumArt, boolean enableMainAlbumArtColor) {
+        mEnableSmallAlbumArt = enableSmallAlbumArt;
+        mEnableBigAlbumArt = enableBigAlbumArt;
+        mEnableMainAlbumArtColor = enableMainAlbumArtColor;
+    }
+
+    public Bitmap getBigAlbumArtBitmap() {
+        String mediaCode = mControllerAdapter.getCurMediaCode();
+        if (mAlbumArtBitmapRequestingMap.containsKey(mediaCode)) {
+            return mDefaultBigAlbumArtBitmap;
+        } else {
+            if (mBigAlbumArtBitmapMap.containsKey(mediaCode)) {
+                return mBigAlbumArtBitmapMap.get(mediaCode);
+            } else {
+                return mDefaultBigAlbumArtBitmap;
+            }
+        }
+    }
+
+    public int getMainAlbumArtColor() {
+        if (mControllerAdapter == null || !mMainAlbumArtColorMap.containsKey(mControllerAdapter.getCurMediaCode())) {
+            return DEFAULT_ALBUM_ART_MAIN_COLOR;
+        }
+        return mMainAlbumArtColorMap.get(mControllerAdapter.getCurMediaCode());
+    }
+
     public void onMusicRemove(ApSheetMusic music) {
         if (mPlayerViewListener != null) {
             mPlayerViewListener.onMusicRemove(music);
@@ -373,12 +465,21 @@ public abstract class AudioPlayerView extends RelativeLayout {
     private void setupControllerView(ApSheetMusic music) {
         if (music != null) {
             final String mediaCode = music.getSongId() + "";
-            if (!mSmallAlbumArtBitmapMap.containsKey(mediaCode) || !mBigAlbumArtBitmapMap.containsKey(mediaCode)) {
-                mSmallAlbumArtBitmapMap.put(mediaCode, null);
-                mBigAlbumArtBitmapMap.put(mediaCode, null);
+            if (mEnableSmallAlbumArt && !mSmallAlbumArtBitmapMap.containsKey(mediaCode) ||
+                    mEnableBigAlbumArt && !mBigAlbumArtBitmapMap.containsKey(mediaCode) ||
+                    mEnableMainAlbumArtColor && !mMainAlbumArtColorMap.containsKey(mediaCode)) {
+                LogUtils.d(TAG, "setupControllerView getAlbumArtBitmapInBackground mediaCode:" + mediaCode);
+                mSmallAlbumArtBitmapMap.put(mediaCode, mDefaultSmallAlbumArtBitmap);
+                mBigAlbumArtBitmapMap.put(mediaCode, mDefaultBigAlbumArtBitmap);
+                mMainAlbumArtColorMap.put(mediaCode, DEFAULT_ALBUM_ART_MAIN_COLOR);
                 getAlbumArtBitmapInBackground(mediaCode, music.getSongId(), music.getAlbumId());
+            } else {
+                if (!mAlbumArtBitmapRequestingMap.containsKey(mediaCode)) {
+                    onAlbumArtPrepare(music, mSmallAlbumArtBitmapMap.get(mediaCode),
+                            mBigAlbumArtBitmapMap.get(mediaCode),
+                            mMainAlbumArtColorMap.get(mediaCode));
+                }
             }
-            setupAlbumArtBitmapView(mSmallAlbumArtBitmapMap.get(mediaCode), mBigAlbumArtBitmapMap.get(mediaCode));
             if ((TextUtils.isEmpty(music.getLyricFilePath()) || !new File(music.getLyricFilePath()).exists())) {
                 getLyricInBackground(mediaCode, music);
             }
@@ -395,20 +496,43 @@ public abstract class AudioPlayerView extends RelativeLayout {
     }
 
     private void getAlbumArtBitmapInBackground(final String mediaCode, final long songId, final long albumId) {
-        if (mWorkThreadHandler == null) {
+        if (mAlbumArtWorkHandler == null) {
             return;
         }
-        mWorkThreadHandler.post(new Runnable() {
+        if (mAlbumArtBitmapRequestingMap.size() > MAX_ALBUM_ART_REQUEST_COUNT) {
+            LogUtils.d(TAG, "getAlbumArtBitmapInBackground removeCallbacksAndMessages for too much message delayed");
+            mAlbumArtWorkHandler.removeCallbacksAndMessages(null);
+            mAlbumArtBitmapRequestingMap.clear();
+        }
+        mAlbumArtBitmapRequestingMap.put(mediaCode, true);
+        mAlbumArtWorkHandler.post(new Runnable() {
             @Override
             public void run() {
-                final Bitmap smallBitmap = ApLocalMusicUtils.getAlbumArtBitmap(getContext(),
-                        songId, albumId, true);
-                final Bitmap bigBitmap = ApLocalMusicUtils.getAlbumArtBitmap(getContext(),
-                        songId, albumId, false);
+                LogUtils.d(TAG, "getAlbumArtBitmapInBackground start --- mediaCode:" + mediaCode);
+                Bitmap smallBitmap = null;
+                if (mEnableSmallAlbumArt) {
+                    smallBitmap = ApLocalMusicUtils.getAlbumArtBitmap(getContext(),
+                            songId, albumId, true);
+                }
+                Bitmap bigBitmap = null;
+                if (mEnableBigAlbumArt) {
+                    bigBitmap = ApLocalMusicUtils.getAlbumArtBitmap(getContext(),
+                            songId, albumId, false);
+                }
+                int color = DEFAULT_ALBUM_ART_MAIN_COLOR;
+                if (smallBitmap != null || bigBitmap != null) {
+                    Palette palette = new Palette.Builder(smallBitmap != null ? smallBitmap : bigBitmap).generate();
+                    color = palette.getDominantColor(DEFAULT_ALBUM_ART_MAIN_COLOR);
+                }
+                final Bitmap finalSmallBitmap = smallBitmap == null ? mDefaultSmallAlbumArtBitmap : smallBitmap;
+                final Bitmap finalBigBitmap = bigBitmap == null ? mDefaultBigAlbumArtBitmap : bigBitmap;
+                final int finalColor = color;
                 mMainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        mSmallAlbumArtBitmapMap.put(mediaCode, smallBitmap);
+                        LogUtils.d(TAG, "getAlbumArtBitmapInBackground end --- mediaCode:" + mediaCode);
+                        mAlbumArtBitmapRequestingMap.remove(mediaCode);
+                        mSmallAlbumArtBitmapMap.put(mediaCode, finalSmallBitmap);
 
                         if (mBigAlbumArtDeque.size() >= MAX_BIG_ALBUM_ART_CACHE_COUNT) {
                             String mediaCode = mBigAlbumArtDeque.poll();
@@ -417,12 +541,14 @@ public abstract class AudioPlayerView extends RelativeLayout {
                                 bitmap.recycle();
                             }
                         }
-                        mBigAlbumArtBitmapMap.put(mediaCode, bigBitmap);
-                        if (bigBitmap != null) {
+                        mBigAlbumArtBitmapMap.put(mediaCode, finalBigBitmap);
+                        if (finalBigBitmap != null) {
                             mBigAlbumArtDeque.add(mediaCode);
                         }
-                        if (mediaCode.equals(mControllerAdapter.getCurMediaCode())) {
-                            setupAlbumArtBitmapView(smallBitmap, bigBitmap);
+                        mMainAlbumArtColorMap.put(mediaCode, finalColor);
+                        if (mControllerAdapter != null && mediaCode.equals(mControllerAdapter.getCurMediaCode())) {
+                            onAlbumArtPrepare(mControllerAdapter.getCurMusic(),
+                                    finalSmallBitmap, finalBigBitmap, mMainAlbumArtColorMap.get(mediaCode));
                         }
                     }
                 });
@@ -430,31 +556,40 @@ public abstract class AudioPlayerView extends RelativeLayout {
         });
     }
 
+    private void onAlbumArtPrepare(ApSheetMusic music, Bitmap smallBitmap, Bitmap bigBitmap, int mainColor) {
+        setupAlbumArt(smallBitmap, bigBitmap, mainColor);
+        if (mPlayerListener != null) {
+            mPlayerListener.onAlbumArtThemeChange(music, mainColor);
+        }
+        mPreMainColor = mainColor;
+    }
+
     private void getLyricInBackground(final String mediaCode, final ApSheetMusic music) {
-        if (mWorkThreadHandler == null) {
+        if (mLrcWorkHandler == null) {
             return;
         }
-        mWorkThreadHandler.post(new Runnable() {
+        mLrcWorkHandler.post(new Runnable() {
             @Override
             public void run() {
-                final String filePath = ApLocalMusicUtils.getLyric(getContext(),
-                        music);
+                final String filePath = ApLocalMusicUtils.getLyric(getContext(), music);
                 if (TextUtils.isEmpty(filePath)) {
                     return;
                 }
-                onLyricPrepared(mediaCode, music, filePath);
+                String charset = CharsetUtils.getCharset(filePath);
+                onLyricPrepared(mediaCode, music, filePath, charset);
             }
         });
     }
 
-    private void onLyricPrepared(final String mediaCode, final ApSheetMusic music, final String lrcFilePath) {
+    private void onLyricPrepared(final String mediaCode, final ApSheetMusic music,
+                                 final String lrcFilePath, final String charset) {
         mMainHandler.post(new Runnable() {
             @Override
             public void run() {
                 if (mPlayerViewListener != null && mControllerAdapter != null) {
-                    ApSheetMusic music = mControllerAdapter.onLyricDownloaded(mediaCode, lrcFilePath);
+                    ApSheetMusic music = mControllerAdapter.onLyricDownloaded(mediaCode, lrcFilePath, charset);
                     if (music != null) {
-                        mPlayerViewListener.onLyricDownloaded(music, lrcFilePath);
+                        mPlayerViewListener.onLyricDownloaded(music, lrcFilePath, charset);
                     }
                 }
             }
@@ -467,14 +602,14 @@ public abstract class AudioPlayerView extends RelativeLayout {
 
     public abstract void setupPlayTypeImage(ApPlayListType playListType);
 
-    public abstract void setupAlbumArtBitmapView(Bitmap smallBitmap, Bitmap bigBitmap);
+    public abstract void setupAlbumArt(Bitmap smallBitmap, Bitmap bigBitmap, int mainColor);
 
     public abstract void setupMusicView(ApSheetMusic music, boolean hasMedia);
 
     public interface IPlayerViewListener {
         void onPlayMusic(PineMediaWidget.IPineMediaPlayer player, ApSheetMusic oldPlayMusic, ApSheetMusic newPlayMusic);
 
-        void onLyricDownloaded(ApSheetMusic music, String filePath);
+        void onLyricDownloaded(ApSheetMusic music, String filePath, String charset);
 
         void onMusicRemove(ApSheetMusic music);
 
@@ -489,5 +624,7 @@ public abstract class AudioPlayerView extends RelativeLayout {
 
     public interface IPlayerListener {
         void onPlayMusic(ApSheetMusic music, boolean isPlaying);
+
+        void onAlbumArtThemeChange(ApSheetMusic music, int mainColor);
     }
 }

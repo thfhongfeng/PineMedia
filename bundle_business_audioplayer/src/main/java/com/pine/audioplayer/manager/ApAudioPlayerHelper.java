@@ -37,8 +37,8 @@ public class ApAudioPlayerHelper {
                 }
 
                 @Override
-                public void onLyricDownloaded(ApSheetMusic music, String filePath) {
-                    mModel.updateMusicLyric(mAppContext, music, filePath);
+                public void onLyricDownloaded(ApSheetMusic music, String filePath, String charset) {
+                    mModel.updateMusicLyric(mAppContext, music, filePath, charset);
                 }
 
                 @Override
@@ -107,30 +107,31 @@ public class ApAudioPlayerHelper {
             mControllerAdapter.destroy();
             mControllerAdapter = null;
         }
-        mAppContext = null;
-        mRecentSheet = null;
-        mPlayListSheet = null;
         mInstance = null;
     }
 
-    public void attachGlobalController(@NonNull Context context, @NonNull AudioPlayerView playerView) {
-        attachGlobalController(context, playerView, null, null);
+    public void attachPlayerViewFromGlobalController(@NonNull Context context, @NonNull AudioPlayerView playerView) {
+        attachPlayerViewFromGlobalController(context, playerView, null, null);
     }
 
-    public void attachGlobalController(@NonNull Context context, @NonNull AudioPlayerView playerView,
-                                       AudioPlayerView.IPlayerListener playerListener) {
-        attachGlobalController(context, playerView, playerListener, null);
+    public void attachPlayerViewFromGlobalController(@NonNull Context context, @NonNull AudioPlayerView playerView,
+                                                     AudioPlayerView.IPlayerListener playerListener) {
+        attachPlayerViewFromGlobalController(context, playerView, playerListener, null);
     }
 
-    public void attachGlobalController(@NonNull Context context, @NonNull AudioPlayerView playerView,
-                                       ApOutRootLrcPlugin.ILyricUpdateListener lyricUpdateListener) {
-        attachGlobalController(context, playerView, null, lyricUpdateListener);
+    public void attachPlayerViewFromGlobalController(@NonNull Context context, @NonNull AudioPlayerView playerView,
+                                                     ApOutRootLrcPlugin.ILyricUpdateListener lyricUpdateListener) {
+        attachPlayerViewFromGlobalController(context, playerView, null, lyricUpdateListener);
     }
 
-    public void attachGlobalController(@NonNull Context context, @NonNull AudioPlayerView playerView,
-                                       AudioPlayerView.IPlayerListener playerListener,
-                                       ApOutRootLrcPlugin.ILyricUpdateListener lyricUpdateListener) {
+    public void attachPlayerViewFromGlobalController(@NonNull Context context, @NonNull AudioPlayerView playerView,
+                                                     AudioPlayerView.IPlayerListener playerListener,
+                                                     ApOutRootLrcPlugin.ILyricUpdateListener lyricUpdateListener) {
         playerView.init(context, TAG, mControllerAdapter, mPlayerViewListener, playerListener, lyricUpdateListener);
+    }
+
+    public void detachPlayerViewFromGlobalController(@NonNull AudioPlayerView playerView) {
+        playerView.detachView();
     }
 
     public void playMusic(@NonNull AudioPlayerView playerView,
