@@ -145,7 +145,6 @@ public class ApMainAudioPlayerView extends AudioPlayerView {
         if (mControllerAdapter != null) {
             setupPlayTypeImage(mControllerAdapter.getCurPlayType());
         }
-        postInvalidate();
     }
 
     @Override

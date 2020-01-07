@@ -117,7 +117,7 @@ public class ApMultiMusicSelectActivity extends BaseMvvmActionBarImageMenuActivi
                 return;
             }
             Intent intent = new Intent(ApMultiMusicSelectActivity.this, ApAddMusicToSheetActivity.class);
-            intent.putExtra("musicSheet", mViewModel.mSheetData.getValue());
+            intent.putExtra("excludeSheetId", mViewModel.mSheetData.getValue().getId());
             intent.putParcelableArrayListExtra("selectList", mMultiMusicSelectAdapter.getSelectMusicList());
             startActivity(intent);
         }

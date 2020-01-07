@@ -1,9 +1,11 @@
 package com.pine.audioplayer.ui.activity;
 
+import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
+import android.view.View;
 
 import androidx.lifecycle.Observer;
 
@@ -15,24 +17,31 @@ import com.pine.audioplayer.vm.ApMainVm;
 import com.pine.audioplayer.widget.AudioPlayerView;
 import com.pine.audioplayer.widget.plugin.ApOutRootLrcPlugin;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
+import com.pine.base.util.DialogUtils;
+import com.pine.base.widget.dialog.SelectItemDialog;
 import com.pine.player.applet.subtitle.bean.PineSubtitleBean;
 import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.tool.util.ColorUtils;
+import com.pine.tool.util.ResourceUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBinding, ApMainVm> {
-
+    private final int REQUEST_CODE_ADD_TO_SHEET = 1;
+    private SelectItemDialog mTopMenuDialog;
+    private boolean mIsLightTheme;
 
     private AudioPlayerView.IPlayerListener mPlayListener = new AudioPlayerView.IPlayerListener() {
         @Override
-        public void onPlayMusic(ApSheetMusic music, boolean isPlaying) {
-
+        public void onPlayMusic(String mediaCode, ApSheetMusic music, boolean isPlaying) {
+            mViewModel.setPlayedMusic(music, isPlaying);
         }
 
         @Override
-        public void onAlbumArtThemeChange(ApSheetMusic music, int mainColor) {
-            setupAlbumArtAndTheme(music);
+        public void onAlbumArtThemeChange(String mediaCode, ApSheetMusic music, int mainColor) {
+            mIsLightTheme = ColorUtils.isLightColor(mainColor);
+            setupAlbumArtAndTheme(music, mainColor);
         }
     };
 
@@ -63,7 +72,8 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
         mViewModel.mPlayStateData.observe(this, new Observer<ApSheetMusic>() {
             @Override
             public void onChanged(ApSheetMusic music) {
-
+                mBinding.setMusic(music);
+                mBinding.playerView.updateMusicData(music);
             }
         });
     }
@@ -80,7 +90,7 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
 
     @Override
     protected void init(Bundle onCreateSavedInstanceState) {
-
+        mBinding.setPresenter(new Presenter());
     }
 
     @Override
@@ -96,21 +106,62 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
         ApAudioPlayerHelper.getInstance().detachPlayerViewFromGlobalController(mBinding.playerView);
     }
 
-    private void setupAlbumArtAndTheme(ApSheetMusic music) {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_ADD_TO_SHEET) {
+            mViewModel.refreshPlayMusic();
+        }
+    }
+
+    private void setupAlbumArtAndTheme(ApSheetMusic music, int mainAlbumArtColor) {
         if (music == null) {
             return;
         }
-        int mainAlbumArtColor = mBinding.playerView.getMainAlbumArtColor();
-        int[] alphaColor = {0x00000000, 0xff000000};
-        alphaColor[0] = alphaColor[0] + mainAlbumArtColor & 0x00ffffff;
-        alphaColor[1] = alphaColor[1] + mainAlbumArtColor & 0x00ffffff;
+        int[] alphaColor = {0xff000000, 0x00000000};
+        alphaColor[0] = alphaColor[0] | (mainAlbumArtColor & 0x00ffffff);
+        alphaColor[1] = alphaColor[1] | (mainAlbumArtColor & 0x00ffffff);
 
         mBinding.subtitleContainerLl.setBackgroundColor(mainAlbumArtColor);
-        boolean isLightColor = ColorUtils.isLightColor(mainAlbumArtColor);
-        mBinding.subtitleText.setTextColor(getResources().getColor(isLightColor ? R.color.dark_gray_black : R.color.white));
-        mBinding.titleText.setTextColor(getResources().getColor(isLightColor ? R.color.dark_gray_black : R.color.white));
+        mBinding.titleText.setTextColor(getResources().getColor(mIsLightTheme ? R.color.dark_gray_black : R.color.white));
+        mBinding.authorText.setTextColor(getResources().getColor(mIsLightTheme ? R.color.dark_gray_black : R.color.white));
+        mBinding.subtitleText.setTextColor(getResources().getColor(mIsLightTheme ? R.color.dark_gray_black : R.color.white));
         GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, alphaColor);
         mBinding.alphaView.setBackground(bg);
         mBinding.albumArtBgIv.setImageBitmap(mBinding.playerView.getBigAlbumArtBitmap());
+        mBinding.setIsLightTheme(mIsLightTheme);
+    }
+
+    public class Presenter {
+
+        public void onGoBackClick(View view) {
+            finish();
+        }
+
+        public void onTopMenuClick(View view) {
+            if (mTopMenuDialog == null) {
+                int[] menuImages = ResourceUtils.getResIdArray(ApMainActivity.this, R.array.ap_music_main_item_menu_img);
+                String[] menuNames = getResources().getStringArray(R.array.ap_music_main_item_menu_name);
+                mTopMenuDialog = DialogUtils.createItemSelectDialog(ApMainActivity.this,
+                        mViewModel.mPlayStateData.getValue().getName(), menuImages, menuNames, new SelectItemDialog.IDialogSelectListener() {
+                            @Override
+                            public void onSelect(String selectText, int position) {
+                                switch (position) {
+                                    case 0:
+                                        Intent intent = new Intent(ApMainActivity.this, ApAddMusicToSheetActivity.class);
+                                        ArrayList<ApSheetMusic> list = new ArrayList<>();
+                                        list.add(mViewModel.mPlayStateData.getValue());
+                                        intent.putParcelableArrayListExtra("selectList", list);
+                                        startActivityForResult(intent, REQUEST_CODE_ADD_TO_SHEET);
+                                        break;
+                                    case 1:
+
+                                        break;
+                                }
+                            }
+                        });
+            }
+            mTopMenuDialog.show();
+        }
     }
 }

@@ -54,6 +54,12 @@ public class ApSheetMusicRepository {
         }
     }
 
+    public ApSheetMusic querySheetMusic(long sheetId, long songId) {
+        synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
+            return apSheetMusicDao.querySheetMusic(sheetId, songId);
+        }
+    }
+
     public List<ApSheetMusic> querySheetMusicList(long songId, String filePath) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
             return apSheetMusicDao.checkSheetMusicList(songId, filePath);

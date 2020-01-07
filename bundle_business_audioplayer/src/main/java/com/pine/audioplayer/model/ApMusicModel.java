@@ -53,6 +53,10 @@ public class ApMusicModel {
     }
 
 
+    public ApSheetMusic getSheetMusic(Context context, long sheetId, long songId) {
+        return ApSheetMusicRepository.getInstance(context).querySheetMusic(sheetId, songId);
+    }
+
     public int getAllMusicListCount(Context context) {
         return ApLocalMusicUtils.getAllMusicListCount(context);
     }

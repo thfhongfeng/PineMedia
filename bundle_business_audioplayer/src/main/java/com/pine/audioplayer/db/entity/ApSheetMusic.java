@@ -279,4 +279,32 @@ public class ApSheetMusic implements Parcelable {
         dest.writeLong(updateTimeStamp);
         dest.writeLong(createTimeStamp);
     }
+
+    public boolean mediaInfoChange(ApSheetMusic music) {
+        return !TextUtils.equals(this.filePath, music.getFilePath()) ||
+                !TextUtils.equals(this.lyricFilePath, music.getLyricFilePath()) ||
+                !TextUtils.equals(this.lyricCharset, music.getLyricCharset()) ||
+                !TextUtils.equals(this.mimeType, music.getMimeType());
+    }
+
+    public void copyDataFrom(ApSheetMusic music) {
+        this.id = music.id;
+        this.sheetId = music.sheetId;
+        this.songId = music.songId;
+        this.name = music.name;
+        this.filePath = music.filePath;
+        this.lyricFilePath = music.lyricFilePath;
+        this.lyricCharset = music.lyricCharset;
+        this.isFavourite = music.isFavourite;
+        this.author = music.author;
+        this.duration = music.duration;
+        this.album = music.album;
+        this.albumId = music.albumId;
+        this.year = music.year;
+        this.mimeType = music.mimeType;
+        this.size = music.size;
+        this.description = music.description;
+        this.updateTimeStamp = music.updateTimeStamp;
+        this.createTimeStamp = music.createTimeStamp;
+    }
 }

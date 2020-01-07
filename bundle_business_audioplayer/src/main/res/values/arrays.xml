@@ -21,4 +21,15 @@
         <item>@mipmap/res_ic_add_to_favourite</item>
         <item>@mipmap/res_ic_add_to_music_sheet_enable</item>
     </integer-array>
+
+    <string-array name="ap_music_main_item_menu_name">
+        <item>添加到歌单</item>
+        <item>定时关闭</item>
+    </string-array>
+
+    <integer-array name="ap_music_main_item_menu_img">
+        <item>@mipmap/res_ic_add_to_music_sheet_enable</item>
+        <item>@mipmap/res_ic_timing_1_2</item>
+    </integer-array>
+
 </resources>

@@ -15,7 +15,7 @@
 
         <variable
             name="hasAction"
-            type="Boolean" />
+            type="boolean" />
     </data>
 
     <LinearLayout

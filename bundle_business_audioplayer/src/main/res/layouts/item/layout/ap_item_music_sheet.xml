@@ -25,7 +25,7 @@
 
             <com.pine.tool.widget.view.RoundImageView
                 android:id="@+id/img_iv"
-                emptySrc="@{R.mipmap.res_iv_top_bg_horizontal}"
+                emptySrc="@{R.mipmap.res_iv_default_bg_1}"
                 imageUrl="@{sheetBean.imageUri}"
                 android:layout_width="@dimen/dp_48"
                 android:layout_height="@dimen/dp_48"

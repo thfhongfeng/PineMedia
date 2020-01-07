@@ -2,6 +2,9 @@ package com.pine.audioplayer.vm;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
+
 import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.audioplayer.model.ApMusicModel;
@@ -9,22 +12,19 @@ import com.pine.tool.architecture.mvvm.vm.ViewModel;
 
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.MutableLiveData;
-
 public class ApAddMusicToSheetVm extends ViewModel {
     protected ApMusicModel mModel = new ApMusicModel();
 
     public MutableLiveData<List<ApMusicSheet>> mSheetListData = new MutableLiveData<>();
     public MutableLiveData<List<ApSheetMusic>> mSelectMusicListData = new MutableLiveData<>();
 
-    private ApMusicSheet mMusicSheet;
+    private long mExcludeCustomSheetId = -1;
 
     @Override
     public boolean parseIntentData(@NonNull Bundle bundle) {
-        mMusicSheet = (ApMusicSheet) bundle.getSerializable("musicSheet");
+        mExcludeCustomSheetId = bundle.getLong("excludeSheetId", -1);
         List<ApSheetMusic> selectList = bundle.getParcelableArrayList("selectList");
-        if (mMusicSheet == null || selectList == null) {
+        if (selectList == null) {
             return true;
         }
         mSelectMusicListData.setValue(selectList);
@@ -51,7 +51,9 @@ public class ApAddMusicToSheetVm extends ViewModel {
 
     public void refreshData() {
         ApMusicSheet favouriteMusicSheet = mModel.getFavouriteSheet(getContext());
-        List<ApMusicSheet> sheetList = mModel.getCustomMusicSheetList(getContext(), mMusicSheet.getId());
+        List<ApMusicSheet> sheetList = mExcludeCustomSheetId == -1?
+                mModel.getCustomMusicSheetList(getContext()) :
+                mModel.getCustomMusicSheetList(getContext(), mExcludeCustomSheetId);
         sheetList.add(0, favouriteMusicSheet);
         mSheetListData.setValue(sheetList);
     }

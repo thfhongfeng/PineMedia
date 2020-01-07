@@ -243,6 +243,32 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         onMediaSelect(getMediaCode(mMusicList.get(0)), startPlay);
     }
 
+    public void updateMusicData(ApSheetMusic music) {
+        if (music == null) {
+            return;
+        }
+        String mediaCode = getMediaCode(music);
+        if (mCodeMusicListMap.containsKey(mediaCode)) {
+            ApSheetMusic listedMusic = mCodeMusicListMap.get(mediaCode);
+            if (listedMusic != null) {
+                if (listedMusic.mediaInfoChange(music)) {
+                    PineMediaPlayerBean mediaBean = transferMediaBean(music);
+                    mCodeMediaListMap.put(mediaBean.getMediaCode(), mediaBean);
+                }
+                listedMusic.copyDataFrom(music);
+            }
+        }
+    }
+
+    public void updateMusicListData(List<ApSheetMusic> list) {
+        if (list == null && list.size() < 1) {
+            return;
+        }
+        for (ApSheetMusic music : list) {
+            updateMusicData(music);
+        }
+    }
+
     public void removeMusic(ApSheetMusic music) {
         int curPos = findMusicPosition(mCurrentMediaCode);
         String removeMediaCode = getMediaCode(music);

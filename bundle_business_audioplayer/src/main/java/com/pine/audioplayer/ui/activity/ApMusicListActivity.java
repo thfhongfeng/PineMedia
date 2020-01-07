@@ -35,12 +35,12 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
     private PopupMenu mTopPopupMenu;
     private AudioPlayerView.IPlayerListener mPlayerListener = new AudioPlayerView.IPlayerListener() {
         @Override
-        public void onPlayMusic(ApSheetMusic music, boolean isPlaying) {
+        public void onPlayMusic(String mediaCode, ApSheetMusic music, boolean isPlaying) {
             mMusicListAdapter.setPlayMusic(music, isPlaying);
         }
 
         @Override
-        public void onAlbumArtThemeChange(ApSheetMusic music, int mainColor) {
+        public void onAlbumArtThemeChange(String mediaCode, ApSheetMusic music, int mainColor) {
 
         }
     };
@@ -125,7 +125,7 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
                                 break;
                             case 1:
                                 Intent intent = new Intent(ApMusicListActivity.this, ApAddMusicToSheetActivity.class);
-                                intent.putExtra("musicSheet", mViewModel.mSheetData.getValue());
+                                intent.putExtra("excludeSheetId", mViewModel.mSheetData.getValue().getId());
                                 ArrayList<ApSheetMusic> list = new ArrayList<>();
                                 list.add(sheetMusic);
                                 intent.putParcelableArrayListExtra("selectList", list);
