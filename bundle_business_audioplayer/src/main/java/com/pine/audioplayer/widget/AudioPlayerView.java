@@ -253,9 +253,11 @@ public abstract class AudioPlayerView extends RelativeLayout {
 
     public void showMusicListDialog() {
         if (mMusicListDialog == null) {
-            mMusicListDialog = DialogUtils.createCustomListDialog(RootApplication.mCurResumedActivity, R.layout.ap_audio_dialog_title_layout,
-                    R.layout.ap_item_audio_dialog, mControllerAdapter.getMusicList(),
+            mMusicListDialog = DialogUtils.createBottomCustomListDialog(RootApplication.mCurResumedActivity,
+                    R.layout.ap_audio_dialog_title_layout, R.layout.ap_item_audio_dialog,
+                    true, mControllerAdapter.getMusicList(),
                     new CustomListDialog.IOnViewBindCallback<ApSheetMusic>() {
+                        ApSimpleAudioDialogTitleBinding binding;
                         private void setupPlayTypeImageInDialog(ImageView imageView) {
                             if (mControllerAdapter == null) {
                                 imageView.setImageResource(mDialogPlayTypeResIds[0]);
@@ -279,8 +281,8 @@ public abstract class AudioPlayerView extends RelativeLayout {
                         }
 
                         @Override
-                        public void onTitleBind(View titleView, final CustomListDialog dialog) {
-                            final ApSimpleAudioDialogTitleBinding binding = DataBindingUtil.bind(titleView);
+                        public void onViewBind(View titleView, View actionView, final CustomListDialog dialog) {
+                            binding = DataBindingUtil.bind(titleView);
                             binding.setPlayType(mControllerAdapter.getCurPlayType());
                             setupPlayTypeImageInDialog(binding.loopTypeBtn);
                             binding.setMediaCount(mControllerAdapter.getMusicList().size());
@@ -314,9 +316,9 @@ public abstract class AudioPlayerView extends RelativeLayout {
                         }
 
                         @Override
-                        public void onItemBind(View itemView, int position,
-                                               final ApSheetMusic data,
-                                               final CustomListDialog dialog) {
+                        public void onItemViewUpdate(View itemView, int position,
+                                                     final ApSheetMusic data,
+                                                     final CustomListDialog dialog) {
                             ApItemSimpleAudioDialogBinding binding = DataBindingUtil.bind(itemView);
                             binding.setMusic(data);
                             PineMediaPlayerBean playerBean = mMediaPlayer.getMediaPlayerBean();
@@ -351,6 +353,13 @@ public abstract class AudioPlayerView extends RelativeLayout {
                                 }
                             });
                             binding.executePendingBindings();
+                        }
+
+                        @Override
+                        public void onListDataChange(View titleView, View actionView, CustomListDialog dialog) {
+                            binding.setPlayType(mControllerAdapter.getCurPlayType());
+                            setupPlayTypeImageInDialog(binding.loopTypeBtn);
+                            binding.setMediaCount(mControllerAdapter.getMusicList().size());
                         }
                     });
             mMusicListDialog.setOnShowListener(new DialogInterface.OnShowListener() {

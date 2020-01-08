@@ -18,6 +18,7 @@ import com.pine.audioplayer.widget.AudioPlayerView;
 import com.pine.audioplayer.widget.plugin.ApOutRootLrcPlugin;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.base.util.DialogUtils;
+import com.pine.base.widget.dialog.CustomListDialog;
 import com.pine.base.widget.dialog.SelectItemDialog;
 import com.pine.player.applet.subtitle.bean.PineSubtitleBean;
 import com.pine.player.bean.PineMediaPlayerBean;
@@ -30,6 +31,7 @@ import java.util.List;
 public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBinding, ApMainVm> {
     private final int REQUEST_CODE_ADD_TO_SHEET = 1;
     private SelectItemDialog mTopMenuDialog;
+    private CustomListDialog mTimingDialog;
     private boolean mIsLightTheme;
 
     private AudioPlayerView.IPlayerListener mPlayListener = new AudioPlayerView.IPlayerListener() {
@@ -155,7 +157,7 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
                                         startActivityForResult(intent, REQUEST_CODE_ADD_TO_SHEET);
                                         break;
                                     case 1:
-
+                                        showTimingDialog();
                                         break;
                                 }
                             }
@@ -163,5 +165,32 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
             }
             mTopMenuDialog.show();
         }
+    }
+
+    private void showTimingDialog() {
+        if (mTimingDialog == null) {
+            String[] mTimingItemNames = getResources().getStringArray(R.array.ap_music_main_timing_item_name);
+            List<Integer> mTimingItemImages = ResourceUtils.getResIdList(this, R.array.ap_music_main_timing_item_img);
+            int[] mTimingItemValues = getResources().getIntArray(R.array.ap_music_main_timing_item_value);
+            mTimingDialog = DialogUtils.createBottomCustomListDialog(this, getString(R.string.ap_mm_time_to_close),
+                    R.layout.ap_item_main_timing_dialog, R.layout.ap_main_timing_dialog_action_layout,
+                    mTimingItemImages, new CustomListDialog.IOnViewBindCallback<Integer>() {
+                        @Override
+                        public void onViewBind(View titleView, View actionView, CustomListDialog dialog) {
+
+                        }
+
+                        @Override
+                        public void onItemViewUpdate(View itemView, int position, Integer data, CustomListDialog dialog) {
+
+                        }
+
+                        @Override
+                        public void onListDataChange(View titleView, View actionView, CustomListDialog dialog) {
+
+                        }
+                    });
+        }
+        mTimingDialog.show();
     }
 }

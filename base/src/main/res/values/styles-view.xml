@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <style name="BaseCustomDialogStyle">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowFrame">@null</item>
@@ -27,5 +26,4 @@
         <item name="android:layout_marginRight">@dimen/dp_20</item>
         <item name="android:windowIsFloating">true</item>
     </style>
-
 </resources>
