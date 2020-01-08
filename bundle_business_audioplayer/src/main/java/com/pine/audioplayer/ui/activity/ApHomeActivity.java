@@ -6,10 +6,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicSheetAdapter;
 import com.pine.audioplayer.databinding.ApHomeActivityBinding;
@@ -22,6 +18,10 @@ import com.pine.base.util.DialogUtils;
 import com.pine.base.widget.dialog.InputTextDialog;
 
 import java.util.List;
+
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBinding, ApSheetListVm> {
     private ApMusicSheetAdapter mMusicSheetAdapter;

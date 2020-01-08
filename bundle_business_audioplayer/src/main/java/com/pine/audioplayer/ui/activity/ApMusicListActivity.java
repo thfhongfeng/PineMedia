@@ -4,11 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.pine.audioplayer.ApConstants;
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicListAdapter;
@@ -28,6 +23,11 @@ import com.pine.tool.widget.dialog.PopupMenu;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicListActivityBinding, ApMusicListVm> {
 

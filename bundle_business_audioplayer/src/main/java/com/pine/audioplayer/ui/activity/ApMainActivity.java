@@ -7,9 +7,9 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 
-import androidx.lifecycle.Observer;
-
 import com.pine.audioplayer.R;
+import com.pine.audioplayer.databinding.ApActionMainTimingDialogBinding;
+import com.pine.audioplayer.databinding.ApItemMainTimingDialogBinding;
 import com.pine.audioplayer.databinding.ApMainActivityBinding;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.audioplayer.manager.ApAudioPlayerHelper;
@@ -27,6 +27,9 @@ import com.pine.tool.util.ResourceUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
 
 public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBinding, ApMainVm> {
     private final int REQUEST_CODE_ADD_TO_SHEET = 1;
@@ -170,19 +173,46 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
     private void showTimingDialog() {
         if (mTimingDialog == null) {
             String[] mTimingItemNames = getResources().getStringArray(R.array.ap_music_main_timing_item_name);
-            List<Integer> mTimingItemImages = ResourceUtils.getResIdList(this, R.array.ap_music_main_timing_item_img);
             int[] mTimingItemValues = getResources().getIntArray(R.array.ap_music_main_timing_item_value);
             mTimingDialog = DialogUtils.createBottomCustomListDialog(this, getString(R.string.ap_mm_time_to_close),
                     R.layout.ap_item_main_timing_dialog, R.layout.ap_main_timing_dialog_action_layout,
-                    mTimingItemImages, new CustomListDialog.IOnViewBindCallback<Integer>() {
+                    mTimingItemNames, new CustomListDialog.IOnViewBindCallback<String>() {
+                        private int curSelectPosition = 0;
+
                         @Override
                         public void onViewBind(View titleView, View actionView, CustomListDialog dialog) {
-
+                            ApActionMainTimingDialogBinding binding = DataBindingUtil.bind(actionView);
+                            binding.cancelBtnTv.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    mTimingDialog.dismiss();
+                                }
+                            });
+                            binding.confirmBtnTv.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    mTimingDialog.dismiss();
+                                }
+                            });
                         }
 
                         @Override
-                        public void onItemViewUpdate(View itemView, int position, Integer data, CustomListDialog dialog) {
-
+                        public void onItemViewUpdate(View itemView, final int position, String data, CustomListDialog dialog) {
+                            final ApItemMainTimingDialogBinding binding = DataBindingUtil.bind(itemView);
+                            binding.setText(data);
+                            binding.setSelected(curSelectPosition == position);
+                            binding.dividerView.setVisibility(position == 0 ? View.GONE : View.VISIBLE);
+                            binding.itemViewLl.setOnClickListener(
+                                    new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            curSelectPosition = position;
+                                            binding.setSelected(true);
+                                            mTimingDialog.getListAdapter().notifyDataSetChangedSafely();
+                                        }
+                                    }
+                            );
+                            binding.executePendingBindings();
                         }
 
                         @Override

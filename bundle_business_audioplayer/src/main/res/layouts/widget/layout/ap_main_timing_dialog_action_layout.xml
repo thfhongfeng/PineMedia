@@ -12,6 +12,7 @@
         android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/cancel_btn_tv"
             android:layout_width="@dimen/dp_0"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -22,11 +23,12 @@
             android:textSize="@dimen/sp_16"></TextView>
 
         <View
-            android:layout_width="@dimen/dp_1"
-            android:layout_height="@dimen/dp_1"
+            android:layout_width="@dimen/dp_0_5"
+            android:layout_height="@dimen/dp_20"
             android:background="@color/light_gray"></View>
 
         <TextView
+            android:id="@+id/confirm_btn_tv"
             android:layout_width="@dimen/dp_0"
             android:layout_height="wrap_content"
             android:layout_weight="1"

@@ -3,6 +3,13 @@
 
     <data class="ApItemMainTimingDialogBinding">
 
+        <variable
+            name="text"
+            type="String"></variable>
+
+        <variable
+            name="selected"
+            type="boolean"></variable>
     </data>
 
     <LinearLayout
@@ -12,13 +19,20 @@
         android:paddingLeft="@dimen/dp_20"
         android:paddingRight="@dimen/dp_20">
 
+        <View
+            android:id="@+id/divider_view"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_0_5"
+            android:background="@color/light_gray"></View>
+
         <LinearLayout
+            android:id="@+id/item_view_ll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingTop="@dimen/dp_15"
-            android:paddingBottom="@dimen/dp_15">
+            android:paddingTop="@dimen/dp_10"
+            android:paddingBottom="@dimen/dp_10">
 
             <TextView
                 android:layout_width="@dimen/dp_0"
@@ -26,20 +40,16 @@
                 android:layout_marginRight="@dimen/dp_20"
                 android:layout_weight="1"
                 android:lines="1"
+                android:text="@{text}"
                 android:textColor="@color/dark_gray_black"
                 android:textSize="@dimen/sp_15"></TextView>
 
             <ImageView
-                android:id="@+id/delete_iv"
+                selectState="@{selected}"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:padding="@dimen/dp_5"
-                android:src="@mipmap/res_ic_cancel_x"></ImageView>
+                android:src="@drawable/res_selector_single_select_1_1"></ImageView>
         </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_0_5"
-            android:background="@color/light_gray"></View>
     </LinearLayout>
 </layout>
