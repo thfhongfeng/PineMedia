@@ -18,14 +18,12 @@ import com.pine.audioplayer.manager.ApAudioPlayerHelper;
 import com.pine.audioplayer.vm.ApMainVm;
 import com.pine.audioplayer.widget.AudioPlayerView;
 import com.pine.audioplayer.widget.plugin.ApOutRootLrcPlugin;
-import com.pine.audioplayer.worker.ApTimingCloseWorker;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.base.util.DialogUtils;
 import com.pine.base.widget.dialog.CustomListDialog;
 import com.pine.base.widget.dialog.SelectItemDialog;
 import com.pine.player.applet.subtitle.bean.PineSubtitleBean;
 import com.pine.player.bean.PineMediaPlayerBean;
-import com.pine.tool.service.TimerWorkHelper;
 import com.pine.tool.util.ResourceUtils;
 
 import java.util.ArrayList;
@@ -181,12 +179,7 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
                             binding.confirmBtnTv.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    if (timingItemValues[mCurSelectPosition] > 0) {
-                                        ApTimingCloseWorker worker = new ApTimingCloseWorker();
-                                        TimerWorkHelper.getInstance().schemeTimerWork(TAG,
-                                                timingItemValues[mCurSelectPosition] * 100,
-                                                worker);
-                                    }
+                                    mViewModel.startTimingWork(timingItemValues[mCurSelectPosition]);
                                     mTimingDialog.dismiss();
                                 }
                             });

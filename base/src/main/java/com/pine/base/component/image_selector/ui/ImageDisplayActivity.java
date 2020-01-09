@@ -149,7 +149,7 @@ public class ImageDisplayActivity extends BaseActionBarTextMenuActivity {
     }
 
     @Override
-    protected void setupActionBar(ImageView goBackIv, TextView titleTv, TextView menuBtnTv) {
+    protected void setupActionBar(View actionbar, ImageView goBackIv, TextView titleTv, TextView menuBtnTv) {
         mTitleTv = titleTv;
         mMenuBtnTv = menuBtnTv;
         goBackIv.setOnClickListener(new View.OnClickListener() {

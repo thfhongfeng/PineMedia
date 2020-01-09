@@ -41,7 +41,12 @@
         <item>60分钟</item>
         <item>90分钟</item>
         <item>120分钟</item>
+        <item>150分钟</item>
         <item>180分钟</item>
+        <item>210分钟</item>
+        <item>240分钟</item>
+        <item>270分钟</item>
+        <item>300分钟</item>
     </string-array>
 
     <integer-array name="ap_music_main_timing_item_value">
@@ -53,6 +58,11 @@
         <item>60</item>
         <item>90</item>
         <item>120</item>
+        <item>150</item>
         <item>180</item>
+        <item>210</item>
+        <item>240</item>
+        <item>270</item>
+        <item>300</item>
     </integer-array>
 </resources>

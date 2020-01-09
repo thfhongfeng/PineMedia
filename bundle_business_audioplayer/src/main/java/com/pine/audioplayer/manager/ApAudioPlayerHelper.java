@@ -106,9 +106,18 @@ public class ApAudioPlayerHelper {
         }
     }
 
-    public void releasePlayer() {
+    public void cancelDelayRelease() {
         if (mControllerAdapter != null) {
-            mControllerAdapter.release();
+            mControllerAdapter.cancelDelayRelease();
+        }
+    }
+
+    /**
+     * @param immediately true:立即停止播放, false:播放完当前内容后停止
+     */
+    public void releasePlayer(boolean immediately) {
+        if (mControllerAdapter != null) {
+            mControllerAdapter.release(immediately);
         }
     }
 

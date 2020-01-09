@@ -7,9 +7,12 @@ import androidx.annotation.NonNull;
 
 import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.manager.ApAudioPlayerHelper;
 import com.pine.audioplayer.model.ApMusicModel;
+import com.pine.audioplayer.worker.ApTimingCloseWorker;
 import com.pine.tool.architecture.mvvm.vm.ViewModel;
 import com.pine.tool.binding.data.ParametricLiveData;
+import com.pine.tool.service.TimerWorkHelper;
 import com.pine.tool.util.ColorUtils;
 
 public class ApMainVm extends ViewModel {
@@ -46,5 +49,18 @@ public class ApMainVm extends ViewModel {
         alphaColor[1] = alphaColor[1] | (mainThemeColor & 0x00ffffff);
         GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, alphaColor);
         mIsLightThemeData.setValue(ColorUtils.isLightColor(mainThemeColor), bg);
+    }
+
+    public void startTimingWork(int minutes) {
+        if (minutes > 0) {
+            ApAudioPlayerHelper.getInstance().cancelDelayRelease();
+            ApTimingCloseWorker worker = new ApTimingCloseWorker();
+            TimerWorkHelper.getInstance().schemeTimerWork(TAG, minutes * 60 * 1000, worker);
+        } else if (minutes == 0) {
+            ApAudioPlayerHelper.getInstance().releasePlayer(false);
+        } else {
+            ApAudioPlayerHelper.getInstance().cancelDelayRelease();
+            TimerWorkHelper.getInstance().cancel(TAG);
+        }
     }
 }

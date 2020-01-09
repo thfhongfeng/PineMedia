@@ -26,6 +26,7 @@ import com.pine.player.widget.viewholder.PineBackgroundViewHolder;
 import com.pine.player.widget.viewholder.PineControllerViewHolder;
 import com.pine.player.widget.viewholder.PineRightViewHolder;
 import com.pine.player.widget.viewholder.PineWaitingProgressViewHolder;
+import com.pine.tool.util.LogUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -55,26 +56,33 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
     private List<ApPlayListType> mPlayTypeList;
     private int mCurPlayTypePos = 0;
 
+    private boolean mReleaseAfterComplete;
+
     private AudioPlayerView.IPlayerViewListener mPlayerViewListener;
     private ApOutRootLrcPlugin.ILyricUpdateListener mLyricUpdateListener;
 
     private PineMediaWidget.PineMediaPlayerListener mPlayerListener = new PineMediaWidget.PineMediaPlayerListener() {
         @Override
         public boolean onComplete(PineMediaPlayerBean playerBean) {
-            switch (getCurPlayType().getType()) {
-                case ApPlayListType.TYPE_ORDER:
-                    onNextMediaSelect(mCurrentMediaCode, true);
-                    break;
-                case ApPlayListType.TYPE_ALL_LOOP:
-                    onNextMediaSelect(mCurrentMediaCode, true);
-                    break;
-                case ApPlayListType.TYPE_SING_LOOP:
-                    onMediaSelect(mCurrentMediaCode, true);
-                    break;
-                case ApPlayListType.TYPE_RANDOM:
-                    int randomPos = new Random().nextInt(10000) % mMusicList.size();
-                    onMediaSelect(getMediaCode(mMusicList.get(randomPos)), true);
-                    break;
+            if (mReleaseAfterComplete) {
+                release(true);
+                mReleaseAfterComplete = false;
+            } else {
+                switch (getCurPlayType().getType()) {
+                    case ApPlayListType.TYPE_ORDER:
+                        onNextMediaSelect(mCurrentMediaCode, true);
+                        break;
+                    case ApPlayListType.TYPE_ALL_LOOP:
+                        onNextMediaSelect(mCurrentMediaCode, true);
+                        break;
+                    case ApPlayListType.TYPE_SING_LOOP:
+                        onMediaSelect(mCurrentMediaCode, true);
+                        break;
+                    case ApPlayListType.TYPE_RANDOM:
+                        int randomPos = new Random().nextInt(10000) % mMusicList.size();
+                        onMediaSelect(getMediaCode(mMusicList.get(randomPos)), true);
+                        break;
+                }
             }
             return false;
         }
@@ -96,8 +104,20 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         mPlayer.addMediaPlayerListener(mPlayerListener);
     }
 
-    public void release() {
-        mPlayer.release();
+    public void cancelDelayRelease() {
+        mReleaseAfterComplete = false;
+    }
+
+    /*
+     * @param immediately  true:立即停止播放, false:播放完当前内容后停止
+     */
+    public void release(boolean immediately) {
+        LogUtils.d(TAG, "release player immediately:" + immediately);
+        if (immediately) {
+            mPlayer.release();
+        } else {
+            mReleaseAfterComplete = true;
+        }
     }
 
     public void destroy() {
