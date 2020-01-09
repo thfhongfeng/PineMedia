@@ -79,6 +79,10 @@ public class ApAudioPlayerHelper {
 
     }
 
+    public static boolean isPlayerAlive() {
+        return mInstance != null;
+    }
+
     public synchronized static ApAudioPlayerHelper getInstance() {
         if (mInstance == null) {
             mInstance = new ApAudioPlayerHelper();
@@ -99,6 +103,12 @@ public class ApAudioPlayerHelper {
         List<ApSheetMusic> oncePlayedMusicList = mModel.getSheetMusicList(mAppContext, mPlayListSheet.getId());
         if (oncePlayedMusicList != null && oncePlayedMusicList.size() > 0) {
             mControllerAdapter.addMusicList(oncePlayedMusicList, false);
+        }
+    }
+
+    public void releasePlayer() {
+        if (mControllerAdapter != null) {
+            mControllerAdapter.release();
         }
     }
 

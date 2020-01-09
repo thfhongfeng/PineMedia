@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.pine.config.BuildConfig;
 import com.pine.tool.architecture.mvp.model.IModelAsyncResponse;
 import com.pine.tool.exception.MessageException;
 import com.pine.tool.request.RequestBean;
@@ -16,7 +15,6 @@ import com.pine.welcome.WelcomeConstants;
 import com.pine.welcome.WelcomeUrlConstants;
 import com.pine.welcome.bean.VersionEntity;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;

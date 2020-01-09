@@ -1,11 +1,13 @@
 package com.pine.audioplayer.ui.activity;
 
 import android.content.Intent;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
+
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
 
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.databinding.ApActionMainTimingDialogBinding;
@@ -16,26 +18,25 @@ import com.pine.audioplayer.manager.ApAudioPlayerHelper;
 import com.pine.audioplayer.vm.ApMainVm;
 import com.pine.audioplayer.widget.AudioPlayerView;
 import com.pine.audioplayer.widget.plugin.ApOutRootLrcPlugin;
+import com.pine.audioplayer.worker.ApTimingCloseWorker;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.base.util.DialogUtils;
 import com.pine.base.widget.dialog.CustomListDialog;
 import com.pine.base.widget.dialog.SelectItemDialog;
 import com.pine.player.applet.subtitle.bean.PineSubtitleBean;
 import com.pine.player.bean.PineMediaPlayerBean;
-import com.pine.tool.util.ColorUtils;
+import com.pine.tool.service.TimerWorkHelper;
 import com.pine.tool.util.ResourceUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
-
 public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBinding, ApMainVm> {
     private final int REQUEST_CODE_ADD_TO_SHEET = 1;
     private SelectItemDialog mTopMenuDialog;
     private CustomListDialog mTimingDialog;
-    private boolean mIsLightTheme;
+
+    private int mCurSelectPosition = 0;
 
     private AudioPlayerView.IPlayerListener mPlayListener = new AudioPlayerView.IPlayerListener() {
         @Override
@@ -45,8 +46,8 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
 
         @Override
         public void onAlbumArtThemeChange(String mediaCode, ApSheetMusic music, int mainColor) {
-            mIsLightTheme = ColorUtils.isLightColor(mainColor);
-            setupAlbumArtAndTheme(music, mainColor);
+            mViewModel.setMainThemeColor(mainColor);
+            mBinding.subtitleContainerLl.setBackgroundColor(mainColor);
         }
     };
 
@@ -79,6 +80,14 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
             public void onChanged(ApSheetMusic music) {
                 mBinding.setMusic(music);
                 mBinding.playerView.updateMusicData(music);
+            }
+        });
+        mViewModel.mIsLightThemeData.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isLightTheme) {
+                mBinding.alphaView.setBackground(mViewModel.mIsLightThemeData.getCustomData());
+                mBinding.albumArtBgIv.setImageBitmap(mBinding.playerView.getBigAlbumArtBitmap());
+                mBinding.setIsLightTheme(isLightTheme);
             }
         });
     }
@@ -119,24 +128,6 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
         }
     }
 
-    private void setupAlbumArtAndTheme(ApSheetMusic music, int mainAlbumArtColor) {
-        if (music == null) {
-            return;
-        }
-        int[] alphaColor = {0xff000000, 0x00000000};
-        alphaColor[0] = alphaColor[0] | (mainAlbumArtColor & 0x00ffffff);
-        alphaColor[1] = alphaColor[1] | (mainAlbumArtColor & 0x00ffffff);
-
-        mBinding.subtitleContainerLl.setBackgroundColor(mainAlbumArtColor);
-        mBinding.titleText.setTextColor(getResources().getColor(mIsLightTheme ? R.color.dark_gray_black : R.color.white));
-        mBinding.authorText.setTextColor(getResources().getColor(mIsLightTheme ? R.color.dark_gray_black : R.color.white));
-        mBinding.subtitleText.setTextColor(getResources().getColor(mIsLightTheme ? R.color.dark_gray_black : R.color.white));
-        GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, alphaColor);
-        mBinding.alphaView.setBackground(bg);
-        mBinding.albumArtBgIv.setImageBitmap(mBinding.playerView.getBigAlbumArtBitmap());
-        mBinding.setIsLightTheme(mIsLightTheme);
-    }
-
     public class Presenter {
 
         public void onGoBackClick(View view) {
@@ -171,14 +162,13 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
     }
 
     private void showTimingDialog() {
+        mCurSelectPosition = 0;
         if (mTimingDialog == null) {
-            String[] mTimingItemNames = getResources().getStringArray(R.array.ap_music_main_timing_item_name);
-            int[] mTimingItemValues = getResources().getIntArray(R.array.ap_music_main_timing_item_value);
+            String[] timingItemNames = getResources().getStringArray(R.array.ap_music_main_timing_item_name);
+            final int[] timingItemValues = getResources().getIntArray(R.array.ap_music_main_timing_item_value);
             mTimingDialog = DialogUtils.createBottomCustomListDialog(this, getString(R.string.ap_mm_time_to_close),
                     R.layout.ap_item_main_timing_dialog, R.layout.ap_main_timing_dialog_action_layout,
-                    mTimingItemNames, new CustomListDialog.IOnViewBindCallback<String>() {
-                        private int curSelectPosition = 0;
-
+                    timingItemNames, new CustomListDialog.IOnViewBindCallback<String>() {
                         @Override
                         public void onViewBind(View titleView, View actionView, CustomListDialog dialog) {
                             ApActionMainTimingDialogBinding binding = DataBindingUtil.bind(actionView);
@@ -191,6 +181,12 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
                             binding.confirmBtnTv.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
+                                    if (timingItemValues[mCurSelectPosition] > 0) {
+                                        ApTimingCloseWorker worker = new ApTimingCloseWorker();
+                                        TimerWorkHelper.getInstance().schemeTimerWork(TAG,
+                                                timingItemValues[mCurSelectPosition] * 100,
+                                                worker);
+                                    }
                                     mTimingDialog.dismiss();
                                 }
                             });
@@ -200,13 +196,13 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
                         public void onItemViewUpdate(View itemView, final int position, String data, CustomListDialog dialog) {
                             final ApItemMainTimingDialogBinding binding = DataBindingUtil.bind(itemView);
                             binding.setText(data);
-                            binding.setSelected(curSelectPosition == position);
+                            binding.setSelected(mCurSelectPosition == position);
                             binding.dividerView.setVisibility(position == 0 ? View.GONE : View.VISIBLE);
                             binding.itemViewLl.setOnClickListener(
                                     new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
-                                            curSelectPosition = position;
+                                            mCurSelectPosition = position;
                                             binding.setSelected(true);
                                             mTimingDialog.getListAdapter().notifyDataSetChangedSafely();
                                         }

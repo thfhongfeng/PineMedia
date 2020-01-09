@@ -21,8 +21,10 @@ import com.pine.config.ConfigKey;
 import com.pine.config.switcher.ConfigSwitcherServer;
 import com.pine.tool.permission.PermissionsAnnotation;
 import com.pine.tool.router.IRouterCallback;
+import com.pine.tool.util.SharePreferenceUtils;
 import com.pine.welcome.R;
 import com.pine.welcome.WelcomeApplication;
+import com.pine.welcome.WelcomeSPKeyConstants;
 import com.pine.welcome.databinding.LoadingActivityBinding;
 import com.pine.welcome.remote.WelcomeRouterClient;
 import com.pine.welcome.vm.LoadingVm;
@@ -30,6 +32,7 @@ import com.pine.welcome.vm.LoadingVm;
 @PermissionsAnnotation(Permissions = {Manifest.permission.READ_PHONE_STATE,
         Manifest.permission.WRITE_EXTERNAL_STORAGE})
 public class LoadingActivity extends BaseMvvmNoActionBarActivity<LoadingActivityBinding, LoadingVm> {
+    private final static int REQUEST_CODE_USER_PRIVACY = 9999;
     private final static int LOADING_STAY_MIN_TIME = 1000;
     private final static int GO_NEXT_DELAY = 100;
     private long mStartTimeMillis;
@@ -81,6 +84,24 @@ public class LoadingActivity extends BaseMvvmNoActionBarActivity<LoadingActivity
 
     @Override
     protected void init(Bundle savedInstanceState) {
+        if (!SharePreferenceUtils.readBooleanFromConfig(WelcomeSPKeyConstants.USER_PRIVACY_AGREE, false)) {
+            startActivityForResult(new Intent(this, UserPrivacyActivity.class), REQUEST_CODE_USER_PRIVACY);
+        } else {
+            doneAppStartTask();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (REQUEST_CODE_USER_PRIVACY == requestCode && resultCode == RESULT_OK) {
+            doneAppStartTask();
+        } else {
+            finish();
+        }
+    }
+
+    private void doneAppStartTask() {
         mStartTimeMillis = System.currentTimeMillis();
 //        mViewModel.setupConfigSwitcher();
         autoLogin(GO_NEXT_DELAY);

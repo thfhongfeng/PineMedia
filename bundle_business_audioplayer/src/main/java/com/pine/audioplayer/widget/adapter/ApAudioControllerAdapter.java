@@ -96,6 +96,10 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         mPlayer.addMediaPlayerListener(mPlayerListener);
     }
 
+    public void release() {
+        mPlayer.release();
+    }
+
     public void destroy() {
         mPlayer.removeMediaPlayerListener(mPlayerListener);
         setMusicList(null, false);
@@ -134,7 +138,9 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
     }
 
     public ApPlayListType getAndGoNextPlayType() {
-        return mPlayTypeList.get((++mCurPlayTypePos) % mPlayTypeList.size());
+        ApPlayListType apPlayListType = mPlayTypeList.get((++mCurPlayTypePos) % mPlayTypeList.size());
+        refreshPreNextBtnState();
+        return apPlayListType;
     }
 
     public String getMediaCode(@NonNull ApSheetMusic music) {

@@ -89,7 +89,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@{music.name}"
-                android:textColor="@color/white"
+                android:textColor="@{isLightTheme?@color/dark_gray_black:@color/white}"
                 android:textSize="@dimen/sp_16" />
 
             <TextView
@@ -99,7 +99,7 @@
                 android:layout_marginTop="@dimen/dp_5"
                 android:gravity="center"
                 android:text="@{music.author}"
-                android:textColor="@color/white"
+                android:textColor="@{isLightTheme?@color/dark_gray_black:@color/white}"
                 android:textSize="@dimen/sp_13" />
 
             <LinearLayout
@@ -116,7 +116,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/dp_20"
                     android:gravity="center"
-                    android:textColor="@color/white"
+                    android:textColor="@{isLightTheme?@color/dark_gray_black:@color/white}"
                     android:textSize="@dimen/sp_14" />
             </LinearLayout>
 
