@@ -2,9 +2,11 @@ package com.pine.audioplayer.manager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
@@ -14,11 +16,15 @@ import com.pine.audioplayer.widget.AudioPlayerView;
 import com.pine.audioplayer.widget.adapter.ApAudioControllerAdapter;
 import com.pine.audioplayer.widget.plugin.ApOutRootLrcPlugin;
 import com.pine.player.component.PineMediaWidget;
+import com.pine.player.component.PinePlayState;
 import com.pine.tool.RootApplication;
 import com.pine.tool.util.AppUtils;
 import com.pine.tool.util.LogUtils;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class ApAudioPlayerHelper {
     private final String TAG = LogUtils.makeLogTag(this.getClass());
@@ -28,12 +34,42 @@ public class ApAudioPlayerHelper {
     private ApMusicSheet mRecentSheet, mPlayListSheet, mFavouriteSheet;
 
     private ApAudioControllerAdapter mControllerAdapter;
-    private AudioPlayerView.IPlayerViewListener mPlayerViewListener =
-            new AudioPlayerView.IPlayerViewListener() {
+    private HashMap<Integer, AudioPlayerView.IPlayerViewListener> mPlayerViewListenerMap = new HashMap<>();
+    private AudioPlayerView.PlayerViewListener mPlayerViewListener =
+            new AudioPlayerView.PlayerViewListener() {
                 @Override
-                public void onPlayMusic(PineMediaWidget.IPineMediaPlayer player,
-                                        ApSheetMusic oldPlayMusic, ApSheetMusic newPlayMusic) {
-                    mModel.addSheetMusic(mAppContext, newPlayMusic, mRecentSheet.getId());
+                public void onPlayMusic(PineMediaWidget.IPineMediaPlayer mPlayer, @Nullable ApSheetMusic newMusic) {
+                    if (newMusic != null) {
+                        mModel.addSheetMusic(mAppContext, newMusic, mRecentSheet.getId());
+                    }
+                    if (mPlayerViewListenerMap.size() > 0) {
+                        Iterator<Map.Entry<Integer, AudioPlayerView.IPlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
+                        while (iterator.hasNext()) {
+                            iterator.next().getValue().onPlayMusic(mPlayer, newMusic);
+                        }
+                    }
+                }
+
+                @Override
+                public void onPlayStateChange(ApSheetMusic music, PinePlayState fromState, PinePlayState toState) {
+                    if (mPlayerViewListenerMap.size() > 0) {
+                        Iterator<Map.Entry<Integer, AudioPlayerView.IPlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
+                        while (iterator.hasNext()) {
+                            iterator.next().getValue().onPlayStateChange(music, fromState, toState);
+                        }
+                    }
+                }
+
+                @Override
+                public void onAlbumArtChange(String mediaCode, ApSheetMusic music, Bitmap smallBitmap,
+                                             Bitmap bigBitmap, int mainColor) {
+                    if (mPlayerViewListenerMap.size() > 0) {
+                        Iterator<Map.Entry<Integer, AudioPlayerView.IPlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
+                        while (iterator.hasNext()) {
+                            iterator.next().getValue().onAlbumArtChange(mediaCode, music,
+                                    smallBitmap, bigBitmap, mainColor);
+                        }
+                    }
                 }
 
                 @Override
@@ -47,7 +83,7 @@ public class ApAudioPlayerHelper {
                 }
 
                 @Override
-                public void onMusicListClear(List<ApSheetMusic> musicList) {
+                public void onMusicListClear() {
                     mModel.clearSheetMusic(mAppContext, mPlayListSheet.getId());
                 }
 
@@ -108,16 +144,22 @@ public class ApAudioPlayerHelper {
 
     public void cancelDelayRelease() {
         if (mControllerAdapter != null) {
-            mControllerAdapter.cancelDelayRelease();
+            mControllerAdapter.clearDelayRelease();
         }
     }
 
-    /**
-     * @param immediately true:立即停止播放, false:播放完当前内容后停止
+    /*
+     * @param immediately  true:立即停止播放, false:播放完当前内容后停止
      */
-    public void releasePlayer(boolean immediately) {
+
+    /**
+     * 按计划停止播放器
+     *
+     * @param delay 小于0：立即停止播放；0：播放完当前内容后停止播放；大于0：delay时间后停止播放
+     */
+    public void schemeRelease(long delay) {
         if (mControllerAdapter != null) {
-            mControllerAdapter.release(immediately);
+            mControllerAdapter.schemeRelease(delay);
         }
     }
 
@@ -129,27 +171,35 @@ public class ApAudioPlayerHelper {
         mInstance = null;
     }
 
-    public void attachPlayerViewFromGlobalController(@NonNull Context context, @NonNull AudioPlayerView playerView) {
-        attachPlayerViewFromGlobalController(context, playerView, null, null);
+    public void initPlayerView(@NonNull AudioPlayerView playerView) {
+        playerView.init(TAG, mControllerAdapter);
     }
 
-    public void attachPlayerViewFromGlobalController(@NonNull Context context, @NonNull AudioPlayerView playerView,
-                                                     AudioPlayerView.IPlayerListener playerListener) {
-        attachPlayerViewFromGlobalController(context, playerView, playerListener, null);
+    public void attachPlayerView(@NonNull AudioPlayerView playerView) {
+        attachPlayerView(playerView, null, null);
     }
 
-    public void attachPlayerViewFromGlobalController(@NonNull Context context, @NonNull AudioPlayerView playerView,
-                                                     ApOutRootLrcPlugin.ILyricUpdateListener lyricUpdateListener) {
-        attachPlayerViewFromGlobalController(context, playerView, null, lyricUpdateListener);
+    public void attachPlayerView(@NonNull AudioPlayerView playerView, AudioPlayerView.IPlayerViewListener playerListener) {
+        attachPlayerView(playerView, playerListener, null);
     }
 
-    public void attachPlayerViewFromGlobalController(@NonNull Context context, @NonNull AudioPlayerView playerView,
-                                                     AudioPlayerView.IPlayerListener playerListener,
-                                                     ApOutRootLrcPlugin.ILyricUpdateListener lyricUpdateListener) {
-        playerView.init(context, TAG, mControllerAdapter, mPlayerViewListener, playerListener, lyricUpdateListener);
+    public void attachPlayerView(@NonNull AudioPlayerView playerView, ApOutRootLrcPlugin.ILyricUpdateListener lyricUpdateListener) {
+        attachPlayerView(playerView, null, lyricUpdateListener);
     }
 
-    public void detachPlayerViewFromGlobalController(@NonNull AudioPlayerView playerView) {
+    public void attachPlayerView(@NonNull AudioPlayerView playerView,
+                                 AudioPlayerView.IPlayerViewListener playerListener,
+                                 ApOutRootLrcPlugin.ILyricUpdateListener lyricUpdateListener) {
+        if (playerListener != null) {
+            mPlayerViewListenerMap.put(playerView.hashCode(), playerListener);
+        }
+        playerView.attachView(mPlayerViewListener, lyricUpdateListener);
+    }
+
+    public void detachPlayerView(@NonNull AudioPlayerView playerView) {
+        if (mPlayerViewListenerMap.containsKey(playerView.hashCode())) {
+            mPlayerViewListenerMap.remove(playerView.hashCode());
+        }
         playerView.detachView();
     }
 

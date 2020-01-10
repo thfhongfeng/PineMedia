@@ -1,7 +1,13 @@
 package com.pine.audioplayer.widget.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -9,33 +15,37 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
+import androidx.palette.graphics.Palette;
 
 import com.pine.audioplayer.ApConstants;
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.bean.ApPlayListType;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.util.ApLocalMusicUtils;
 import com.pine.audioplayer.widget.AudioPlayerView;
 import com.pine.audioplayer.widget.plugin.ApOutRootLrcPlugin;
 import com.pine.player.PineConstants;
 import com.pine.player.applet.IPinePlayerPlugin;
 import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.player.component.PineMediaWidget;
+import com.pine.player.component.PinePlayState;
 import com.pine.player.widget.PineMediaController;
 import com.pine.player.widget.view.PineProgressBar;
 import com.pine.player.widget.viewholder.PineBackgroundViewHolder;
 import com.pine.player.widget.viewholder.PineControllerViewHolder;
 import com.pine.player.widget.viewholder.PineRightViewHolder;
 import com.pine.player.widget.viewholder.PineWaitingProgressViewHolder;
+import com.pine.tool.util.CharsetUtils;
+import com.pine.tool.util.ImageUtils;
 import com.pine.tool.util.LogUtils;
 
 import java.io.File;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -57,16 +67,40 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
     private int mCurPlayTypePos = 0;
 
     private boolean mReleaseAfterComplete;
+    private long mSchemeReleaseDelay;
 
-    private AudioPlayerView.IPlayerViewListener mPlayerViewListener;
+    private HashMap<Integer, IControllerAdapterListener> mAdapterListenerMap = new HashMap<>();
+    private HashMap<Integer, AudioPlayerView.PlayerViewListener> mPlayerViewListenerMap = new HashMap<>();
     private ApOutRootLrcPlugin.ILyricUpdateListener mLyricUpdateListener;
 
     private PineMediaWidget.PineMediaPlayerListener mPlayerListener = new PineMediaWidget.PineMediaPlayerListener() {
         @Override
+        public void onStateChange(PineMediaPlayerBean playerBean, PinePlayState fromState, PinePlayState toState) {
+            LogUtils.d(TAG, "onStateChange mediaCode:" + playerBean.getMediaCode() + ",fromState:" + fromState + ",toState:" + toState);
+            boolean mediaChang = TextUtils.isEmpty(getCurMediaCode()) ||
+                    mPlayer.isInPlaybackState() && !playerBean.getMediaCode().equals(getCurMediaCode());
+            boolean playStateChange = fromState != toState;
+            if (!mediaChang && playStateChange) {
+                refreshPreNextBtnState();
+                if (mAdapterListenerMap.size() > 0) {
+                    Iterator<Map.Entry<Integer, IControllerAdapterListener>> iterator = mAdapterListenerMap.entrySet().iterator();
+                    while (iterator.hasNext()) {
+                        iterator.next().getValue().onMusicStateChange(getCurMusic(), toState);
+                    }
+                }
+                if (mPlayerViewListenerMap.size() > 0) {
+                    Iterator<Map.Entry<Integer, AudioPlayerView.PlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
+                    while (iterator.hasNext()) {
+                        iterator.next().getValue().onPlayStateChange(getCurMusic(), fromState, toState);
+                    }
+                }
+            }
+        }
+
+        @Override
         public boolean onComplete(PineMediaPlayerBean playerBean) {
             if (mReleaseAfterComplete) {
-                release(true);
-                mReleaseAfterComplete = false;
+                schemeRelease(-1);
             } else {
                 switch (getCurPlayType().getType()) {
                     case ApPlayListType.TYPE_ORDER:
@@ -86,9 +120,38 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
             }
             return false;
         }
+
+        @Override
+        public void onBufferingUpdate(PineMediaPlayerBean playerBean, int percent) {
+            if (isInSchemaReleaseProcess() && mSchemeReleaseDelay < System.currentTimeMillis()) {
+                schemeRelease(-1);
+            }
+        }
     };
 
+    private HandlerThread mWorkThread;
+    private Handler mAlbumArtWorkHandler, mLrcWorkHandler;
+    private Handler mMainHandler = new Handler(Looper.getMainLooper());
+
+    private int DEFAULT_ALBUM_ART_MAIN_COLOR = Color.TRANSPARENT;
+    private final int MAX_BIG_ALBUM_ART_CACHE_COUNT = 10;
+    private final int MAX_ALBUM_ART_REQUEST_COUNT = 2;
+
+    private Bitmap mDefaultSmallAlbumArtBitmap = null;
+    private Bitmap mDefaultBigAlbumArtBitmap = null;
+    private HashMap<String, Bitmap> mSmallAlbumArtBitmapMap = new HashMap<>();
+    private HashMap<String, Bitmap> mBigAlbumArtBitmapMap = new HashMap<>();
+    private HashMap<String, Integer> mMainAlbumArtColorMap = new HashMap<>();
+    private ArrayDeque<String> mBigAlbumArtDeque = new ArrayDeque<>();
+    private HashMap<String, Boolean> mAlbumArtBitmapRequestingMap = new HashMap<>();
+    private HashMap<String, String> mLyricMap = new HashMap<>();
+    private HashMap<String, Boolean> mLyricRequestingMap = new HashMap<>();
+    protected boolean mEnableSmallAlbumArt = false;
+    protected boolean mEnableBigAlbumArt = false;
+    protected int mPreMainColor = DEFAULT_ALBUM_ART_MAIN_COLOR;
+
     public ApAudioControllerAdapter(Context context) {
+        this(context, null);
         mContext = context;
         mPlayTypeList = ApPlayListType.getDefaultList(mContext);
     }
@@ -97,32 +160,33 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         mContext = context;
         mControllerView = root;
         mPlayTypeList = ApPlayListType.getDefaultList(mContext);
+
+        if (mDefaultSmallAlbumArtBitmap == null) {
+            mDefaultSmallAlbumArtBitmap = ImageUtils.getBitmap(context,
+                    R.mipmap.res_iv_default_bg_1);
+        }
+        if (mDefaultBigAlbumArtBitmap == null) {
+            mDefaultBigAlbumArtBitmap = ImageUtils.getBitmap(context,
+                    R.mipmap.res_iv_default_bg_1);
+        }
+        Palette palette = new Palette.Builder(mDefaultSmallAlbumArtBitmap).generate();
+        DEFAULT_ALBUM_ART_MAIN_COLOR = palette.getDominantColor(DEFAULT_ALBUM_ART_MAIN_COLOR);
+
+        if (mWorkThread == null) {
+            mWorkThread = new HandlerThread(TAG);
+            mWorkThread.start();
+        }
+        if (mAlbumArtWorkHandler == null) {
+            mAlbumArtWorkHandler = new Handler(mWorkThread.getLooper());
+        }
+        if (mLrcWorkHandler == null) {
+            mLrcWorkHandler = new Handler(mWorkThread.getLooper());
+        }
     }
 
     public void setupPlayer(PineMediaWidget.IPineMediaPlayer player) {
         mPlayer = player;
         mPlayer.addMediaPlayerListener(mPlayerListener);
-    }
-
-    public void cancelDelayRelease() {
-        mReleaseAfterComplete = false;
-    }
-
-    /*
-     * @param immediately  true:立即停止播放, false:播放完当前内容后停止
-     */
-    public void release(boolean immediately) {
-        LogUtils.d(TAG, "release player immediately:" + immediately);
-        if (immediately) {
-            mPlayer.release();
-        } else {
-            mReleaseAfterComplete = true;
-        }
-    }
-
-    public void destroy() {
-        mPlayer.removeMediaPlayerListener(mPlayerListener);
-        setMusicList(null, false);
     }
 
     public void setControllerView(ViewGroup root, List<ApPlayListType> playTypeList) {
@@ -131,199 +195,6 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         mBackgroundViewHolder = null;
         mControllerViewHolder = null;
         mBackgroundView = null;
-    }
-
-    public List<ApSheetMusic> getMusicList() {
-        return mMusicList;
-    }
-
-    public void setCurMediaCode(String curMediaCode) {
-        mCurrentMediaCode = curMediaCode;
-    }
-
-    public String getCurMediaCode() {
-        return mCurrentMediaCode;
-    }
-
-    public ApSheetMusic getCurMusic() {
-        return mCodeMusicListMap.get(mCurrentMediaCode);
-    }
-
-    public ApSheetMusic getListedMusic(String mediaCode) {
-        return mCodeMusicListMap.get(mediaCode);
-    }
-
-    public ApPlayListType getCurPlayType() {
-        return mPlayTypeList.get(mCurPlayTypePos % mPlayTypeList.size());
-    }
-
-    public ApPlayListType getAndGoNextPlayType() {
-        ApPlayListType apPlayListType = mPlayTypeList.get((++mCurPlayTypePos) % mPlayTypeList.size());
-        refreshPreNextBtnState();
-        return apPlayListType;
-    }
-
-    public String getMediaCode(@NonNull ApSheetMusic music) {
-        return music.getSongId() + "";
-    }
-
-    public void setPlayerViewListener(@NonNull AudioPlayerView.IPlayerViewListener playerViewListener) {
-        mPlayerViewListener = playerViewListener;
-    }
-
-    public ApSheetMusic onLyricDownloaded(String mediaCode, String filePath, String charset) {
-        ApSheetMusic music = mCodeMusicListMap.get(mediaCode);
-        if (music == null) {
-            return null;
-        }
-        music.setLyricFilePath(filePath);
-        music.setLyricCharset(charset);
-        PineMediaPlayerBean bean = mCodeMediaListMap.get(mediaCode);
-        HashMap<Integer, IPinePlayerPlugin> pluginHashMap = bean.getPlayerPluginMap();
-        if (pluginHashMap != null) {
-            IPinePlayerPlugin plugin = pluginHashMap.get(ApConstants.PLUGIN_LRC_SUBTITLE);
-            if (plugin != null && plugin instanceof ApOutRootLrcPlugin) {
-                ((ApOutRootLrcPlugin) plugin).setSubtitle(filePath, PineConstants.PATH_STORAGE,
-                        music.getLyricCharset());
-            }
-        }
-        return music;
-    }
-
-    public void setLyricUpdateListener(@NonNull ApOutRootLrcPlugin.ILyricUpdateListener lyricUpdateListener) {
-        mLyricUpdateListener = lyricUpdateListener;
-        if (mCodeMediaListMap != null && mCodeMediaListMap.size() > 0) {
-            Iterator<Map.Entry<String, PineMediaPlayerBean>> iterator = mCodeMediaListMap.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<String, PineMediaPlayerBean> entity = iterator.next();
-                HashMap<Integer, IPinePlayerPlugin> pluginHashMap = entity.getValue().getPlayerPluginMap();
-                if (pluginHashMap != null) {
-                    IPinePlayerPlugin plugin = pluginHashMap.get(ApConstants.PLUGIN_LRC_SUBTITLE);
-                    if (plugin != null && plugin instanceof ApOutRootLrcPlugin) {
-                        ((ApOutRootLrcPlugin) plugin).setLyricUpdateListener(mLyricUpdateListener);
-                    }
-                }
-            }
-        }
-    }
-
-    public PineMediaPlayerBean transferMediaBean(@NonNull ApSheetMusic music) {
-        PineMediaPlayerBean mediaBean = new PineMediaPlayerBean(getMediaCode(music),
-                music.getName(), Uri.parse(music.getFilePath()),
-                PineMediaPlayerBean.MEDIA_TYPE_VIDEO, null,
-                null, null);
-        HashMap<Integer, IPinePlayerPlugin> pluginHashMap = new HashMap<>();
-        ApOutRootLrcPlugin playerPlugin = new ApOutRootLrcPlugin(mContext, music.getLyricFilePath(),
-                music.getLyricCharset());
-        playerPlugin.setLyricUpdateListener(mLyricUpdateListener);
-        pluginHashMap.put(ApConstants.PLUGIN_LRC_SUBTITLE, playerPlugin);
-        mediaBean.setPlayerPluginMap(pluginHashMap);
-        return mediaBean;
-    }
-
-    public void setMusicList(List<ApSheetMusic> list, boolean startPlay) {
-        mMusicList = new ArrayList<>();
-        mCodeMediaListMap = new HashMap<>();
-        mCodeMusicListMap = new HashMap<>();
-        if (list == null || list.size() < 1) {
-            mPlayer.release();
-            mPlayer.setPlayingMedia(null);
-            mCurrentMediaCode = "";
-        } else {
-            addMusicList(list, startPlay);
-        }
-    }
-
-    public void addMusic(ApSheetMusic music, boolean startPlay) {
-        if (music == null) {
-            return;
-        }
-        String mediaCode = getMediaCode(music);
-        if (mCodeMusicListMap.containsKey(mediaCode)) {
-            mMusicList.remove(mCodeMusicListMap.get(mediaCode));
-        }
-        PineMediaPlayerBean mediaBean = transferMediaBean(music);
-        mMusicList.add(0, music);
-        mCodeMusicListMap.put(mediaBean.getMediaCode(), music);
-        mCodeMediaListMap.put(mediaBean.getMediaCode(), mediaBean);
-        onMediaSelect(getMediaCode(music), startPlay);
-    }
-
-    public void addMusicList(List<ApSheetMusic> list, boolean startPlay) {
-        if (list == null && list.size() < 1) {
-            return;
-        }
-        for (ApSheetMusic music : list) {
-            String mediaCode = getMediaCode(music);
-            if (mCodeMusicListMap.containsKey(mediaCode)) {
-                mMusicList.remove(mCodeMusicListMap.get(mediaCode));
-            }
-        }
-        for (int i = list.size() - 1; i >= 0; i--) {
-            ApSheetMusic music = list.get(i);
-            PineMediaPlayerBean mediaBean = transferMediaBean(music);
-            mMusicList.add(0, music);
-            mCodeMediaListMap.put(mediaBean.getMediaCode(), mediaBean);
-            mCodeMusicListMap.put(mediaBean.getMediaCode(), music);
-        }
-        onMediaSelect(getMediaCode(mMusicList.get(0)), startPlay);
-    }
-
-    public void updateMusicData(ApSheetMusic music) {
-        if (music == null) {
-            return;
-        }
-        String mediaCode = getMediaCode(music);
-        if (mCodeMusicListMap.containsKey(mediaCode)) {
-            ApSheetMusic listedMusic = mCodeMusicListMap.get(mediaCode);
-            if (listedMusic != null) {
-                if (listedMusic.mediaInfoChange(music)) {
-                    PineMediaPlayerBean mediaBean = transferMediaBean(music);
-                    mCodeMediaListMap.put(mediaBean.getMediaCode(), mediaBean);
-                }
-                listedMusic.copyDataFrom(music);
-            }
-        }
-    }
-
-    public void updateMusicListData(List<ApSheetMusic> list) {
-        if (list == null && list.size() < 1) {
-            return;
-        }
-        for (ApSheetMusic music : list) {
-            updateMusicData(music);
-        }
-    }
-
-    public void removeMusic(ApSheetMusic music) {
-        int curPos = findMusicPosition(mCurrentMediaCode);
-        String removeMediaCode = getMediaCode(music);
-        if (mCodeMusicListMap.containsKey(removeMediaCode)) {
-            mMusicList.remove(mCodeMusicListMap.get(removeMediaCode));
-            mCodeMediaListMap.remove(removeMediaCode);
-            mCodeMusicListMap.remove(removeMediaCode);
-        }
-        if (mMusicList.size() < 1) {
-            mPlayer.release();
-            mPlayer.setPlayingMedia(null);
-            mCurrentMediaCode = "";
-        } else {
-            if (removeMediaCode.equals(mCurrentMediaCode)) {
-                playMedia(curPos, mPlayer.isPlaying());
-            }
-        }
-    }
-
-    public void refreshPreNextBtnState() {
-        int position = findMusicPosition(mCurrentMediaCode);
-        if (mControllerViewHolder != null) {
-            if (mControllerViewHolder.getPrevButton() != null) {
-                mControllerViewHolder.getPrevButton().setEnabled(isLoopMode() || position > 0);
-            }
-            if (mControllerViewHolder.getNextButton() != null) {
-                mControllerViewHolder.getNextButton().setEnabled(isLoopMode() || position < mMusicList.size() - 1 && position >= 0);
-            }
-        }
     }
 
     @Override
@@ -409,6 +280,311 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         return null;
     }
 
+    @Override
+    protected PineMediaController.ControllersActionListener onCreateControllersActionListener() {
+        return new PineMediaController.ControllersActionListener() {
+            @Override
+            public boolean onPreBtnClick(View preBtn, PineMediaWidget.IPineMediaPlayer player) {
+                PineMediaPlayerBean mediaPlayerBean = player.getMediaPlayerBean();
+                if (mediaPlayerBean != null) {
+                    onPreMediaSelect(mediaPlayerBean.getMediaCode(), true);
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onNextBtnClick(View nextBtn, PineMediaWidget.IPineMediaPlayer player) {
+                PineMediaPlayerBean mediaPlayerBean = player.getMediaPlayerBean();
+                if (mediaPlayerBean != null) {
+                    onNextMediaSelect(mediaPlayerBean.getMediaCode(), true);
+                    return true;
+                }
+                return false;
+            }
+        };
+    }
+
+    public void addListener(View view, @NonNull AudioPlayerView.PlayerViewListener playerViewListener,
+                            IControllerAdapterListener adapterListener) {
+        if (playerViewListener != null) {
+            mPlayerViewListenerMap.put(view.hashCode(), playerViewListener);
+        }
+        if (adapterListener != null) {
+            mAdapterListenerMap.put(view.hashCode(), adapterListener);
+        }
+    }
+
+    public void removeListener(View view) {
+        mPlayerViewListenerMap.remove(view.hashCode());
+        mAdapterListenerMap.remove(view.hashCode());
+    }
+
+    public void setLyricUpdateListener(@NonNull ApOutRootLrcPlugin.ILyricUpdateListener lyricUpdateListener) {
+        mLyricUpdateListener = lyricUpdateListener;
+        if (mCodeMediaListMap != null && mCodeMediaListMap.size() > 0) {
+            Iterator<Map.Entry<String, PineMediaPlayerBean>> iterator = mCodeMediaListMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, PineMediaPlayerBean> entity = iterator.next();
+                HashMap<Integer, IPinePlayerPlugin> pluginHashMap = entity.getValue().getPlayerPluginMap();
+                if (pluginHashMap != null) {
+                    IPinePlayerPlugin plugin = pluginHashMap.get(ApConstants.PLUGIN_LRC_SUBTITLE);
+                    if (plugin != null && plugin instanceof ApOutRootLrcPlugin) {
+                        ((ApOutRootLrcPlugin) plugin).setLyricUpdateListener(mLyricUpdateListener);
+                    }
+                }
+            }
+        }
+    }
+
+    public PineMediaPlayerBean transferMediaBean(@NonNull ApSheetMusic music) {
+        PineMediaPlayerBean mediaBean = new PineMediaPlayerBean(getMediaCode(music),
+                music.getName(), Uri.parse(music.getFilePath()),
+                PineMediaPlayerBean.MEDIA_TYPE_VIDEO, null,
+                null, null);
+        HashMap<Integer, IPinePlayerPlugin> pluginHashMap = new HashMap<>();
+        ApOutRootLrcPlugin playerPlugin = new ApOutRootLrcPlugin(mContext, music.getLyricFilePath(),
+                music.getLyricCharset());
+        playerPlugin.setLyricUpdateListener(mLyricUpdateListener);
+        pluginHashMap.put(ApConstants.PLUGIN_LRC_SUBTITLE, playerPlugin);
+        mediaBean.setPlayerPluginMap(pluginHashMap);
+        return mediaBean;
+    }
+
+    public List<ApSheetMusic> getMusicList() {
+        return mMusicList;
+    }
+
+    public void setCurMediaCode(String curMediaCode) {
+        mCurrentMediaCode = curMediaCode;
+    }
+
+    public String getCurMediaCode() {
+        return mCurrentMediaCode;
+    }
+
+    public ApSheetMusic getCurMusic() {
+        return mCodeMusicListMap.get(mCurrentMediaCode);
+    }
+
+    public ApSheetMusic getListedMusic(String mediaCode) {
+        return mCodeMusicListMap.get(mediaCode);
+    }
+
+    public ApPlayListType getCurPlayType() {
+        return mPlayTypeList.get(mCurPlayTypePos % mPlayTypeList.size());
+    }
+
+    public ApPlayListType getAndGoNextPlayType() {
+        ApPlayListType apPlayListType = mPlayTypeList.get((++mCurPlayTypePos) % mPlayTypeList.size());
+        refreshPreNextBtnState();
+        return apPlayListType;
+    }
+
+    public String getMediaCode(@NonNull ApSheetMusic music) {
+        return music.getSongId() + "";
+    }
+
+    public void setMusicList(List<ApSheetMusic> list, boolean startPlay) {
+        ApSheetMusic preMusic = getCurMusic();
+        mMusicList = new ArrayList<>();
+        mCodeMediaListMap = new HashMap<>();
+        mCodeMusicListMap = new HashMap<>();
+        if (list == null || list.size() < 1) {
+            if (mPlayerViewListenerMap.size() > 0) {
+                Iterator<Map.Entry<Integer, AudioPlayerView.PlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    iterator.next().getValue().onMusicListClear();
+                }
+            }
+            onMusicListClear(preMusic);
+        } else {
+            addMusicList(list, startPlay);
+        }
+    }
+
+    private void onMusicListClear(ApSheetMusic preMusic) {
+        mPlayer.release();
+        mPlayer.setPlayingMedia(null);
+        loadAlbumArtAndLyric(null);
+        if (mPlayerViewListenerMap.size() > 0) {
+            Iterator<Map.Entry<Integer, AudioPlayerView.PlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                iterator.next().getValue().onPlayMusic(mPlayer, null);
+            }
+        }
+        mCurrentMediaCode = "";
+    }
+
+    public void addMusic(ApSheetMusic music, boolean startPlay) {
+        if (music == null) {
+            return;
+        }
+        String mediaCode = getMediaCode(music);
+        if (mCodeMusicListMap.containsKey(mediaCode)) {
+            mMusicList.remove(mCodeMusicListMap.get(mediaCode));
+        }
+        PineMediaPlayerBean mediaBean = transferMediaBean(music);
+        mMusicList.add(0, music);
+        mCodeMusicListMap.put(mediaBean.getMediaCode(), music);
+        mCodeMediaListMap.put(mediaBean.getMediaCode(), mediaBean);
+        onMediaSelect(getMediaCode(music), startPlay);
+    }
+
+    public void addMusicList(List<ApSheetMusic> list, boolean startPlay) {
+        if (list == null && list.size() < 1) {
+            return;
+        }
+        for (ApSheetMusic music : list) {
+            String mediaCode = getMediaCode(music);
+            if (mCodeMusicListMap.containsKey(mediaCode)) {
+                mMusicList.remove(mCodeMusicListMap.get(mediaCode));
+            }
+        }
+        for (int i = list.size() - 1; i >= 0; i--) {
+            ApSheetMusic music = list.get(i);
+            PineMediaPlayerBean mediaBean = transferMediaBean(music);
+            mMusicList.add(0, music);
+            mCodeMediaListMap.put(mediaBean.getMediaCode(), mediaBean);
+            mCodeMusicListMap.put(mediaBean.getMediaCode(), music);
+        }
+        onMediaSelect(getMediaCode(mMusicList.get(0)), startPlay);
+    }
+
+    public void updateMusicData(ApSheetMusic music) {
+        if (music == null) {
+            return;
+        }
+        String mediaCode = getMediaCode(music);
+        if (mCodeMusicListMap.containsKey(mediaCode)) {
+            ApSheetMusic listedMusic = mCodeMusicListMap.get(mediaCode);
+            if (listedMusic != null) {
+                if (listedMusic.mediaInfoChange(music)) {
+                    PineMediaPlayerBean mediaBean = transferMediaBean(music);
+                    mCodeMediaListMap.put(mediaBean.getMediaCode(), mediaBean);
+                }
+                listedMusic.copyDataFrom(music);
+            }
+        }
+    }
+
+    public void updateMusicListData(List<ApSheetMusic> list) {
+        if (list == null && list.size() < 1) {
+            return;
+        }
+        for (ApSheetMusic music : list) {
+            updateMusicData(music);
+        }
+    }
+
+    public void removeMusic(ApSheetMusic music) {
+        ApSheetMusic preMusic = getCurMusic();
+        int curPos = findMusicPosition(mCurrentMediaCode);
+        String removeMediaCode = getMediaCode(music);
+        if (mCodeMusicListMap.containsKey(removeMediaCode)) {
+            mMusicList.remove(mCodeMusicListMap.get(removeMediaCode));
+            mCodeMediaListMap.remove(removeMediaCode);
+            mCodeMusicListMap.remove(removeMediaCode);
+        }
+        if (mPlayerViewListenerMap.size() > 0) {
+            Iterator<Map.Entry<Integer, AudioPlayerView.PlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                iterator.next().getValue().onMusicRemove(music);
+            }
+        }
+        if (mMusicList.size() < 1) {
+            onMusicListClear(preMusic);
+        } else {
+            if (removeMediaCode.equals(mCurrentMediaCode)) {
+                playMedia(curPos, mPlayer.isPlaying());
+            }
+        }
+    }
+
+    private boolean isInSchemaReleaseProcess() {
+        return mSchemeReleaseDelay > 0;
+    }
+
+    public void clearDelayRelease() {
+        mSchemeReleaseDelay = 0;
+        mReleaseAfterComplete = false;
+    }
+
+    /**
+     * 按计划停止播放器
+     *
+     * @param delay 小于0：立即停止播放；0：播放完当前内容后停止播放；大于0：delay时间后停止播放
+     */
+    public void schemeRelease(long delay) {
+        LogUtils.d(TAG, "release player immediately:" + delay);
+        clearDelayRelease();
+        if (delay < 0) {
+            mPlayer.release();
+        } else if (delay == 0) {
+            mReleaseAfterComplete = true;
+        } else {
+            mSchemeReleaseDelay = System.currentTimeMillis() + delay;
+        }
+    }
+
+    public void destroy() {
+        mPlayer.removeMediaPlayerListener(mPlayerListener);
+        setMusicList(null, false);
+
+        clearAlbumArtBitmap();
+        if (mAlbumArtWorkHandler != null) {
+            mSmallAlbumArtBitmapMap.clear();
+            mBigAlbumArtBitmapMap.clear();
+            mAlbumArtWorkHandler.removeCallbacksAndMessages(null);
+            mAlbumArtWorkHandler = null;
+        }
+        if (mLrcWorkHandler != null) {
+            mLrcWorkHandler.removeCallbacksAndMessages(null);
+            mLrcWorkHandler = null;
+        }
+        if (mWorkThread != null) {
+            mWorkThread.quit();
+            mWorkThread = null;
+        }
+    }
+
+    private void clearAlbumArtBitmap() {
+        Iterator<Map.Entry<String, Bitmap>> iterator = mSmallAlbumArtBitmapMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Bitmap bitmap = iterator.next().getValue();
+            if (bitmap != null) {
+                bitmap.recycle();
+            }
+        }
+        iterator = mBigAlbumArtBitmapMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Bitmap bitmap = iterator.next().getValue();
+            if (bitmap != null) {
+                bitmap.recycle();
+            }
+        }
+        mBigAlbumArtDeque.clear();
+        if (mDefaultSmallAlbumArtBitmap != null) {
+            mDefaultSmallAlbumArtBitmap.recycle();
+            mDefaultSmallAlbumArtBitmap = null;
+        }
+        if (mDefaultBigAlbumArtBitmap != null) {
+            mDefaultBigAlbumArtBitmap.recycle();
+            mDefaultBigAlbumArtBitmap = null;
+        }
+    }
+
+    public void refreshPreNextBtnState() {
+        int position = findMusicPosition(mCurrentMediaCode);
+        if (mControllerViewHolder != null) {
+            if (mControllerViewHolder.getPrevButton() != null) {
+                mControllerViewHolder.getPrevButton().setEnabled(isLoopMode() || position > 0);
+            }
+            if (mControllerViewHolder.getNextButton() != null) {
+                mControllerViewHolder.getNextButton().setEnabled(isLoopMode() || position < mMusicList.size() - 1 && position >= 0);
+            }
+        }
+    }
 
     private int findMusicPosition(String mediaCode) {
         if (mMusicList != null && mMusicList.size() > 0) {
@@ -465,19 +641,23 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         }
         if (position >= 0 && position < mMusicList.size()) {
             if (mPlayer != null) {
+                LogUtils.d(TAG, "playMedia position:" + position + ",startPlay:" + startPlay);
                 ApSheetMusic music = mMusicList.get(position);
                 String mediaCode = getMediaCode(music);
                 PineMediaPlayerBean bean = mCodeMediaListMap.get(mediaCode);
                 if (mCurrentMediaCode != mediaCode) {
                     mPlayer.setPlayingMedia(bean);
+                    loadAlbumArtAndLyric(music);
                 }
                 if (startPlay) {
                     mPlayer.start();
                 }
-                String oldMediaCode = mCurrentMediaCode;
                 mCurrentMediaCode = mediaCode;
-                if (mPlayerViewListener != null) {
-                    mPlayerViewListener.onPlayMusic(mPlayer, mCodeMusicListMap.get(oldMediaCode), music);
+                if (mPlayerViewListenerMap.size() > 0) {
+                    Iterator<Map.Entry<Integer, AudioPlayerView.PlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
+                    while (iterator.hasNext()) {
+                        iterator.next().getValue().onPlayMusic(mPlayer, music);
+                    }
                 }
                 refreshPreNextBtnState();
                 return true;
@@ -487,44 +667,223 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         return false;
     }
 
-    @Override
-    protected PineMediaController.ControllersActionListener onCreateControllersActionListener() {
-        return new PineMediaController.ControllersActionListener() {
-            @Override
-            public boolean onPreBtnClick(View preBtn, PineMediaWidget.IPineMediaPlayer player) {
-                PineMediaPlayerBean mediaPlayerBean = player.getMediaPlayerBean();
-                if (mediaPlayerBean != null) {
-                    onPreMediaSelect(mediaPlayerBean.getMediaCode(), true);
-                    return true;
-                }
-                return false;
-            }
-
-            @Override
-            public boolean onNextBtnClick(View nextBtn, PineMediaWidget.IPineMediaPlayer player) {
-                PineMediaPlayerBean mediaPlayerBean = player.getMediaPlayerBean();
-                if (mediaPlayerBean != null) {
-                    onNextMediaSelect(mediaPlayerBean.getMediaCode(), true);
-                    return true;
-                }
-                return false;
-            }
-        };
+    public void enableAlbumArt(boolean enableSmallAlbumArt, boolean enableBigAlbumArt) {
+        mEnableSmallAlbumArt = enableSmallAlbumArt;
+        mEnableBigAlbumArt = enableBigAlbumArt;
     }
 
-    private String stringForTime(int timeMs) {
-        int totalSeconds = timeMs / 1000;
-        int seconds = totalSeconds % 60;
-        int minutes = (totalSeconds / 60) % 60;
-        int hours = totalSeconds / 3600;
-        StringBuilder formatBuilder = new StringBuilder();
-        Formatter formatter = new Formatter(formatBuilder, Locale.getDefault());
-        formatBuilder.setLength(0);
-        if (hours > 0) {
-            return formatter.format("%d:%02d:%02d", hours, minutes, seconds).toString();
+    public Bitmap getBigAlbumArtBitmap(String mediaCode) {
+        if (!mAlbumArtBitmapRequestingMap.containsKey(mediaCode) &&
+                mBigAlbumArtBitmapMap.containsKey(mediaCode)) {
+            LogUtils.d(TAG, "getBigAlbumArtBitmap mediaCode :" + mediaCode + " found");
+            return mBigAlbumArtBitmapMap.get(mediaCode);
         } else {
-            return formatter.format("%02d:%02d", minutes, seconds).toString();
+            LogUtils.d(TAG, "getBigAlbumArtBitmap mediaCode :" + mediaCode + " use default");
+            return mDefaultBigAlbumArtBitmap;
         }
+    }
+
+    public Bitmap getSmallAlbumArtBitmap(String mediaCode) {
+        if (!mAlbumArtBitmapRequestingMap.containsKey(mediaCode) &&
+                mSmallAlbumArtBitmapMap.containsKey(mediaCode)) {
+            LogUtils.d(TAG, "getSmallAlbumArtBitmap mediaCode :" + mediaCode + " found");
+            return mSmallAlbumArtBitmapMap.get(mediaCode);
+        } else {
+            LogUtils.d(TAG, "getSmallAlbumArtBitmap mediaCode :" + mediaCode + " use default");
+            return mDefaultSmallAlbumArtBitmap;
+        }
+    }
+
+    public int getMainAlbumArtColor(String mediaCode) {
+        if (!mAlbumArtBitmapRequestingMap.containsKey(mediaCode) &&
+                mMainAlbumArtColorMap.containsKey(mediaCode)) {
+            LogUtils.d(TAG, "getMainAlbumArtColor mediaCode :" + mediaCode + " found");
+            return mMainAlbumArtColorMap.get(mediaCode);
+        } else {
+            LogUtils.d(TAG, "getMainAlbumArtColor mediaCode :" + mediaCode + " use default");
+            return DEFAULT_ALBUM_ART_MAIN_COLOR;
+        }
+    }
+
+    public void loadAlbumArtAndLyric(ApSheetMusic music) {
+        String mediaCode = "";
+        if (music == null) {
+            onAlbumArtPrepare(mediaCode, null, getSmallAlbumArtBitmap(mediaCode),
+                    getBigAlbumArtBitmap(mediaCode), getMainAlbumArtColor(mediaCode));
+            return;
+        }
+        mediaCode = getMediaCode(music);
+        if (!mAlbumArtBitmapRequestingMap.containsKey(mediaCode)) {
+            if ((mEnableSmallAlbumArt && !mSmallAlbumArtBitmapMap.containsKey(mediaCode) ||
+                    mEnableBigAlbumArt && !mBigAlbumArtBitmapMap.containsKey(mediaCode) ||
+                    !mMainAlbumArtColorMap.containsKey(mediaCode))) {
+                LogUtils.d(TAG, "loadAlbumArtAndLyric getAlbumArtBitmapInBackground mediaCode:" + mediaCode);
+                getAlbumArtBitmapInBackground(mediaCode, music.getSongId(), music.getAlbumId());
+            } else {
+                onAlbumArtPrepare(mediaCode, music, getSmallAlbumArtBitmap(mediaCode),
+                        getBigAlbumArtBitmap(mediaCode), getMainAlbumArtColor(mediaCode));
+            }
+            if (TextUtils.isEmpty(music.getLyricFilePath()) || !new File(music.getLyricFilePath()).exists()) {
+                if (!mLyricMap.containsKey(mediaCode)) {
+                    if (!mLyricRequestingMap.containsKey(mediaCode)) {
+                        getLyricInBackground(mediaCode, music);
+                    }
+                } else {
+                    onLyricDownloaded(mediaCode, mLyricMap.get(mediaCode), CharsetUtils.getCharset(mLyricMap.get(mediaCode)));
+                }
+            }
+        }
+    }
+
+    private void getAlbumArtBitmapInBackground(final String mediaCode, final long songId, final long albumId) {
+        if (mAlbumArtWorkHandler == null) {
+            return;
+        }
+        if (mAlbumArtBitmapRequestingMap.size() > MAX_ALBUM_ART_REQUEST_COUNT) {
+            LogUtils.d(TAG, "getAlbumArtBitmapInBackground removeCallbacksAndMessages for too much message delayed");
+            mAlbumArtWorkHandler.removeCallbacksAndMessages(null);
+            mAlbumArtBitmapRequestingMap.clear();
+        }
+        final boolean finaEnableSmallAlbumArt = mEnableSmallAlbumArt;
+        final boolean finaEnableBigAlbumArt = mEnableBigAlbumArt;
+        mAlbumArtWorkHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                LogUtils.d(TAG, "getAlbumArtBitmapInBackground start --- mediaCode:" + mediaCode);
+                Bitmap smallBitmap = null;
+                if (finaEnableSmallAlbumArt && !mSmallAlbumArtBitmapMap.containsKey(mediaCode)) {
+                    smallBitmap = ApLocalMusicUtils.getAlbumArtBitmap(mContext,
+                            songId, albumId, true);
+                }
+                Bitmap bigBitmap = null;
+                if (finaEnableBigAlbumArt && !mBigAlbumArtBitmapMap.containsKey(mediaCode)) {
+                    bigBitmap = ApLocalMusicUtils.getAlbumArtBitmap(mContext,
+                            songId, albumId, false);
+                }
+                int color = DEFAULT_ALBUM_ART_MAIN_COLOR;
+                if (!mMainAlbumArtColorMap.containsKey(mediaCode) && (smallBitmap != null || bigBitmap != null)) {
+                    Palette palette = new Palette.Builder(smallBitmap != null ? smallBitmap : bigBitmap).generate();
+                    color = palette.getDominantColor(DEFAULT_ALBUM_ART_MAIN_COLOR);
+                }
+                final Bitmap finalSmallBitmap = smallBitmap;
+                final Bitmap finalBigBitmap = bigBitmap;
+                final int finalColor = color;
+                mMainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        LogUtils.d(TAG, "getAlbumArtBitmapInBackground end --- mediaCode:" + mediaCode);
+                        mAlbumArtBitmapRequestingMap.remove(mediaCode);
+                        if (finaEnableSmallAlbumArt && !mSmallAlbumArtBitmapMap.containsKey(mediaCode)) {
+                            mSmallAlbumArtBitmapMap.put(mediaCode, finalSmallBitmap == null ? mDefaultSmallAlbumArtBitmap : finalSmallBitmap);
+                        }
+                        if (mBigAlbumArtDeque.size() >= MAX_BIG_ALBUM_ART_CACHE_COUNT) {
+                            String oldestMediaCode = mBigAlbumArtDeque.poll();
+                            if (!oldestMediaCode.equals(mediaCode)) {
+                                Bitmap bitmap = mBigAlbumArtBitmapMap.remove(oldestMediaCode);
+                                if (bitmap != null) {
+                                    bitmap.recycle();
+                                }
+                            } else {
+                                mBigAlbumArtDeque.add(mediaCode);
+                            }
+                        }
+                        if (finaEnableBigAlbumArt && !mBigAlbumArtBitmapMap.containsKey(mediaCode)) {
+                            mBigAlbumArtBitmapMap.put(mediaCode, finalBigBitmap == null ? mDefaultBigAlbumArtBitmap : finalBigBitmap);
+                            if (finalBigBitmap != null) {
+                                mBigAlbumArtDeque.add(mediaCode);
+                            }
+                        }
+                        if (!mMainAlbumArtColorMap.containsKey(mediaCode)) {
+                            mMainAlbumArtColorMap.put(mediaCode, finalColor);
+                        }
+                        if (mediaCode.equals(getCurMediaCode())) {
+                            onAlbumArtPrepare(mediaCode, getCurMusic(),
+                                    getSmallAlbumArtBitmap(mediaCode), getBigAlbumArtBitmap(mediaCode),
+                                    getMainAlbumArtColor(mediaCode));
+                        }
+                    }
+                });
+            }
+        });
+        mAlbumArtBitmapRequestingMap.put(mediaCode, true);
+    }
+
+    private void onAlbumArtPrepare(String mediaCode, ApSheetMusic music, Bitmap smallBitmap, Bitmap bigBitmap, int mainColor) {
+        if (mAdapterListenerMap.size() > 0) {
+            Iterator<Map.Entry<Integer, IControllerAdapterListener>> iterator = mAdapterListenerMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                iterator.next().getValue().onAlbumArtPrepare(mediaCode, music, smallBitmap, bigBitmap, mainColor);
+            }
+        }
+        if (mPlayerViewListenerMap.size() > 0) {
+            Iterator<Map.Entry<Integer, AudioPlayerView.PlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                iterator.next().getValue().onAlbumArtChange(mediaCode, music, smallBitmap, bigBitmap, mainColor);
+            }
+        }
+        mPreMainColor = mainColor;
+    }
+
+    private void getLyricInBackground(final String mediaCode, final ApSheetMusic music) {
+        if (mLrcWorkHandler == null) {
+            return;
+        }
+        mLrcWorkHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                final String filePath = ApLocalMusicUtils.getLyric(mContext, music);
+                if (TextUtils.isEmpty(filePath)) {
+                    return;
+                }
+                String charset = CharsetUtils.getCharset(filePath);
+                onLyricPrepared(mediaCode, music, filePath, charset);
+            }
+        });
+        mLyricRequestingMap.put(mediaCode, true);
+    }
+
+    private void onLyricPrepared(final String mediaCode, final ApSheetMusic music,
+                                 final String lrcFilePath, final String charset) {
+        mMainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mLyricRequestingMap.remove(mediaCode);
+                mLyricMap.put(mediaCode, lrcFilePath);
+                ApSheetMusic music = onLyricDownloaded(mediaCode, lrcFilePath, charset);
+                if (mPlayerViewListenerMap.size() > 0) {
+                    Iterator<Map.Entry<Integer, AudioPlayerView.PlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
+                    while (iterator.hasNext()) {
+                        iterator.next().getValue().onLyricDownloaded(mediaCode, music, lrcFilePath, charset);
+                    }
+                }
+            }
+        });
+    }
+
+    private ApSheetMusic onLyricDownloaded(String mediaCode, String filePath, String charset) {
+        ApSheetMusic music = mCodeMusicListMap.get(mediaCode);
+        if (music == null) {
+            return null;
+        }
+        music.setLyricFilePath(filePath);
+        music.setLyricCharset(charset);
+        PineMediaPlayerBean bean = mCodeMediaListMap.get(mediaCode);
+        HashMap<Integer, IPinePlayerPlugin> pluginHashMap = bean.getPlayerPluginMap();
+        if (pluginHashMap != null) {
+            IPinePlayerPlugin plugin = pluginHashMap.get(ApConstants.PLUGIN_LRC_SUBTITLE);
+            if (plugin != null && plugin instanceof ApOutRootLrcPlugin) {
+                ((ApOutRootLrcPlugin) plugin).setSubtitle(filePath, PineConstants.PATH_STORAGE,
+                        music.getLyricCharset());
+            }
+        }
+        return music;
+    }
+
+    public interface IControllerAdapterListener {
+        void onMusicStateChange(ApSheetMusic music, PinePlayState state);
+
+        void onAlbumArtPrepare(String mediaCode, ApSheetMusic music, Bitmap smallBitmap,
+                               Bitmap bigBitmap, int mainColor);
     }
 }
 

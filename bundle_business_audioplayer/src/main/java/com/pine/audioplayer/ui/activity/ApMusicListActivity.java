@@ -1,8 +1,15 @@
 package com.pine.audioplayer.ui.activity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
+
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.pine.audioplayer.ApConstants;
 import com.pine.audioplayer.R;
@@ -18,30 +25,34 @@ import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
 import com.pine.base.util.DialogUtils;
 import com.pine.base.widget.dialog.SelectItemDialog;
+import com.pine.player.component.PineMediaWidget;
+import com.pine.player.component.PinePlayState;
+import com.pine.tool.util.LogUtils;
 import com.pine.tool.util.ResourceUtils;
 import com.pine.tool.widget.dialog.PopupMenu;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicListActivityBinding, ApMusicListVm> {
-
     private ApMusicListAdapter mMusicListAdapter;
     private PopupMenu mTopPopupMenu;
-    private AudioPlayerView.IPlayerListener mPlayerListener = new AudioPlayerView.IPlayerListener() {
+    private AudioPlayerView.IPlayerViewListener mPlayerListener = new AudioPlayerView.IPlayerViewListener() {
         @Override
-        public void onPlayMusic(String mediaCode, ApSheetMusic music, boolean isPlaying) {
-            mMusicListAdapter.setPlayMusic(music, isPlaying);
+        public void onPlayMusic(PineMediaWidget.IPineMediaPlayer mPlayer, @Nullable ApSheetMusic newMusic) {
+            LogUtils.d(TAG, "onPlayMusic newMusic:" + newMusic);
+            mMusicListAdapter.setPlayMusic(newMusic, mPlayer != null && mPlayer.isPlaying());
         }
 
         @Override
-        public void onAlbumArtThemeChange(String mediaCode, ApSheetMusic music, int mainColor) {
+        public void onPlayStateChange(ApSheetMusic music, PinePlayState fromState, PinePlayState toState) {
+            LogUtils.d(TAG, "onPlayStateChange fromState:" + fromState + ",toState:" + toState + ", music:" + music);
+            mMusicListAdapter.setPlayMusic(music, toState == PinePlayState.STATE_PLAYING);
+        }
 
+        @Override
+        public void onAlbumArtChange(String mediaCode, ApSheetMusic music, Bitmap smallBitmap,
+                                     Bitmap bigBitmap, int mainColor) {
         }
     };
 
@@ -93,19 +104,20 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         mBinding.recycleView.setLayoutManager(layoutManager);
         mBinding.recycleView.setAdapter(mMusicListAdapter);
+        ApAudioPlayerHelper.getInstance().initPlayerView(mBinding.playerView);
     }
 
     @Override
     protected void onRealResume() {
         super.onRealResume();
-        ApAudioPlayerHelper.getInstance().attachPlayerViewFromGlobalController(this, mBinding.playerView, mPlayerListener);
+        ApAudioPlayerHelper.getInstance().attachPlayerView(mBinding.playerView, mPlayerListener);
         mViewModel.refreshData();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        ApAudioPlayerHelper.getInstance().detachPlayerViewFromGlobalController(mBinding.playerView);
+        ApAudioPlayerHelper.getInstance().detachPlayerView(mBinding.playerView);
     }
 
     private void showMusicItemMenu(final ApSheetMusic sheetMusic) {

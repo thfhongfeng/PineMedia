@@ -15,6 +15,7 @@ import com.pine.audioplayer.R;
 import com.pine.audioplayer.bean.ApPlayListType;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.audioplayer.widget.AudioPlayerView;
+import com.pine.audioplayer.widget.plugin.ApOutRootLrcPlugin;
 import com.pine.player.widget.PineMediaPlayerView;
 
 public class ApSimpleAudioPlayerView extends AudioPlayerView {
@@ -57,8 +58,14 @@ public class ApSimpleAudioPlayerView extends AudioPlayerView {
                 onViewClick(sapv_content_ll, "content");
             }
         });
-        enableAlbumArt(true, false, true);
         return (ViewGroup) mRoot;
+    }
+
+    @Override
+    public void attachView(PlayerViewListener playerViewListener,
+                           ApOutRootLrcPlugin.ILyricUpdateListener lyricUpdateListener) {
+        mControllerAdapter.enableAlbumArt(true, false);
+        super.attachView(playerViewListener, lyricUpdateListener);
     }
 
     @Override
@@ -73,11 +80,7 @@ public class ApSimpleAudioPlayerView extends AudioPlayerView {
 
     @Override
     public void setupAlbumArt(Bitmap smallBitmap, Bitmap bigBitmap, int mainColor) {
-        if (smallBitmap != null) {
-            sapv_cover_iv.setImageBitmap(smallBitmap);
-        } else {
-            sapv_cover_iv.setImageResource(R.mipmap.res_iv_default_bg_1);
-        }
+        sapv_cover_iv.setImageBitmap(smallBitmap);
     }
 
     @Override
@@ -86,7 +89,6 @@ public class ApSimpleAudioPlayerView extends AudioPlayerView {
             sapv_name_tv.setText(music.getName());
             sapv_desc_tv.setText(music.getAuthor() + " - " + music.getAlbum());
         } else {
-            sapv_cover_iv.setImageResource(R.mipmap.res_iv_default_bg_1);
             sapv_name_tv.setText(R.string.ap_sad_play_pine_name);
             sapv_desc_tv.setText(R.string.ap_sad_play_pine_desc);
         }

@@ -1,6 +1,5 @@
 package com.pine.audioplayer.vm;
 
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -9,17 +8,14 @@ import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.audioplayer.manager.ApAudioPlayerHelper;
 import com.pine.audioplayer.model.ApMusicModel;
-import com.pine.audioplayer.worker.ApTimingCloseWorker;
 import com.pine.tool.architecture.mvvm.vm.ViewModel;
 import com.pine.tool.binding.data.ParametricLiveData;
 import com.pine.tool.service.TimerWorkHelper;
-import com.pine.tool.util.ColorUtils;
 
 public class ApMainVm extends ViewModel {
     private ApMusicModel mModel = new ApMusicModel();
 
     public ParametricLiveData<ApSheetMusic, Boolean> mPlayStateData = new ParametricLiveData<>();
-    public ParametricLiveData<Boolean, GradientDrawable> mIsLightThemeData = new ParametricLiveData();
     private ApMusicSheet mPlayListSheet;
 
     @Override
@@ -43,21 +39,17 @@ public class ApMainVm extends ViewModel {
         setPlayedMusic(music, mPlayStateData.getCustomData());
     }
 
-    public void setMainThemeColor(int mainThemeColor) {
-        int[] alphaColor = {0xff000000, 0x00000000};
-        alphaColor[0] = alphaColor[0] | (mainThemeColor & 0x00ffffff);
-        alphaColor[1] = alphaColor[1] | (mainThemeColor & 0x00ffffff);
-        GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, alphaColor);
-        mIsLightThemeData.setValue(ColorUtils.isLightColor(mainThemeColor), bg);
-    }
-
     public void startTimingWork(int minutes) {
         if (minutes > 0) {
-            ApAudioPlayerHelper.getInstance().cancelDelayRelease();
-            ApTimingCloseWorker worker = new ApTimingCloseWorker();
-            TimerWorkHelper.getInstance().schemeTimerWork(TAG, minutes * 60 * 1000, worker);
+            // 双保险：Timer在不同版本和不同手机上，手机熄屏时会使得Timer计时器的行为不一样，所以这里同时使用了两种方式来进行处理。
+            // 有一种方式生效即可。
+            // Timer方式
+//            ApTimingCloseWorker worker = new ApTimingCloseWorker();
+//            TimerWorkHelper.getInstance().schemeTimerWork(TAG, minutes * 60 * 100, worker);
+            // MediaPlayer监听器方式
+            ApAudioPlayerHelper.getInstance().schemeRelease(minutes * 60 * 100);
         } else if (minutes == 0) {
-            ApAudioPlayerHelper.getInstance().releasePlayer(false);
+            ApAudioPlayerHelper.getInstance().schemeRelease(0);
         } else {
             ApAudioPlayerHelper.getInstance().cancelDelayRelease();
             TimerWorkHelper.getInstance().cancel(TAG);

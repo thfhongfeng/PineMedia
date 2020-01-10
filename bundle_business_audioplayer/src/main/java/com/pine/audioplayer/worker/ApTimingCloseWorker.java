@@ -10,7 +10,7 @@ public class ApTimingCloseWorker implements Runnable {
     public void run() {
         if (ApAudioPlayerHelper.isPlayerAlive()) {
             LogUtils.d(TAG, "run ApTimingCloseWorker");
-            ApAudioPlayerHelper.getInstance().releasePlayer(true);
+            ApAudioPlayerHelper.getInstance().schemeRelease(-1);
         }
     }
 }

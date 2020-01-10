@@ -2,11 +2,14 @@ package com.pine.audioplayer.manager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+
+import androidx.annotation.Nullable;
 
 import com.pine.audioplayer.db.entity.ApMusicSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
@@ -16,11 +19,15 @@ import com.pine.audioplayer.widget.AudioPlayerView;
 import com.pine.audioplayer.widget.adapter.ApAudioControllerAdapter;
 import com.pine.audioplayer.widget.view.ApSimpleAudioPlayerView;
 import com.pine.player.component.PineMediaWidget;
+import com.pine.player.component.PinePlayState;
 import com.pine.tool.RootApplication;
 import com.pine.tool.util.AppUtils;
 import com.pine.tool.util.LogUtils;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static android.content.Context.WINDOW_SERVICE;
 
@@ -35,12 +42,37 @@ public class ApFloatViewManager {
     private ApMusicSheet mRecentSheet, mPlayListSheet, mFavouriteSheet;
 
     private ApAudioControllerAdapter mControllerAdapter;
-    private AudioPlayerView.IPlayerViewListener mPlayerViewListener =
-            new AudioPlayerView.IPlayerViewListener() {
+    private HashMap<Integer, AudioPlayerView.IPlayerViewListener> mPlayerViewListenerMap = new HashMap<>();
+    private AudioPlayerView.PlayerViewListener mPlayerViewListener =
+            new AudioPlayerView.PlayerViewListener() {
                 @Override
-                public void onPlayMusic(PineMediaWidget.IPineMediaPlayer player,
-                                        ApSheetMusic oldPlayMusic, ApSheetMusic newPlayMusic) {
-                    mModel.addSheetMusic(mAppContext, newPlayMusic, mRecentSheet.getId());
+                public void onPlayMusic(PineMediaWidget.IPineMediaPlayer mPlayer, @Nullable ApSheetMusic newMusic) {
+                    if (newMusic != null) {
+                        mModel.addSheetMusic(mAppContext, newMusic, mRecentSheet.getId());
+                    }
+                    if (mPlayerViewListenerMap.size() > 0) {
+                        Iterator<Map.Entry<Integer, AudioPlayerView.IPlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
+                        while (iterator.hasNext()) {
+                            iterator.next().getValue().onPlayMusic(mPlayer, newMusic);
+                        }
+                    }
+                }
+
+                @Override
+                public void onPlayStateChange(ApSheetMusic music, PinePlayState fromState, PinePlayState toState) {
+
+                }
+
+                @Override
+                public void onAlbumArtChange(String mediaCode, ApSheetMusic music, Bitmap smallBitmap,
+                                             Bitmap bigBitmap, int mainColor) {
+                    if (mPlayerViewListenerMap.size() > 0) {
+                        Iterator<Map.Entry<Integer, AudioPlayerView.IPlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
+                        while (iterator.hasNext()) {
+                            iterator.next().getValue().onAlbumArtChange(mediaCode, music,
+                                    smallBitmap, bigBitmap, mainColor);
+                        }
+                    }
                 }
 
                 @Override
@@ -54,7 +86,7 @@ public class ApFloatViewManager {
                 }
 
                 @Override
-                public void onMusicListClear(List<ApSheetMusic> musicList) {
+                public void onMusicListClear() {
                     mModel.clearSheetMusic(mAppContext, mPlayListSheet.getId());
                 }
 
@@ -155,8 +187,8 @@ public class ApFloatViewManager {
                 mFloatingSimpleAudioPlayerView.setVisibility(isShown ? View.GONE : View.VISIBLE);
             }
         });
-        mFloatingSimpleAudioPlayerView.init(mAppContext, TAG, mControllerAdapter,
-                mPlayerViewListener, null, null);
+        mFloatingSimpleAudioPlayerView.init(TAG, mControllerAdapter);
+        mFloatingSimpleAudioPlayerView.attachView(mPlayerViewListener, null);
         mFloatingSimpleAudioPlayerView.setVisibility(View.GONE);
     }
 

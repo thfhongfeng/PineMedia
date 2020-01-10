@@ -1,11 +1,14 @@
 package com.pine.audioplayer.ui.activity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 
+import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 
@@ -24,6 +27,9 @@ import com.pine.base.widget.dialog.CustomListDialog;
 import com.pine.base.widget.dialog.SelectItemDialog;
 import com.pine.player.applet.subtitle.bean.PineSubtitleBean;
 import com.pine.player.bean.PineMediaPlayerBean;
+import com.pine.player.component.PineMediaWidget;
+import com.pine.player.component.PinePlayState;
+import com.pine.tool.util.ColorUtils;
 import com.pine.tool.util.ResourceUtils;
 
 import java.util.ArrayList;
@@ -36,16 +42,29 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
 
     private int mCurSelectPosition = 0;
 
-    private AudioPlayerView.IPlayerListener mPlayListener = new AudioPlayerView.IPlayerListener() {
+    private AudioPlayerView.IPlayerViewListener mPlayListener = new AudioPlayerView.IPlayerViewListener() {
         @Override
-        public void onPlayMusic(String mediaCode, ApSheetMusic music, boolean isPlaying) {
-            mViewModel.setPlayedMusic(music, isPlaying);
+        public void onPlayMusic(PineMediaWidget.IPineMediaPlayer mPlayer, @Nullable ApSheetMusic newMusic) {
+            mViewModel.setPlayedMusic(newMusic, mPlayer != null && mPlayer.isPlaying());
         }
 
         @Override
-        public void onAlbumArtThemeChange(String mediaCode, ApSheetMusic music, int mainColor) {
-            mViewModel.setMainThemeColor(mainColor);
+        public void onPlayStateChange(ApSheetMusic music, PinePlayState fromState, PinePlayState toState) {
+
+        }
+
+        @Override
+        public void onAlbumArtChange(String mediaCode, ApSheetMusic music, Bitmap smallBitmap,
+                                     Bitmap bigBitmap, int mainColor) {
+            int[] alphaColor = {0xff000000, 0x00000000};
+            alphaColor[0] = alphaColor[0] | (mainColor & 0x00ffffff);
+            alphaColor[1] = alphaColor[1] | (mainColor & 0x00ffffff);
+            GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, alphaColor);
+            mBinding.alphaView.setBackground(bg);
+            mBinding.setIsLightTheme(ColorUtils.isLightColor(mainColor));
             mBinding.subtitleContainerLl.setBackgroundColor(mainColor);
+            mBinding.albumArtBgIv.setImageBitmap(bigBitmap);
+            mBinding.executePendingBindings();
         }
     };
 
@@ -76,16 +95,12 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
         mViewModel.mPlayStateData.observe(this, new Observer<ApSheetMusic>() {
             @Override
             public void onChanged(ApSheetMusic music) {
+                if (music == null) {
+                    finish();
+                    return;
+                }
                 mBinding.setMusic(music);
                 mBinding.playerView.updateMusicData(music);
-            }
-        });
-        mViewModel.mIsLightThemeData.observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean isLightTheme) {
-                mBinding.alphaView.setBackground(mViewModel.mIsLightThemeData.getCustomData());
-                mBinding.albumArtBgIv.setImageBitmap(mBinding.playerView.getBigAlbumArtBitmap());
-                mBinding.setIsLightTheme(isLightTheme);
             }
         });
     }
@@ -103,19 +118,19 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
     @Override
     protected void init(Bundle onCreateSavedInstanceState) {
         mBinding.setPresenter(new Presenter());
+        ApAudioPlayerHelper.getInstance().initPlayerView(mBinding.playerView);
     }
 
     @Override
     protected void onRealResume() {
         super.onRealResume();
-        ApAudioPlayerHelper.getInstance().attachPlayerViewFromGlobalController(this,
-                mBinding.playerView, mPlayListener, mLyricUpdateListener);
+        ApAudioPlayerHelper.getInstance().attachPlayerView(mBinding.playerView, mPlayListener, mLyricUpdateListener);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        ApAudioPlayerHelper.getInstance().detachPlayerViewFromGlobalController(mBinding.playerView);
+        ApAudioPlayerHelper.getInstance().detachPlayerView(mBinding.playerView);
     }
 
     @Override

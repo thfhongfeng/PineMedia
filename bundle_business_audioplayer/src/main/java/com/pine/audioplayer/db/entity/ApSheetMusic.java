@@ -307,4 +307,28 @@ public class ApSheetMusic implements Parcelable {
         this.updateTimeStamp = music.updateTimeStamp;
         this.createTimeStamp = music.createTimeStamp;
     }
+
+    @Override
+    public String toString() {
+        return "ApSheetMusic{" +
+                "id=" + id +
+                ", sheetId=" + sheetId +
+                ", songId=" + songId +
+                ", name='" + name + '\'' +
+                ", filePath='" + filePath + '\'' +
+                ", lyricFilePath='" + lyricFilePath + '\'' +
+                ", lyricCharset='" + lyricCharset + '\'' +
+                ", isFavourite=" + isFavourite +
+                ", author='" + author + '\'' +
+                ", duration=" + duration +
+                ", album='" + album + '\'' +
+                ", albumId=" + albumId +
+                ", year='" + year + '\'' +
+                ", mimeType='" + mimeType + '\'' +
+                ", size=" + size +
+                ", description='" + description + '\'' +
+                ", updateTimeStamp=" + updateTimeStamp +
+                ", createTimeStamp=" + createTimeStamp +
+                '}';
+    }
 }
