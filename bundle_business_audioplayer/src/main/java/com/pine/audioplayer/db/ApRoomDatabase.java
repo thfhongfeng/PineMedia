@@ -2,9 +2,17 @@ package com.pine.audioplayer.db;
 
 import android.content.Context;
 
-import com.pine.audioplayer.db.dao.ApMusicSheetDao;
+import androidx.annotation.NonNull;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
+
+import com.pine.audioplayer.db.dao.ApMusicDao;
+import com.pine.audioplayer.db.dao.ApSheetDao;
 import com.pine.audioplayer.db.dao.ApSheetMusicDao;
-import com.pine.audioplayer.db.entity.ApMusicSheet;
+import com.pine.audioplayer.db.entity.ApMusic;
+import com.pine.audioplayer.db.entity.ApSheet;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.tool.util.AppUtils;
 import com.pine.tool.util.LogUtils;
@@ -14,19 +22,15 @@ import com.tencent.wcdb.room.db.WCDBOpenHelperFactory;
 
 import java.io.File;
 
-import androidx.annotation.NonNull;
-import androidx.room.Database;
-import androidx.room.Room;
-import androidx.room.RoomDatabase;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-
-@Database(entities = {ApMusicSheet.class, ApSheetMusic.class}, version = 1, exportSchema = false)
+@Database(entities = {ApMusic.class, ApSheet.class, ApSheetMusic.class}, version = 1, exportSchema = false)
 public abstract class ApRoomDatabase extends RoomDatabase {
     private static final String TAG = LogUtils.makeLogTag(ApRoomDatabase.class);
 
     public static final Object DB_SYNC_LOCK = new Object();
 
-    public abstract ApMusicSheetDao apMusicSheetDao();
+    public abstract ApMusicDao apMusicDao();
+
+    public abstract ApSheetDao apSheetDao();
 
     public abstract ApSheetMusicDao apSheetMusicDao();
 

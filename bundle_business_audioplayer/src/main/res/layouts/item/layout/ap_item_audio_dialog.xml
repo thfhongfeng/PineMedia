@@ -7,7 +7,7 @@
 
         <variable
             name="music"
-            type="com.pine.audioplayer.db.entity.ApSheetMusic" />
+            type="com.pine.audioplayer.db.entity.ApMusic" />
 
         <variable
             name="playingState"

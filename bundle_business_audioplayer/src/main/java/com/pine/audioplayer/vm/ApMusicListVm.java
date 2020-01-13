@@ -6,8 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
 import com.pine.audioplayer.ApConstants;
-import com.pine.audioplayer.db.entity.ApMusicSheet;
-import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.db.entity.ApMusic;
+import com.pine.audioplayer.db.entity.ApSheet;
 import com.pine.audioplayer.model.ApMusicModel;
 import com.pine.tool.architecture.mvvm.vm.ViewModel;
 
@@ -16,22 +16,20 @@ import java.util.List;
 public class ApMusicListVm extends ViewModel {
     private ApMusicModel mModel = new ApMusicModel();
 
-    public MutableLiveData<List<ApSheetMusic>> mSheetMusicListData = new MutableLiveData<>();
-    private ApMusicSheet mMusicSheet;
-    public MutableLiveData<ApMusicSheet> mSheetData = new MutableLiveData<>();
+    public MutableLiveData<List<ApMusic>> mSheetMusicListData = new MutableLiveData<>();
+    private ApSheet mMusicSheet;
+    public MutableLiveData<ApSheet> mSheetData = new MutableLiveData<>();
     public MutableLiveData<Boolean> mActionData = new MutableLiveData<>();
-
-    private ApMusicSheet mRecentSheet;
 
     @Override
     public boolean parseIntentData(@NonNull Bundle bundle) {
-        mMusicSheet = (ApMusicSheet) bundle.getSerializable("musicSheet");
+        mMusicSheet = (ApSheet) bundle.getSerializable("musicSheet");
         if (mMusicSheet == null) {
+            finishUi();
             return true;
         }
         mActionData.setValue(bundle.getBoolean("action", false));
         mSheetData.setValue(mMusicSheet);
-        mRecentSheet = mModel.getRecentSheet(getContext());
         return false;
     }
 
@@ -42,9 +40,8 @@ public class ApMusicListVm extends ViewModel {
                 mSheetMusicListData.setValue(mModel.getAllMusicList(getContext()));
                 break;
             case ApConstants.MUSIC_SHEET_TYPE_FAVOURITE:
-                mMusicSheet = mModel.getFavouriteSheet(getContext());
                 mSheetData.setValue(mMusicSheet);
-                mSheetMusicListData.setValue(mModel.getSheetMusicList(getContext(), mMusicSheet.getId()));
+                mSheetMusicListData.setValue(mModel.getFavouriteMusicList(getContext()));
                 break;
             case ApConstants.MUSIC_SHEET_TYPE_RECENT:
                 mMusicSheet = mModel.getRecentSheet(getContext());
@@ -59,35 +56,27 @@ public class ApMusicListVm extends ViewModel {
         }
     }
 
-    public ApSheetMusic addMusicToFavourite(ApSheetMusic music) {
-        return mModel.addSheetMusic(getContext(), music, mModel.getFavouriteSheet(getContext()).getId());
-    }
-
-    public ApSheetMusic addMusicToRecent(ApSheetMusic music) {
-        return mModel.addSheetMusic(getContext(), music, mRecentSheet.getId());
-    }
-
-    public void addAllMusicsToRecent() {
-        mModel.addSheetMusicList(getContext(), mSheetMusicListData.getValue(), mRecentSheet.getId());
-    }
-
-    public void removeMusicFromRecent(long songId) {
-        mModel.removeSheetMusic(getContext(), mRecentSheet.getId(), songId);
-    }
-
-    public void clearRecentSheetMusic() {
-        mModel.clearSheetMusic(getContext(), mRecentSheet.getId());
+    public void addMusicToFavourite(ApMusic music) {
+        mModel.updateMusicFavourite(getContext(), music, true);
     }
 
     public void deleteMusicSheet() {
         mModel.removeMusicSheet(getContext(), mMusicSheet);
     }
 
-    public void deleteSheetMusic(ApSheetMusic sheetMusic) {
-        mModel.removeSheetMusic(getContext(), sheetMusic);
+    public void deleteSheetMusic(ApMusic music) {
+        if (mMusicSheet.getSheetType() == ApConstants.MUSIC_SHEET_TYPE_FAVOURITE) {
+            mModel.updateMusicFavourite(getContext(), music, false);
+        } else {
+            mModel.removeSheetMusic(getContext(), mMusicSheet.getId(), music.getSongId());
+        }
     }
 
-    public void deleteSheetMusics(List<ApSheetMusic> selectList) {
-        mModel.removeSheetMusicList(getContext(), selectList, mMusicSheet.getId());
+    public void deleteSheetMusics(List<ApMusic> selectList) {
+        if (mMusicSheet.getSheetType() == ApConstants.MUSIC_SHEET_TYPE_FAVOURITE) {
+            mModel.updateMusicListFavourite(getContext(), selectList, false);
+        } else {
+            mModel.removeSheetMusicList(getContext(), selectList, mMusicSheet.getId());
+        }
     }
 }

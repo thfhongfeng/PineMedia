@@ -10,7 +10,8 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 
-import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.db.entity.ApMusic;
+import com.pine.audioplayer.db.repository.ApMusicRepository;
 import com.pine.tool.util.FileUtils;
 
 import java.io.FileDescriptor;
@@ -33,13 +34,13 @@ public class ApLocalMusicUtils {
         return count;
     }
 
-    public static List<ApSheetMusic> getAllMusicList(Context context) {
+    public static List<ApMusic> getAllMusicList(Context context) {
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor cursor = context.getContentResolver().query(uri, null,
                 MediaStore.Audio.Media.DURATION + ">=?", new String[]{"60000"}, null);
-        List<ApSheetMusic> musicList = new ArrayList<>();
+        List<ApMusic> musicList = new ArrayList<>();
         while (cursor.moveToNext()) {
-            ApSheetMusic music = new ApSheetMusic();
+            ApMusic music = new ApMusic();
             music.setSongId(cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)));
             music.setName(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)));
             music.setDuration(cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)));
@@ -53,6 +54,7 @@ public class ApLocalMusicUtils {
             musicList.add(music);
         }
         cursor.close();
+        ApMusicRepository.getInstance(context).addMusicList(musicList);
         return musicList;
     }
 
@@ -200,7 +202,7 @@ public class ApLocalMusicUtils {
         return candidate;
     }
 
-    public static String getLyric(Context context, ApSheetMusic music) {
+    public static String getLyric(Context context, ApMusic music) {
         List<String> list = FileUtils.getFileListByMediaStore(context, music.getName(), ".lrc");
         if (list != null && list.size() > 0) {
             return list.get(0);

@@ -20,11 +20,11 @@ import androidx.palette.graphics.Palette;
 import com.pine.audioplayer.ApConstants;
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.bean.ApPlayListType;
-import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.db.entity.ApMusic;
 import com.pine.audioplayer.util.ApLocalMusicUtils;
 import com.pine.audioplayer.widget.AudioPlayerView;
 import com.pine.audioplayer.widget.plugin.ApOutRootLrcPlugin;
-import com.pine.player.PineConstants;
+import com.pine.player.PinePlayerConstants;
 import com.pine.player.applet.IPinePlayerPlugin;
 import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.player.component.PineMediaWidget;
@@ -58,9 +58,9 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
 
     public PineMediaWidget.IPineMediaPlayer mPlayer;
 
-    private List<ApSheetMusic> mMusicList = new LinkedList<>();
+    private List<ApMusic> mMusicList = new LinkedList<>();
     private HashMap<String, PineMediaPlayerBean> mCodeMediaListMap = new HashMap<>();
-    private HashMap<String, ApSheetMusic> mCodeMusicListMap = new HashMap<>();
+    private HashMap<String, ApMusic> mCodeMusicListMap = new HashMap<>();
     private String mCurrentMediaCode = "";
 
     private List<ApPlayListType> mPlayTypeList;
@@ -122,7 +122,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         }
 
         @Override
-        public void onBufferingUpdate(PineMediaPlayerBean playerBean, int percent) {
+        public void onProgress(PineMediaPlayerBean playerBean, int progressTime) {
             if (isInSchemaReleaseProcess() && mSchemeReleaseDelay < System.currentTimeMillis()) {
                 schemeRelease(-1);
             }
@@ -337,7 +337,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         }
     }
 
-    public PineMediaPlayerBean transferMediaBean(@NonNull ApSheetMusic music) {
+    public PineMediaPlayerBean transferMediaBean(@NonNull ApMusic music) {
         PineMediaPlayerBean mediaBean = new PineMediaPlayerBean(getMediaCode(music),
                 music.getName(), Uri.parse(music.getFilePath()),
                 PineMediaPlayerBean.MEDIA_TYPE_VIDEO, null,
@@ -351,7 +351,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         return mediaBean;
     }
 
-    public List<ApSheetMusic> getMusicList() {
+    public List<ApMusic> getMusicList() {
         return mMusicList;
     }
 
@@ -363,11 +363,11 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         return mCurrentMediaCode;
     }
 
-    public ApSheetMusic getCurMusic() {
+    public ApMusic getCurMusic() {
         return mCodeMusicListMap.get(mCurrentMediaCode);
     }
 
-    public ApSheetMusic getListedMusic(String mediaCode) {
+    public ApMusic getListedMusic(String mediaCode) {
         return mCodeMusicListMap.get(mediaCode);
     }
 
@@ -381,12 +381,12 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         return apPlayListType;
     }
 
-    public String getMediaCode(@NonNull ApSheetMusic music) {
+    public String getMediaCode(@NonNull ApMusic music) {
         return music.getSongId() + "";
     }
 
-    public void setMusicList(List<ApSheetMusic> list, boolean startPlay) {
-        ApSheetMusic preMusic = getCurMusic();
+    public void setMusicList(List<ApMusic> list, boolean startPlay) {
+        ApMusic preMusic = getCurMusic();
         mMusicList = new ArrayList<>();
         mCodeMediaListMap = new HashMap<>();
         mCodeMusicListMap = new HashMap<>();
@@ -403,7 +403,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         }
     }
 
-    private void onMusicListClear(ApSheetMusic preMusic) {
+    private void onMusicListClear(ApMusic preMusic) {
         mPlayer.release();
         mPlayer.setPlayingMedia(null);
         loadAlbumArtAndLyric(null);
@@ -416,7 +416,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         mCurrentMediaCode = "";
     }
 
-    public void addMusic(ApSheetMusic music, boolean startPlay) {
+    public void addMusic(ApMusic music, boolean startPlay) {
         if (music == null) {
             return;
         }
@@ -431,18 +431,18 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         onMediaSelect(getMediaCode(music), startPlay);
     }
 
-    public void addMusicList(List<ApSheetMusic> list, boolean startPlay) {
+    public void addMusicList(List<ApMusic> list, boolean startPlay) {
         if (list == null && list.size() < 1) {
             return;
         }
-        for (ApSheetMusic music : list) {
+        for (ApMusic music : list) {
             String mediaCode = getMediaCode(music);
             if (mCodeMusicListMap.containsKey(mediaCode)) {
                 mMusicList.remove(mCodeMusicListMap.get(mediaCode));
             }
         }
         for (int i = list.size() - 1; i >= 0; i--) {
-            ApSheetMusic music = list.get(i);
+            ApMusic music = list.get(i);
             PineMediaPlayerBean mediaBean = transferMediaBean(music);
             mMusicList.add(0, music);
             mCodeMediaListMap.put(mediaBean.getMediaCode(), mediaBean);
@@ -451,13 +451,13 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         onMediaSelect(getMediaCode(mMusicList.get(0)), startPlay);
     }
 
-    public void updateMusicData(ApSheetMusic music) {
+    public void updateMusicData(ApMusic music) {
         if (music == null) {
             return;
         }
         String mediaCode = getMediaCode(music);
         if (mCodeMusicListMap.containsKey(mediaCode)) {
-            ApSheetMusic listedMusic = mCodeMusicListMap.get(mediaCode);
+            ApMusic listedMusic = mCodeMusicListMap.get(mediaCode);
             if (listedMusic != null) {
                 if (listedMusic.mediaInfoChange(music)) {
                     PineMediaPlayerBean mediaBean = transferMediaBean(music);
@@ -468,17 +468,17 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         }
     }
 
-    public void updateMusicListData(List<ApSheetMusic> list) {
+    public void updateMusicListData(List<ApMusic> list) {
         if (list == null && list.size() < 1) {
             return;
         }
-        for (ApSheetMusic music : list) {
+        for (ApMusic music : list) {
             updateMusicData(music);
         }
     }
 
-    public void removeMusic(ApSheetMusic music) {
-        ApSheetMusic preMusic = getCurMusic();
+    public void removeMusic(ApMusic music) {
+        ApMusic preMusic = getCurMusic();
         int curPos = findMusicPosition(mCurrentMediaCode);
         String removeMediaCode = getMediaCode(music);
         if (mCodeMusicListMap.containsKey(removeMediaCode)) {
@@ -516,7 +516,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
      * @param delay 小于0：立即停止播放；0：播放完当前内容后停止播放；大于0：delay时间后停止播放
      */
     public void schemeRelease(long delay) {
-        LogUtils.d(TAG, "release player immediately:" + delay);
+        LogUtils.d(TAG, "release player delay:" + delay);
         clearDelayRelease();
         if (delay < 0) {
             mPlayer.release();
@@ -642,7 +642,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         if (position >= 0 && position < mMusicList.size()) {
             if (mPlayer != null) {
                 LogUtils.d(TAG, "playMedia position:" + position + ",startPlay:" + startPlay);
-                ApSheetMusic music = mMusicList.get(position);
+                ApMusic music = mMusicList.get(position);
                 String mediaCode = getMediaCode(music);
                 PineMediaPlayerBean bean = mCodeMediaListMap.get(mediaCode);
                 if (mCurrentMediaCode != mediaCode) {
@@ -705,7 +705,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         }
     }
 
-    public void loadAlbumArtAndLyric(ApSheetMusic music) {
+    public void loadAlbumArtAndLyric(ApMusic music) {
         String mediaCode = "";
         if (music == null) {
             onAlbumArtPrepare(mediaCode, null, getSmallAlbumArtBitmap(mediaCode),
@@ -808,7 +808,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         mAlbumArtBitmapRequestingMap.put(mediaCode, true);
     }
 
-    private void onAlbumArtPrepare(String mediaCode, ApSheetMusic music, Bitmap smallBitmap, Bitmap bigBitmap, int mainColor) {
+    private void onAlbumArtPrepare(String mediaCode, ApMusic music, Bitmap smallBitmap, Bitmap bigBitmap, int mainColor) {
         if (mAdapterListenerMap.size() > 0) {
             Iterator<Map.Entry<Integer, IControllerAdapterListener>> iterator = mAdapterListenerMap.entrySet().iterator();
             while (iterator.hasNext()) {
@@ -824,7 +824,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         mPreMainColor = mainColor;
     }
 
-    private void getLyricInBackground(final String mediaCode, final ApSheetMusic music) {
+    private void getLyricInBackground(final String mediaCode, final ApMusic music) {
         if (mLrcWorkHandler == null) {
             return;
         }
@@ -842,14 +842,14 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         mLyricRequestingMap.put(mediaCode, true);
     }
 
-    private void onLyricPrepared(final String mediaCode, final ApSheetMusic music,
+    private void onLyricPrepared(final String mediaCode, final ApMusic music,
                                  final String lrcFilePath, final String charset) {
         mMainHandler.post(new Runnable() {
             @Override
             public void run() {
                 mLyricRequestingMap.remove(mediaCode);
                 mLyricMap.put(mediaCode, lrcFilePath);
-                ApSheetMusic music = onLyricDownloaded(mediaCode, lrcFilePath, charset);
+                ApMusic music = onLyricDownloaded(mediaCode, lrcFilePath, charset);
                 if (mPlayerViewListenerMap.size() > 0) {
                     Iterator<Map.Entry<Integer, AudioPlayerView.PlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
                     while (iterator.hasNext()) {
@@ -860,8 +860,8 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         });
     }
 
-    private ApSheetMusic onLyricDownloaded(String mediaCode, String filePath, String charset) {
-        ApSheetMusic music = mCodeMusicListMap.get(mediaCode);
+    private ApMusic onLyricDownloaded(String mediaCode, String filePath, String charset) {
+        ApMusic music = mCodeMusicListMap.get(mediaCode);
         if (music == null) {
             return null;
         }
@@ -872,7 +872,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         if (pluginHashMap != null) {
             IPinePlayerPlugin plugin = pluginHashMap.get(ApConstants.PLUGIN_LRC_SUBTITLE);
             if (plugin != null && plugin instanceof ApOutRootLrcPlugin) {
-                ((ApOutRootLrcPlugin) plugin).setSubtitle(filePath, PineConstants.PATH_STORAGE,
+                ((ApOutRootLrcPlugin) plugin).setSubtitle(filePath, PinePlayerConstants.PATH_STORAGE,
                         music.getLyricCharset());
             }
         }
@@ -880,9 +880,9 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
     }
 
     public interface IControllerAdapterListener {
-        void onMusicStateChange(ApSheetMusic music, PinePlayState state);
+        void onMusicStateChange(ApMusic music, PinePlayState state);
 
-        void onAlbumArtPrepare(String mediaCode, ApSheetMusic music, Bitmap smallBitmap,
+        void onAlbumArtPrepare(String mediaCode, ApMusic music, Bitmap smallBitmap,
                                Bitmap bigBitmap, int mainColor);
     }
 }

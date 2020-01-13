@@ -5,16 +5,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.databinding.DataBindingUtil;
+
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.databinding.ApItemAddMusicToSheetBinding;
-import com.pine.audioplayer.db.entity.ApMusicSheet;
+import com.pine.audioplayer.db.entity.ApSheet;
 import com.pine.base.recycle_view.BaseListViewHolder;
 import com.pine.base.recycle_view.adapter.BaseNoPaginationListAdapter;
 import com.pine.base.recycle_view.bean.BaseListAdapterItemProperty;
 
-import androidx.databinding.DataBindingUtil;
-
-public class ApAddMusicToSheetAdapter extends BaseNoPaginationListAdapter<ApMusicSheet> {
+public class ApAddMusicToSheetAdapter extends BaseNoPaginationListAdapter<ApSheet> {
 
     private void setOnItemClickListener() {
 
@@ -26,7 +26,7 @@ public class ApAddMusicToSheetAdapter extends BaseNoPaginationListAdapter<ApMusi
                 .inflate(R.layout.ap_item_add_to_music_sheet, parent, false));
     }
 
-    public class MusicSheetViewHolder extends BaseListViewHolder<ApMusicSheet> {
+    public class MusicSheetViewHolder extends BaseListViewHolder<ApSheet> {
         private ApItemAddMusicToSheetBinding mBinding;
 
         public MusicSheetViewHolder(Context context, View itemView) {
@@ -35,7 +35,7 @@ public class ApAddMusicToSheetAdapter extends BaseNoPaginationListAdapter<ApMusi
         }
 
         @Override
-        public void updateData(final ApMusicSheet content, final BaseListAdapterItemProperty propertyEntity, final int position) {
+        public void updateData(final ApSheet content, final BaseListAdapterItemProperty propertyEntity, final int position) {
             mBinding.setSheetBean(content);
             mBinding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override

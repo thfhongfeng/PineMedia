@@ -11,8 +11,8 @@ import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
 
-import com.pine.audioplayer.db.entity.ApMusicSheet;
-import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.db.entity.ApMusic;
+import com.pine.audioplayer.db.entity.ApSheet;
 import com.pine.audioplayer.model.ApMusicModel;
 import com.pine.audioplayer.ui.activity.ApMainActivity;
 import com.pine.audioplayer.widget.AudioPlayerView;
@@ -39,14 +39,14 @@ public class ApFloatViewManager {
 
     private ApSimpleAudioPlayerView mFloatingSimpleAudioPlayerView;
     private ApMusicModel mModel = new ApMusicModel();
-    private ApMusicSheet mRecentSheet, mPlayListSheet, mFavouriteSheet;
+    private ApSheet mRecentSheet, mPlayListSheet;
 
     private ApAudioControllerAdapter mControllerAdapter;
     private HashMap<Integer, AudioPlayerView.IPlayerViewListener> mPlayerViewListenerMap = new HashMap<>();
     private AudioPlayerView.PlayerViewListener mPlayerViewListener =
             new AudioPlayerView.PlayerViewListener() {
                 @Override
-                public void onPlayMusic(PineMediaWidget.IPineMediaPlayer mPlayer, @Nullable ApSheetMusic newMusic) {
+                public void onPlayMusic(PineMediaWidget.IPineMediaPlayer mPlayer, @Nullable ApMusic newMusic) {
                     if (newMusic != null) {
                         mModel.addSheetMusic(mAppContext, newMusic, mRecentSheet.getId());
                     }
@@ -59,12 +59,12 @@ public class ApFloatViewManager {
                 }
 
                 @Override
-                public void onPlayStateChange(ApSheetMusic music, PinePlayState fromState, PinePlayState toState) {
+                public void onPlayStateChange(ApMusic music, PinePlayState fromState, PinePlayState toState) {
 
                 }
 
                 @Override
-                public void onAlbumArtChange(String mediaCode, ApSheetMusic music, Bitmap smallBitmap,
+                public void onAlbumArtChange(String mediaCode, ApMusic music, Bitmap smallBitmap,
                                              Bitmap bigBitmap, int mainColor) {
                     if (mPlayerViewListenerMap.size() > 0) {
                         Iterator<Map.Entry<Integer, AudioPlayerView.IPlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
@@ -76,12 +76,12 @@ public class ApFloatViewManager {
                 }
 
                 @Override
-                public void onLyricDownloaded(String mediaCode, ApSheetMusic music, String filePath, String charset) {
+                public void onLyricDownloaded(String mediaCode, ApMusic music, String filePath, String charset) {
                     mModel.updateMusicLyric(mAppContext, music, filePath, charset);
                 }
 
                 @Override
-                public void onMusicRemove(ApSheetMusic music) {
+                public void onMusicRemove(ApMusic music) {
                     mModel.removeSheetMusic(mAppContext, mPlayListSheet.getId(), music.getSongId());
                 }
 
@@ -91,7 +91,7 @@ public class ApFloatViewManager {
                 }
 
                 @Override
-                public void onViewClick(View view, ApSheetMusic music, String tag) {
+                public void onViewClick(View view, ApMusic music, String tag) {
                     switch (tag) {
                         case "content":
                             boolean hasMedia = mControllerAdapter != null && mControllerAdapter.getMusicList().size() > 0;
@@ -104,11 +104,7 @@ public class ApFloatViewManager {
                             break;
                         case "favourite":
                             music.setFavourite(view.isSelected());
-                            if (view.isSelected()) {
-                                mModel.addSheetMusic(mAppContext, music, mFavouriteSheet.getId());
-                            } else {
-                                mModel.removeSheetMusic(mAppContext, mFavouriteSheet.getId(), music.getSongId());
-                            }
+                            mModel.updateMusicFavourite(mAppContext, music, view.isSelected());
                             break;
                     }
                 }
@@ -134,11 +130,10 @@ public class ApFloatViewManager {
         mModel = new ApMusicModel();
         mRecentSheet = mModel.getRecentSheet(mAppContext);
         mPlayListSheet = mModel.getPlayListSheet(mAppContext);
-        mFavouriteSheet = mModel.getFavouriteSheet(mAppContext);
 
         mControllerAdapter = new ApAudioControllerAdapter(mAppContext);
 
-        List<ApSheetMusic> oncePlayedMusicList = mModel.getSheetMusicList(mAppContext, mPlayListSheet.getId());
+        List<ApMusic> oncePlayedMusicList = mModel.getSheetMusicList(mAppContext, mPlayListSheet.getId());
         if (oncePlayedMusicList != null && oncePlayedMusicList.size() > 0) {
             mControllerAdapter.addMusicList(oncePlayedMusicList, false);
         }

@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicSheetAdapter;
 import com.pine.audioplayer.databinding.ApAddMusicActivityBinding;
-import com.pine.audioplayer.db.entity.ApMusicSheet;
-import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.db.entity.ApMusic;
+import com.pine.audioplayer.db.entity.ApSheet;
 import com.pine.audioplayer.vm.ApAddMusicVm;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmActionBarActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
@@ -33,27 +33,27 @@ public class ApAddMusicActivity extends BaseMvvmActionBarActivity<ApAddMusicActi
 
     @Override
     public void observeInitLiveData(Bundle savedInstanceState) {
-        mViewModel.mAllMusicSheetData.observe(this, new Observer<ApMusicSheet>() {
+        mViewModel.mAllMusicSheetData.observe(this, new Observer<ApSheet>() {
             @Override
-            public void onChanged(ApMusicSheet apMusicSheet) {
-                mBinding.setAllMusicSheet(apMusicSheet);
+            public void onChanged(ApSheet apSheet) {
+                mBinding.setAllMusicSheet(apSheet);
             }
         });
-        mViewModel.mFavouriteSheetData.observe(this, new Observer<ApMusicSheet>() {
+        mViewModel.mFavouriteSheetData.observe(this, new Observer<ApSheet>() {
             @Override
-            public void onChanged(ApMusicSheet apMusicSheet) {
-                mBinding.setFavouriteSheet(apMusicSheet);
+            public void onChanged(ApSheet apSheet) {
+                mBinding.setFavouriteSheet(apSheet);
             }
         });
-        mViewModel.mRecentSheetData.observe(this, new Observer<ApMusicSheet>() {
+        mViewModel.mRecentSheetData.observe(this, new Observer<ApSheet>() {
             @Override
-            public void onChanged(ApMusicSheet apMusicSheet) {
-                mBinding.setRecentSheet(apMusicSheet);
+            public void onChanged(ApSheet apSheet) {
+                mBinding.setRecentSheet(apSheet);
             }
         });
-        mViewModel.mCustomSheetListData.observe(this, new Observer<List<ApMusicSheet>>() {
+        mViewModel.mCustomSheetListData.observe(this, new Observer<List<ApSheet>>() {
             @Override
-            public void onChanged(List<ApMusicSheet> list) {
+            public void onChanged(List<ApSheet> list) {
                 list.remove(mViewModel.mSheetBeAddTo);
                 mBinding.setCustomSheetCount(list == null ? 0 : list.size());
                 mMusicSheetAdapter.setData(list);
@@ -76,9 +76,9 @@ public class ApAddMusicActivity extends BaseMvvmActionBarActivity<ApAddMusicActi
         mBinding.setPresenter(new Presenter());
 
         mMusicSheetAdapter = new ApMusicSheetAdapter();
-        mMusicSheetAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener<ApMusicSheet>() {
+        mMusicSheetAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener<ApSheet>() {
             @Override
-            public void onItemClick(View view, int position, String tag, ApMusicSheet sheet) {
+            public void onItemClick(View view, int position, String tag, ApSheet sheet) {
                 goMultiMusicSelectActivity(sheet);
             }
         });
@@ -99,31 +99,30 @@ public class ApAddMusicActivity extends BaseMvvmActionBarActivity<ApAddMusicActi
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_GO_MULTI_MUSIC_SELECT) {
             if (resultCode == RESULT_OK) {
-                List<ApSheetMusic> selectList = data.getParcelableArrayListExtra("selectList");
+                List<ApMusic> selectList = (List<ApMusic>) data.getSerializableExtra("selectList");
                 if (selectList != null && selectList.size() > 0) {
-                    long sheetId = mViewModel.mSheetBeAddTo.getId();
-                    mViewModel.addMusicList(selectList, sheetId);
+                    mViewModel.addMusicList(selectList);
                 }
             }
         }
     }
 
-    private void goMultiMusicSelectActivity(ApMusicSheet sheet) {
+    private void goMultiMusicSelectActivity(ApSheet sheet) {
         Intent intent = new Intent(this, ApMultiMusicSelectActivity.class);
         intent.putExtra("musicSheet", sheet);
         startActivityForResult(intent, REQUEST_CODE_GO_MULTI_MUSIC_SELECT);
     }
 
     public class Presenter {
-        public void onGoAllMusicClick(View view, ApMusicSheet sheet) {
+        public void onGoAllMusicClick(View view, ApSheet sheet) {
             goMultiMusicSelectActivity(sheet);
         }
 
-        public void onGoRecentMusicClick(View view, ApMusicSheet sheet) {
+        public void onGoRecentMusicClick(View view, ApSheet sheet) {
             goMultiMusicSelectActivity(sheet);
         }
 
-        public void onGoFavouriteMusicClick(View view, ApMusicSheet sheet) {
+        public void onGoFavouriteMusicClick(View view, ApSheet sheet) {
             goMultiMusicSelectActivity(sheet);
         }
     }

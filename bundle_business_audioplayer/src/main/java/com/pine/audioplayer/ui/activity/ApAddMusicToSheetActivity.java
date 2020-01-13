@@ -14,8 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApAddMusicToSheetAdapter;
 import com.pine.audioplayer.databinding.ApAddMusicToSheetActivityBinding;
-import com.pine.audioplayer.db.entity.ApMusicSheet;
-import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.db.entity.ApMusic;
+import com.pine.audioplayer.db.entity.ApSheet;
 import com.pine.audioplayer.vm.ApAddMusicToSheetVm;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmActionBarActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
@@ -36,19 +36,19 @@ public class ApAddMusicToSheetActivity extends BaseMvvmActionBarActivity<ApAddMu
 
     @Override
     public void observeInitLiveData(Bundle savedInstanceState) {
-        mViewModel.mSheetListData.observe(this, new Observer<List<ApMusicSheet>>() {
+        mViewModel.mSheetListData.observe(this, new Observer<List<ApSheet>>() {
             @Override
-            public void onChanged(List<ApMusicSheet> list) {
-                ApMusicSheet addSheet = new ApMusicSheet();
+            public void onChanged(List<ApSheet> list) {
+                ApSheet addSheet = new ApSheet();
                 addSheet.setName(getString(R.string.ap_amts_create_sheet));
                 addSheet.setSheetType(-1);
                 list.add(0, addSheet);
                 mAdapter.setData(list);
             }
         });
-        mViewModel.mSelectMusicListData.observe(this, new Observer<List<ApSheetMusic>>() {
+        mViewModel.mSelectMusicListData.observe(this, new Observer<List<ApMusic>>() {
             @Override
-            public void onChanged(List<ApSheetMusic> list) {
+            public void onChanged(List<ApMusic> list) {
                 mTitleTv.setText(getString(R.string.ap_amts_title, list.size()));
             }
         });
@@ -67,9 +67,9 @@ public class ApAddMusicToSheetActivity extends BaseMvvmActionBarActivity<ApAddMu
     @Override
     protected void init(Bundle onCreateSavedInstanceState) {
         mAdapter = new ApAddMusicToSheetAdapter();
-        mAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener<ApMusicSheet>() {
+        mAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener<ApSheet>() {
             @Override
-            public void onItemClick(View view, int position, String tag, ApMusicSheet sheet) {
+            public void onItemClick(View view, int position, String tag, ApSheet sheet) {
                 if (position == 0) {
                     DialogUtils.createTextInputDialog(ApAddMusicToSheetActivity.this, getString(R.string.ap_home_create_sheet_title),
                             "", 50, new InputTextDialog.IActionClickListener() {

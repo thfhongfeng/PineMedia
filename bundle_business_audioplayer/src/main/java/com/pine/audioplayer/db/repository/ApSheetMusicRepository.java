@@ -4,11 +4,10 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.pine.audioplayer.ApConstants;
 import com.pine.audioplayer.db.ApRoomDatabase;
-import com.pine.audioplayer.db.dao.ApMusicSheetDao;
+import com.pine.audioplayer.db.dao.ApSheetDao;
 import com.pine.audioplayer.db.dao.ApSheetMusicDao;
-import com.pine.audioplayer.db.entity.ApMusicSheet;
+import com.pine.audioplayer.db.entity.ApMusic;
 import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.tool.util.LogUtils;
 
@@ -22,9 +21,7 @@ public class ApSheetMusicRepository {
     private static volatile ApSheetMusicRepository mInstance = null;
 
     private ApSheetMusicDao apSheetMusicDao;
-    private ApMusicSheetDao apMusicSheetDao;
-
-    private ApMusicSheet mFavouriteSheet;
+    private ApSheetDao apSheetDao;
 
     public static ApSheetMusicRepository getInstance(Context application) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
@@ -42,9 +39,7 @@ public class ApSheetMusicRepository {
             LogUtils.d(TAG, "new");
             roomDatabase = ApRoomDatabase.getINSTANCE(application);
             apSheetMusicDao = roomDatabase.apSheetMusicDao();
-            apMusicSheetDao = roomDatabase.apMusicSheetDao();
-
-            mFavouriteSheet = apMusicSheetDao.querySheetByType(ApConstants.MUSIC_SHEET_TYPE_FAVOURITE);
+            apSheetDao = roomDatabase.apSheetDao();
         }
     }
 
@@ -54,34 +49,31 @@ public class ApSheetMusicRepository {
         }
     }
 
-    public ApSheetMusic querySheetMusic(long sheetId, long songId) {
+    public int getSheetMusicListCount(long sheetId) {
+        synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
+            return apSheetMusicDao.querySheetMusicCount(sheetId);
+        }
+    }
+
+    public ApMusic querySheetMusic(long sheetId, long songId) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
             return apSheetMusicDao.querySheetMusic(sheetId, songId);
         }
     }
 
-    public List<ApSheetMusic> querySheetMusicList(long songId, String filePath) {
-        synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
-            return apSheetMusicDao.checkSheetMusicList(songId, filePath);
-        }
-    }
-
-    public List<ApSheetMusic> querySheetMusicList(long sheetId) {
+    public List<ApMusic> querySheetMusicList(long sheetId) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
             return apSheetMusicDao.querySheetMusic(sheetId);
         }
     }
 
-    public ApSheetMusic addSheetMusic(final @NonNull ApSheetMusic music, final long sheetId) {
+    public ApMusic addSheetMusic(final @NonNull ApMusic music, final long sheetId) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
             roomDatabase.runInTransaction(new Runnable() {
                 @Override
                 public void run() {
                     if (insertOrUpdateSheetMusic(music, sheetId)) {
-                        updateMusicSheetCount(music.getSheetId());
-                        if (mFavouriteSheet != null && mFavouriteSheet.getId() == sheetId) {
-                            apSheetMusicDao.updateMusicFavourite(music.getSongId(), true);
-                        }
+                        updateMusicSheetCount(sheetId);
                     }
                 }
             });
@@ -89,19 +81,16 @@ public class ApSheetMusicRepository {
         }
     }
 
-    public List<ApSheetMusic> addSheetMusicList(final @NonNull List<ApSheetMusic> list, final long sheetId) {
-        final List<ApSheetMusic> retList = new ArrayList<>();
+    public List<ApMusic> addSheetMusicList(final @NonNull List<ApMusic> list, final long sheetId) {
+        final List<ApMusic> retList = new ArrayList<>();
         if (list != null && list.size() > 0) {
             synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
                 roomDatabase.runInTransaction(new Runnable() {
                     @Override
                     public void run() {
-                        for (ApSheetMusic music : list) {
+                        for (ApMusic music : list) {
                             insertOrUpdateSheetMusic(music, sheetId);
                             retList.add(apSheetMusicDao.querySheetMusic(sheetId, music.getSongId()));
-                            if (mFavouriteSheet != null && mFavouriteSheet.getId() == sheetId) {
-                                apSheetMusicDao.updateMusicFavourite(music.getSongId(), true);
-                            }
                         }
                         updateMusicSheetCount(sheetId);
                     }
@@ -111,36 +100,30 @@ public class ApSheetMusicRepository {
         return retList;
     }
 
-    private boolean insertOrUpdateSheetMusic(@NonNull ApSheetMusic music, final long sheetId) {
-        ApSheetMusic dbMusic = apSheetMusicDao.checkSheetMusic(sheetId, music.getSongId(), music.getFilePath());
-        if (dbMusic == null) {
-            music.setId(0);
-            music.setSheetId(sheetId);
-            music.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
-            music.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
-            apSheetMusicDao.insert(music);
+    private boolean insertOrUpdateSheetMusic(@NonNull ApMusic music, final long sheetId) {
+        ApSheetMusic sheetMusic = apSheetMusicDao.checkSheetMusic(sheetId, music.getSongId());
+        if (sheetMusic == null) {
+            sheetMusic = new ApSheetMusic();
+            sheetMusic.setSheetId(sheetId);
+            sheetMusic.setSongId(music.getSongId());
+            sheetMusic.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+            sheetMusic.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
+            apSheetMusicDao.insert(sheetMusic);
             return true;
         } else {
-            music.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
-            apSheetMusicDao.update(music);
+            sheetMusic.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+            apSheetMusicDao.update(sheetMusic);
             return false;
         }
     }
 
-    public void updateMusicLyric(@NonNull ApSheetMusic music, String lrcFilePath, String charset) {
-        apSheetMusicDao.updateMusicLyric(music.getSongId(), lrcFilePath, charset, Calendar.getInstance().getTimeInMillis());
-    }
-
-    public void deleteSheetMusic(final @NonNull ApSheetMusic music) {
+    public void deleteSheetMusic(final @NonNull ApMusic music, final long sheetId) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
             roomDatabase.runInTransaction(new Runnable() {
                 @Override
                 public void run() {
-                    apSheetMusicDao.delete(music);
-                    updateMusicSheetCount(music.getSheetId());
-                    if (mFavouriteSheet != null && mFavouriteSheet.getId() == music.getSheetId()) {
-                        apSheetMusicDao.updateMusicFavourite(music.getSongId(), false);
-                    }
+                    apSheetMusicDao.deleteBySheetIdSongId(sheetId, music.getSongId());
+                    updateMusicSheetCount(sheetId);
                 }
             });
         }
@@ -153,15 +136,12 @@ public class ApSheetMusicRepository {
                 public void run() {
                     apSheetMusicDao.deleteBySheetIdSongId(sheetId, songId);
                     updateMusicSheetCount(sheetId);
-                    if (mFavouriteSheet != null && mFavouriteSheet.getId() == sheetId) {
-                        apSheetMusicDao.updateMusicFavourite(songId, false);
-                    }
                 }
             });
         }
     }
 
-    public void deleteSheetMusicList(@NonNull final List<ApSheetMusic> list, final long sheetId) {
+    public void deleteSheetMusicList(@NonNull final List<ApMusic> list, final long sheetId) {
         if (list.size() < 1) {
             return;
         }
@@ -169,13 +149,12 @@ public class ApSheetMusicRepository {
             roomDatabase.runInTransaction(new Runnable() {
                 @Override
                 public void run() {
-                    apSheetMusicDao.delete(list);
-                    updateMusicSheetCount(sheetId);
-                    if (mFavouriteSheet != null && mFavouriteSheet.getId() == sheetId) {
-                        for (ApSheetMusic music : list) {
-                            apSheetMusicDao.updateMusicFavourite(music.getSongId(), false);
-                        }
+                    List<Long> songIdList = new ArrayList<>();
+                    for (ApMusic music : list) {
+                        songIdList.add(music.getSongId());
                     }
+                    apSheetMusicDao.deleteBySheetIdSongIdList(sheetId, songIdList);
+                    updateMusicSheetCount(sheetId);
                 }
             });
         }
@@ -187,15 +166,12 @@ public class ApSheetMusicRepository {
             public void run() {
                 apSheetMusicDao.deleteBySheetId(sheetId);
                 updateMusicSheetCount(sheetId);
-                if (mFavouriteSheet != null && mFavouriteSheet.getId() == sheetId) {
-                    apSheetMusicDao.updateAllMusicFavourite(false);
-                }
             }
         });
     }
 
     private void updateMusicSheetCount(long sheetId) {
         int count = apSheetMusicDao.querySheetMusicCount(sheetId);
-        apMusicSheetDao.updateSheetCount(sheetId, count);
+        apSheetDao.updateSheetCount(sheetId, count);
     }
 }

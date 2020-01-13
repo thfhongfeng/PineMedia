@@ -19,7 +19,7 @@ import com.pine.audioplayer.R;
 import com.pine.audioplayer.bean.ApPlayListType;
 import com.pine.audioplayer.databinding.ApItemSimpleAudioDialogBinding;
 import com.pine.audioplayer.databinding.ApSimpleAudioDialogTitleBinding;
-import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.db.entity.ApMusic;
 import com.pine.audioplayer.widget.adapter.ApAudioControllerAdapter;
 import com.pine.audioplayer.widget.plugin.ApOutRootLrcPlugin;
 import com.pine.base.util.DialogUtils;
@@ -84,6 +84,7 @@ public abstract class AudioPlayerView extends RelativeLayout {
     }
 
     public void init(String tag, ApAudioControllerAdapter controllerAdapter) {
+        LogUtils.d(TAG, "init playerView:" + AudioPlayerView.this);
         mMediaController = new PineMediaController(getContext());
         mMediaPlayerView.disableBackPressTip();
         mMediaPlayerView.init(tag, mMediaController);
@@ -103,7 +104,7 @@ public abstract class AudioPlayerView extends RelativeLayout {
         mControllerAdapter.setLyricUpdateListener(lyricUpdateListener);
         mControllerAdapter.addListener(this, mPlayerViewListener, new ApAudioControllerAdapter.IControllerAdapterListener() {
             @Override
-            public void onMusicStateChange(ApSheetMusic music, PinePlayState state) {
+            public void onMusicStateChange(ApMusic music, PinePlayState state) {
                 LogUtils.d(TAG, "onMusicStateChange state:" + state + ",music:" + music + ", playerView:" + AudioPlayerView.this);
                 refreshPlayerView();
                 if (mMusicListDialog != null && mMusicListDialog.isShowing()) {
@@ -112,15 +113,15 @@ public abstract class AudioPlayerView extends RelativeLayout {
             }
 
             @Override
-            public void onAlbumArtPrepare(String mediaCode, ApSheetMusic music, Bitmap smallBitmap,
+            public void onAlbumArtPrepare(String mediaCode, ApMusic music, Bitmap smallBitmap,
                                           Bitmap bigBitmap, int mainColor) {
                 LogUtils.d(TAG, "onAlbumArtPrepare mediaCode:" + mediaCode + ", playerView:" + AudioPlayerView.this);
                 setupAlbumArt(smallBitmap, bigBitmap, mainColor);
             }
         });
 
-        ApSheetMusic curMusic = getCurMusic();
-        List<ApSheetMusic> playList = mControllerAdapter.getMusicList();
+        ApMusic curMusic = getCurMusic();
+        List<ApMusic> playList = mControllerAdapter.getMusicList();
         if (curMusic == null) {      // 播放器release状态
             if (playList == null || playList.size() < 1) {  // 播放列表为空
                 mControllerAdapter.loadAlbumArtAndLyric(null);
@@ -161,7 +162,7 @@ public abstract class AudioPlayerView extends RelativeLayout {
             mMusicListDialog = DialogUtils.createBottomCustomListDialog(RootApplication.mCurResumedActivity,
                     R.layout.ap_audio_dialog_title_layout, R.layout.ap_item_audio_dialog,
                     true, mControllerAdapter.getMusicList(),
-                    new CustomListDialog.IOnViewBindCallback<ApSheetMusic>() {
+                    new CustomListDialog.IOnViewBindCallback<ApMusic>() {
                         ApSimpleAudioDialogTitleBinding binding;
 
                         private void setupPlayTypeImageInDialog(ImageView imageView) {
@@ -223,7 +224,7 @@ public abstract class AudioPlayerView extends RelativeLayout {
 
                         @Override
                         public void onItemViewUpdate(View itemView, int position,
-                                                     final ApSheetMusic data,
+                                                     final ApMusic data,
                                                      final CustomListDialog dialog) {
                             ApItemSimpleAudioDialogBinding binding = DataBindingUtil.bind(itemView);
                             binding.setMusic(data);
@@ -244,7 +245,7 @@ public abstract class AudioPlayerView extends RelativeLayout {
                                 @Override
                                 public void onClick(View v) {
                                     mControllerAdapter.removeMusic(data);
-                                    List<ApSheetMusic> musicList = mControllerAdapter.getMusicList();
+                                    List<ApMusic> musicList = mControllerAdapter.getMusicList();
                                     dialog.getListAdapter().setData(musicList);
                                     if (musicList == null || musicList.size() < 1) {
                                         mMediaController.resetOutRootControllerIdleState();
@@ -305,45 +306,45 @@ public abstract class AudioPlayerView extends RelativeLayout {
     public void onViewClick(View view, String tag) {
         view.setSelected(!view.isSelected());
         if (mPlayerViewListener != null) {
-            ApSheetMusic music = mControllerAdapter.getCurMusic();
+            ApMusic music = mControllerAdapter.getCurMusic();
             mPlayerViewListener.onViewClick(view, music, tag);
         }
     }
 
-    public void playMusicList(@NonNull List<ApSheetMusic> musicList, boolean startPlay) {
+    public void playMusicList(@NonNull List<ApMusic> musicList, boolean startPlay) {
         if (musicList == null && musicList.size() < 1) {
             return;
         }
         mControllerAdapter.addMusicList(musicList, startPlay);
     }
 
-    public void playMusic(@NonNull ApSheetMusic music, boolean startPlay) {
+    public void playMusic(@NonNull ApMusic music, boolean startPlay) {
         if (music == null) {
             return;
         }
         mControllerAdapter.addMusic(music, startPlay);
     }
 
-    public void playMusicFromPlayList(@NonNull ApSheetMusic music, boolean startPlay) {
+    public void playMusicFromPlayList(@NonNull ApMusic music, boolean startPlay) {
         if (music == null) {
             return;
         }
         mControllerAdapter.onMediaSelect(mControllerAdapter.getMediaCode(music), startPlay);
     }
 
-    public void updateMusicData(ApSheetMusic music) {
+    public void updateMusicData(ApMusic music) {
         if (mControllerAdapter != null) {
             mControllerAdapter.updateMusicData(music);
         }
     }
 
-    public void updateMusicListData(List<ApSheetMusic> list) {
+    public void updateMusicListData(List<ApMusic> list) {
         if (mControllerAdapter != null) {
             mControllerAdapter.updateMusicListData(list);
         }
     }
 
-    public ApSheetMusic getCurMusic() {
+    public ApMusic getCurMusic() {
         return mControllerAdapter.getCurMusic();
     }
 
@@ -365,24 +366,24 @@ public abstract class AudioPlayerView extends RelativeLayout {
 
     public abstract void setupAlbumArt(Bitmap smallBitmap, Bitmap bigBitmap, int mainColor);
 
-    public abstract void setupMusicView(ApSheetMusic music, boolean hasMedia);
+    public abstract void setupMusicView(ApMusic music, boolean hasMedia);
 
     public interface PlayerViewListener extends IPlayerViewListener {
-        void onLyricDownloaded(String mediaCode, ApSheetMusic music, String filePath, String charset);
+        void onLyricDownloaded(String mediaCode, ApMusic music, String filePath, String charset);
 
-        void onMusicRemove(ApSheetMusic music);
+        void onMusicRemove(ApMusic music);
 
         void onMusicListClear();
 
-        void onViewClick(View view, ApSheetMusic music, String tag);
+        void onViewClick(View view, ApMusic music, String tag);
     }
 
     public interface IPlayerViewListener {
-        void onPlayMusic(PineMediaWidget.IPineMediaPlayer mPlayer, @Nullable ApSheetMusic newMusic);
+        void onPlayMusic(PineMediaWidget.IPineMediaPlayer mPlayer, @Nullable ApMusic newMusic);
 
-        void onPlayStateChange(ApSheetMusic music, PinePlayState fromState, PinePlayState toState);
+        void onPlayStateChange(ApMusic music, PinePlayState fromState, PinePlayState toState);
 
-        void onAlbumArtChange(String mediaCode, ApSheetMusic music, Bitmap smallBitmap,
+        void onAlbumArtChange(String mediaCode, ApMusic music, Bitmap smallBitmap,
                               Bitmap bigBitmap, int mainColor);
     }
 

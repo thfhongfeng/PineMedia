@@ -16,8 +16,8 @@ import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicListAdapter;
 import com.pine.audioplayer.databinding.ApMusicListActivityBinding;
 import com.pine.audioplayer.databinding.ApMusicListTopMenuBinding;
-import com.pine.audioplayer.db.entity.ApMusicSheet;
-import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.db.entity.ApMusic;
+import com.pine.audioplayer.db.entity.ApSheet;
 import com.pine.audioplayer.manager.ApAudioPlayerHelper;
 import com.pine.audioplayer.vm.ApMusicListVm;
 import com.pine.audioplayer.widget.AudioPlayerView;
@@ -39,34 +39,34 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
     private PopupMenu mTopPopupMenu;
     private AudioPlayerView.IPlayerViewListener mPlayerListener = new AudioPlayerView.IPlayerViewListener() {
         @Override
-        public void onPlayMusic(PineMediaWidget.IPineMediaPlayer mPlayer, @Nullable ApSheetMusic newMusic) {
+        public void onPlayMusic(PineMediaWidget.IPineMediaPlayer mPlayer, @Nullable ApMusic newMusic) {
             LogUtils.d(TAG, "onPlayMusic newMusic:" + newMusic);
             mMusicListAdapter.setPlayMusic(newMusic, mPlayer != null && mPlayer.isPlaying());
         }
 
         @Override
-        public void onPlayStateChange(ApSheetMusic music, PinePlayState fromState, PinePlayState toState) {
+        public void onPlayStateChange(ApMusic music, PinePlayState fromState, PinePlayState toState) {
             LogUtils.d(TAG, "onPlayStateChange fromState:" + fromState + ",toState:" + toState + ", music:" + music);
             mMusicListAdapter.setPlayMusic(music, toState == PinePlayState.STATE_PLAYING);
         }
 
         @Override
-        public void onAlbumArtChange(String mediaCode, ApSheetMusic music, Bitmap smallBitmap,
+        public void onAlbumArtChange(String mediaCode, ApMusic music, Bitmap smallBitmap,
                                      Bitmap bigBitmap, int mainColor) {
         }
     };
 
     @Override
     public void observeInitLiveData(Bundle savedInstanceState) {
-        mViewModel.mSheetData.observe(this, new Observer<ApMusicSheet>() {
+        mViewModel.mSheetData.observe(this, new Observer<ApSheet>() {
             @Override
-            public void onChanged(ApMusicSheet apMusicSheet) {
-                mBinding.setMusicSheet(apMusicSheet);
+            public void onChanged(ApSheet apSheet) {
+                mBinding.setMusicSheet(apSheet);
             }
         });
-        mViewModel.mSheetMusicListData.observe(this, new Observer<List<ApSheetMusic>>() {
+        mViewModel.mSheetMusicListData.observe(this, new Observer<List<ApMusic>>() {
             @Override
-            public void onChanged(List<ApSheetMusic> list) {
+            public void onChanged(List<ApMusic> list) {
                 mMusicListAdapter.setData(list);
             }
         });
@@ -87,9 +87,9 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
         mBinding.setPresenter(new Presenter());
 
         mMusicListAdapter = new ApMusicListAdapter();
-        mMusicListAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener<ApSheetMusic>() {
+        mMusicListAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener<ApMusic>() {
             @Override
-            public void onItemClick(View view, int position, String tag, ApSheetMusic sheetMusic) {
+            public void onItemClick(View view, int position, String tag, ApMusic sheetMusic) {
                 switch (tag) {
                     case "menu":
                         showMusicItemMenu(sheetMusic);
@@ -120,7 +120,7 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
         ApAudioPlayerHelper.getInstance().detachPlayerView(mBinding.playerView);
     }
 
-    private void showMusicItemMenu(final ApSheetMusic sheetMusic) {
+    private void showMusicItemMenu(final ApMusic sheetMusic) {
         int[] menuImages = ResourceUtils.getResIdArray(ApMusicListActivity.this,
                 mViewModel.mSheetData.getValue().getSheetType() == ApConstants.MUSIC_SHEET_TYPE_ALL ?
                         R.array.ap_all_music_item_menu_img : R.array.ap_music_item_menu_img);
@@ -138,9 +138,9 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
                             case 1:
                                 Intent intent = new Intent(ApMusicListActivity.this, ApAddMusicToSheetActivity.class);
                                 intent.putExtra("excludeSheetId", mViewModel.mSheetData.getValue().getId());
-                                ArrayList<ApSheetMusic> list = new ArrayList<>();
+                                ArrayList<ApMusic> list = new ArrayList<>();
                                 list.add(sheetMusic);
-                                intent.putParcelableArrayListExtra("selectList", list);
+                                intent.putExtra("selectList", list);
                                 startActivity(intent);
                                 break;
                             case 2:
@@ -163,9 +163,9 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
             if (add) {
                 goAddMusicActivity();
             } else {
-                List<ApSheetMusic> sheetMusicList = mMusicListAdapter.getOriginData();
-                if (sheetMusicList != null && sheetMusicList.size() > 0) {
-                    ApAudioPlayerHelper.getInstance().playMusicList(mBinding.playerView, sheetMusicList, true);
+                List<ApMusic> musicList = mMusicListAdapter.getOriginData();
+                if (musicList != null && musicList.size() > 0) {
+                    ApAudioPlayerHelper.getInstance().playMusicList(mBinding.playerView, musicList, true);
                 }
             }
         }

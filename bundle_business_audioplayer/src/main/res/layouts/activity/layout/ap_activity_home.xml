@@ -5,15 +5,15 @@
 
         <variable
             name="allMusicSheet"
-            type="com.pine.audioplayer.db.entity.ApMusicSheet" />
+            type="com.pine.audioplayer.db.entity.ApSheet" />
 
         <variable
             name="favouriteSheet"
-            type="com.pine.audioplayer.db.entity.ApMusicSheet" />
+            type="com.pine.audioplayer.db.entity.ApSheet" />
 
         <variable
             name="recentSheet"
-            type="com.pine.audioplayer.db.entity.ApMusicSheet" />
+            type="com.pine.audioplayer.db.entity.ApSheet" />
 
         <variable
             name="customSheetCount"

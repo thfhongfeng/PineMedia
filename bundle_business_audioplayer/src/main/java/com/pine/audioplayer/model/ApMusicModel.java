@@ -5,85 +5,100 @@ import android.content.Context;
 import androidx.lifecycle.LiveData;
 
 import com.pine.audioplayer.ApConstants;
-import com.pine.audioplayer.db.entity.ApMusicSheet;
-import com.pine.audioplayer.db.entity.ApSheetMusic;
-import com.pine.audioplayer.db.repository.ApMusicSheetRepository;
+import com.pine.audioplayer.db.entity.ApMusic;
+import com.pine.audioplayer.db.entity.ApSheet;
+import com.pine.audioplayer.db.repository.ApMusicRepository;
 import com.pine.audioplayer.db.repository.ApSheetMusicRepository;
+import com.pine.audioplayer.db.repository.ApSheetRepository;
 import com.pine.audioplayer.util.ApLocalMusicUtils;
 
 import java.util.List;
 
 public class ApMusicModel {
-
-    public ApMusicSheet getFavouriteSheet(Context context) {
-        return ApMusicSheetRepository.getInstance(context).querySheetByType(ApConstants.MUSIC_SHEET_TYPE_FAVOURITE);
+    public ApSheet getRecentSheet(Context context) {
+        return ApSheetRepository.getInstance(context).querySheetByType(ApConstants.MUSIC_SHEET_TYPE_RECENT);
     }
 
-    public ApMusicSheet getRecentSheet(Context context) {
-        return ApMusicSheetRepository.getInstance(context).querySheetByType(ApConstants.MUSIC_SHEET_TYPE_RECENT);
+    public LiveData<ApSheet> syncRecentSheet(Context context) {
+        return ApSheetRepository.getInstance(context).syncSheetByType(ApConstants.MUSIC_SHEET_TYPE_RECENT);
     }
 
-    public LiveData<ApMusicSheet> syncRecentSheet(Context context) {
-        return ApMusicSheetRepository.getInstance(context).syncSheetByType(ApConstants.MUSIC_SHEET_TYPE_RECENT);
+    public ApSheet getPlayListSheet(Context context) {
+        return ApSheetRepository.getInstance(context).querySheetByType(ApConstants.MUSIC_SHEET_TYPE_PLAY_LIST);
     }
 
-    public ApMusicSheet getPlayListSheet(Context context) {
-        return ApMusicSheetRepository.getInstance(context).querySheetByType(ApConstants.MUSIC_SHEET_TYPE_PLAY_LIST);
+    public ApSheet getCustomSheet(Context context, long sheetId) {
+        return ApSheetRepository.getInstance(context).querySheetById(sheetId);
     }
 
-    public ApMusicSheet getCustomSheet(Context context, long sheetId) {
-        return ApMusicSheetRepository.getInstance(context).querySheetById(sheetId);
+    public List<ApSheet> getCustomMusicSheetList(Context context) {
+        return ApSheetRepository.getInstance(context).querySheetListByType(ApConstants.MUSIC_SHEET_TYPE_CUSTOM);
     }
 
-    public List<ApMusicSheet> getCustomMusicSheetList(Context context) {
-        return ApMusicSheetRepository.getInstance(context).querySheetListByType(ApConstants.MUSIC_SHEET_TYPE_CUSTOM);
+    public List<ApSheet> getCustomMusicSheetList(Context context, long... excludeSheetIds) {
+        return ApSheetRepository.getInstance(context).querySheetListByType(ApConstants.MUSIC_SHEET_TYPE_CUSTOM, excludeSheetIds);
     }
 
-    public List<ApMusicSheet> getCustomMusicSheetList(Context context, long... excludeSheetIds) {
-        return ApMusicSheetRepository.getInstance(context).querySheetListByType(ApConstants.MUSIC_SHEET_TYPE_CUSTOM, excludeSheetIds);
+    public long addMusicSheet(Context context, ApSheet apSheet) {
+        apSheet.setSheetType(ApConstants.MUSIC_SHEET_TYPE_CUSTOM);
+        return ApSheetRepository.getInstance(context).addMusicSheet(apSheet);
     }
 
-    public long addMusicSheet(Context context, ApMusicSheet apMusicSheet) {
-        apMusicSheet.setSheetType(ApConstants.MUSIC_SHEET_TYPE_CUSTOM);
-        return ApMusicSheetRepository.getInstance(context).addMusicSheet(apMusicSheet);
-    }
-
-    public void removeMusicSheet(Context context, ApMusicSheet apMusicSheet) {
-        ApMusicSheetRepository.getInstance(context).deleteMusicSheet(apMusicSheet);
-    }
-
-
-    public ApSheetMusic getSheetMusic(Context context, long sheetId, long songId) {
-        return ApSheetMusicRepository.getInstance(context).querySheetMusic(sheetId, songId);
+    public void removeMusicSheet(Context context, ApSheet apSheet) {
+        ApSheetRepository.getInstance(context).deleteMusicSheet(apSheet);
     }
 
     public int getAllMusicListCount(Context context) {
-        return ApLocalMusicUtils.getAllMusicListCount(context);
+        return getAllMusicList(context).size();
     }
 
-    public List<ApSheetMusic> getAllMusicList(Context context) {
-        List<ApSheetMusic> list = ApLocalMusicUtils.getAllMusicList(context);
+    public List<ApMusic> getAllMusicList(Context context) {
+        List<ApMusic> list = ApLocalMusicUtils.getAllMusicList(context);
         return list;
     }
 
-    public List<ApSheetMusic> getSheetMusicList(Context context, long sheetId) {
+    public List<ApMusic> getFavouriteMusicList(Context context) {
+        return ApMusicRepository.getInstance(context).getFavouriteMusicList();
+    }
+
+    public int getFavouriteMusicListCount(Context context) {
+        return ApMusicRepository.getInstance(context).getFavouriteMusicListCount();
+    }
+
+    public void updateMusicFavourite(Context context, ApMusic music, boolean isFavourite) {
+        ApMusicRepository.getInstance(context).updateMusicFavourite(music.getSongId(), isFavourite);
+    }
+
+    public void updateMusicListFavourite(Context context, List<ApMusic> musicList, boolean isFavourite) {
+        ApMusicRepository.getInstance(context).updateMusicListFavourite(musicList, isFavourite);
+    }
+
+    public void updateMusicLyric(Context context, ApMusic music, String lrcFilePath, String charset) {
+        ApMusicRepository.getInstance(context).updateMusicLyric(music.getSongId(), lrcFilePath, charset);
+    }
+
+    public ApMusic getSheetMusic(Context context, long sheetId, long songId) {
+        return ApSheetMusicRepository.getInstance(context).querySheetMusic(sheetId, songId);
+    }
+
+    public int getSheetMusicListCount(Context context, long sheetId) {
+        return ApSheetMusicRepository.getInstance(context).getSheetMusicListCount(sheetId);
+    }
+
+    public List<ApMusic> getSheetMusicList(Context context, long sheetId) {
         return ApSheetMusicRepository.getInstance(context).querySheetMusicList(sheetId);
     }
 
-    public ApSheetMusic addSheetMusic(Context context, ApSheetMusic apSheetMusic, long sheetId) {
-        return ApSheetMusicRepository.getInstance(context).addSheetMusic(apSheetMusic, sheetId);
+    public ApMusic addSheetMusic(Context context, ApMusic apMusic, long sheetId) {
+        return ApSheetMusicRepository.getInstance(context).addSheetMusic(apMusic, sheetId);
     }
 
-    public List<ApSheetMusic> addSheetMusicList(Context context, List<ApSheetMusic> list, long sheetId) {
+    public List<ApMusic> addSheetMusicList(Context context, List<ApMusic> list, long sheetId) {
         return ApSheetMusicRepository.getInstance(context).addSheetMusicList(list, sheetId);
     }
 
-    public void updateMusicLyric(Context context, ApSheetMusic music, String lrcFilePath, String charset) {
-        ApSheetMusicRepository.getInstance(context).updateMusicLyric(music, lrcFilePath, charset);
-    }
-
-    public void removeSheetMusic(Context context, ApSheetMusic apSheetMusic) {
-        ApSheetMusicRepository.getInstance(context).deleteSheetMusic(apSheetMusic);
+    public void removeSheetMusic(Context context, ApMusic music, long sheetId) {
+        ApSheetMusicRepository.getInstance(context).deleteSheetMusic(music, sheetId);
     }
 
     public void removeSheetMusic(Context context, long sheetId, long songId) {
@@ -94,7 +109,7 @@ public class ApMusicModel {
         ApSheetMusicRepository.getInstance(context).deleteSheetAllMusics(sheetId);
     }
 
-    public void removeSheetMusicList(Context context, List<ApSheetMusic> list, long sheetId) {
+    public void removeSheetMusicList(Context context, List<ApMusic> list, long sheetId) {
         ApSheetMusicRepository.getInstance(context).deleteSheetMusicList(list, sheetId);
     }
 }

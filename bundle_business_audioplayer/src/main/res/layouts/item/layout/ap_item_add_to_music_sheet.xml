@@ -9,7 +9,7 @@
 
         <variable
             name="sheetBean"
-            type="com.pine.audioplayer.db.entity.ApMusicSheet" />
+            type="com.pine.audioplayer.db.entity.ApSheet" />
     </data>
 
     <LinearLayout

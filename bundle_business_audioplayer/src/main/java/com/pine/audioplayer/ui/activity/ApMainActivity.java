@@ -16,7 +16,7 @@ import com.pine.audioplayer.R;
 import com.pine.audioplayer.databinding.ApActionMainTimingDialogBinding;
 import com.pine.audioplayer.databinding.ApItemMainTimingDialogBinding;
 import com.pine.audioplayer.databinding.ApMainActivityBinding;
-import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.db.entity.ApMusic;
 import com.pine.audioplayer.manager.ApAudioPlayerHelper;
 import com.pine.audioplayer.vm.ApMainVm;
 import com.pine.audioplayer.widget.AudioPlayerView;
@@ -44,17 +44,17 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
 
     private AudioPlayerView.IPlayerViewListener mPlayListener = new AudioPlayerView.IPlayerViewListener() {
         @Override
-        public void onPlayMusic(PineMediaWidget.IPineMediaPlayer mPlayer, @Nullable ApSheetMusic newMusic) {
+        public void onPlayMusic(PineMediaWidget.IPineMediaPlayer mPlayer, @Nullable ApMusic newMusic) {
             mViewModel.setPlayedMusic(newMusic, mPlayer != null && mPlayer.isPlaying());
         }
 
         @Override
-        public void onPlayStateChange(ApSheetMusic music, PinePlayState fromState, PinePlayState toState) {
+        public void onPlayStateChange(ApMusic music, PinePlayState fromState, PinePlayState toState) {
 
         }
 
         @Override
-        public void onAlbumArtChange(String mediaCode, ApSheetMusic music, Bitmap smallBitmap,
+        public void onAlbumArtChange(String mediaCode, ApMusic music, Bitmap smallBitmap,
                                      Bitmap bigBitmap, int mainColor) {
             int[] alphaColor = {0xff000000, 0x00000000};
             alphaColor[0] = alphaColor[0] | (mainColor & 0x00ffffff);
@@ -92,9 +92,9 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
 
     @Override
     public void observeInitLiveData(Bundle savedInstanceState) {
-        mViewModel.mPlayStateData.observe(this, new Observer<ApSheetMusic>() {
+        mViewModel.mPlayStateData.observe(this, new Observer<ApMusic>() {
             @Override
-            public void onChanged(ApSheetMusic music) {
+            public void onChanged(ApMusic music) {
                 if (music == null) {
                     finish();
                     return;
@@ -158,9 +158,9 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
                                 switch (position) {
                                     case 0:
                                         Intent intent = new Intent(ApMainActivity.this, ApAddMusicToSheetActivity.class);
-                                        ArrayList<ApSheetMusic> list = new ArrayList<>();
+                                        ArrayList<ApMusic> list = new ArrayList<>();
                                         list.add(mViewModel.mPlayStateData.getValue());
-                                        intent.putParcelableArrayListExtra("selectList", list);
+                                        intent.putExtra("selectList", list);
                                         startActivityForResult(intent, REQUEST_CODE_ADD_TO_SHEET);
                                         break;
                                     case 1:

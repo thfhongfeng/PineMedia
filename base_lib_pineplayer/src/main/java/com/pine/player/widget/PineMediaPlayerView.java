@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.IdRes;
 
-import com.pine.player.PineConstants;
+import com.pine.player.PinePlayerConstants;
 import com.pine.player.R;
 import com.pine.player.component.PineMediaPlayerProxy;
 import com.pine.player.component.PineMediaWidget;
@@ -368,21 +368,21 @@ public class PineMediaPlayerView extends RelativeLayout {
                     || keyCode == KeyEvent.KEYCODE_SPACE) {
                 if (uniqueDown) {
                     mMediaController.doPauseResume();
-                    mMediaController.show(PineConstants.DEFAULT_SHOW_TIMEOUT);
+                    mMediaController.show(PinePlayerConstants.DEFAULT_SHOW_TIMEOUT);
                     mMediaController.pausePlayBtnRequestFocus();
                 }
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_MEDIA_PLAY) {
                 if (uniqueDown && !mMediaPlayerProxy.isPlaying()) {
                     mMediaPlayerProxy.start();
-                    mMediaController.show(PineConstants.DEFAULT_SHOW_TIMEOUT);
+                    mMediaController.show(PinePlayerConstants.DEFAULT_SHOW_TIMEOUT);
                 }
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_MEDIA_STOP
                     || keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE) {
                 if (uniqueDown && mMediaPlayerProxy.isPlaying()) {
                     mMediaPlayerProxy.pause();
-                    mMediaController.show(PineConstants.DEFAULT_SHOW_TIMEOUT);
+                    mMediaController.show(PinePlayerConstants.DEFAULT_SHOW_TIMEOUT);
                 }
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN

@@ -14,7 +14,7 @@ import androidx.annotation.Nullable;
 
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.bean.ApPlayListType;
-import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.db.entity.ApMusic;
 import com.pine.audioplayer.widget.AudioPlayerView;
 import com.pine.audioplayer.widget.plugin.ApOutRootLrcPlugin;
 import com.pine.player.widget.PineMediaPlayerView;
@@ -151,7 +151,7 @@ public class ApMainAudioPlayerView extends AudioPlayerView {
     }
 
     @Override
-    public void setupMusicView(ApSheetMusic music, boolean hasMedia) {
+    public void setupMusicView(ApMusic music, boolean hasMedia) {
         mapv_loop_type_btn.setEnabled(hasMedia);
         mapv_media_list_btn.setEnabled(hasMedia);
         mapv_favourite_btn.setEnabled(hasMedia);

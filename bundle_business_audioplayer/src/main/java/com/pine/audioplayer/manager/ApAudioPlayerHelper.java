@@ -8,8 +8,8 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.pine.audioplayer.db.entity.ApMusicSheet;
-import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.db.entity.ApMusic;
+import com.pine.audioplayer.db.entity.ApSheet;
 import com.pine.audioplayer.model.ApMusicModel;
 import com.pine.audioplayer.ui.activity.ApMainActivity;
 import com.pine.audioplayer.widget.AudioPlayerView;
@@ -31,14 +31,14 @@ public class ApAudioPlayerHelper {
     private static ApAudioPlayerHelper mInstance;
     private Context mAppContext;
     private ApMusicModel mModel;
-    private ApMusicSheet mRecentSheet, mPlayListSheet, mFavouriteSheet;
+    private ApSheet mRecentSheet, mPlayListSheet;
 
     private ApAudioControllerAdapter mControllerAdapter;
     private HashMap<Integer, AudioPlayerView.IPlayerViewListener> mPlayerViewListenerMap = new HashMap<>();
     private AudioPlayerView.PlayerViewListener mPlayerViewListener =
             new AudioPlayerView.PlayerViewListener() {
                 @Override
-                public void onPlayMusic(PineMediaWidget.IPineMediaPlayer mPlayer, @Nullable ApSheetMusic newMusic) {
+                public void onPlayMusic(PineMediaWidget.IPineMediaPlayer mPlayer, @Nullable ApMusic newMusic) {
                     if (newMusic != null) {
                         mModel.addSheetMusic(mAppContext, newMusic, mRecentSheet.getId());
                     }
@@ -51,7 +51,7 @@ public class ApAudioPlayerHelper {
                 }
 
                 @Override
-                public void onPlayStateChange(ApSheetMusic music, PinePlayState fromState, PinePlayState toState) {
+                public void onPlayStateChange(ApMusic music, PinePlayState fromState, PinePlayState toState) {
                     if (mPlayerViewListenerMap.size() > 0) {
                         Iterator<Map.Entry<Integer, AudioPlayerView.IPlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
                         while (iterator.hasNext()) {
@@ -61,7 +61,7 @@ public class ApAudioPlayerHelper {
                 }
 
                 @Override
-                public void onAlbumArtChange(String mediaCode, ApSheetMusic music, Bitmap smallBitmap,
+                public void onAlbumArtChange(String mediaCode, ApMusic music, Bitmap smallBitmap,
                                              Bitmap bigBitmap, int mainColor) {
                     if (mPlayerViewListenerMap.size() > 0) {
                         Iterator<Map.Entry<Integer, AudioPlayerView.IPlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
@@ -73,12 +73,12 @@ public class ApAudioPlayerHelper {
                 }
 
                 @Override
-                public void onLyricDownloaded(String mediaCode, ApSheetMusic music, String filePath, String charset) {
+                public void onLyricDownloaded(String mediaCode, ApMusic music, String filePath, String charset) {
                     mModel.updateMusicLyric(mAppContext, music, filePath, charset);
                 }
 
                 @Override
-                public void onMusicRemove(ApSheetMusic music) {
+                public void onMusicRemove(ApMusic music) {
                     mModel.removeSheetMusic(mAppContext, mPlayListSheet.getId(), music.getSongId());
                 }
 
@@ -88,7 +88,7 @@ public class ApAudioPlayerHelper {
                 }
 
                 @Override
-                public void onViewClick(View view, ApSheetMusic music, String tag) {
+                public void onViewClick(View view, ApMusic music, String tag) {
                     switch (tag) {
                         case "content":
                             boolean hasMedia = mControllerAdapter != null && mControllerAdapter.getMusicList().size() > 0;
@@ -101,11 +101,7 @@ public class ApAudioPlayerHelper {
                             break;
                         case "favourite":
                             music.setFavourite(view.isSelected());
-                            if (view.isSelected()) {
-                                mModel.addSheetMusic(mAppContext, music, mFavouriteSheet.getId());
-                            } else {
-                                mModel.removeSheetMusic(mAppContext, mFavouriteSheet.getId(), music.getSongId());
-                            }
+                            mModel.updateMusicFavourite(mAppContext, music, view.isSelected());
                             break;
                     }
                 }
@@ -132,11 +128,10 @@ public class ApAudioPlayerHelper {
         mModel = new ApMusicModel();
         mRecentSheet = mModel.getRecentSheet(mAppContext);
         mPlayListSheet = mModel.getPlayListSheet(mAppContext);
-        mFavouriteSheet = mModel.getFavouriteSheet(mAppContext);
 
         mControllerAdapter = new ApAudioControllerAdapter(mAppContext);
 
-        List<ApSheetMusic> oncePlayedMusicList = mModel.getSheetMusicList(mAppContext, mPlayListSheet.getId());
+        List<ApMusic> oncePlayedMusicList = mModel.getSheetMusicList(mAppContext, mPlayListSheet.getId());
         if (oncePlayedMusicList != null && oncePlayedMusicList.size() > 0) {
             mControllerAdapter.addMusicList(oncePlayedMusicList, false);
         }
@@ -204,22 +199,22 @@ public class ApAudioPlayerHelper {
     }
 
     public void playMusic(@NonNull AudioPlayerView playerView,
-                          @NonNull ApSheetMusic music, boolean startPlay) {
+                          @NonNull ApMusic music, boolean startPlay) {
         if (music == null) {
             return;
         }
-        ApSheetMusic playMusic = mModel.addSheetMusic(mAppContext, music, mPlayListSheet.getId());
+        ApMusic playMusic = mModel.addSheetMusic(mAppContext, music, mPlayListSheet.getId());
         if (playMusic != null) {
             playerView.playMusic(playMusic, startPlay);
         }
     }
 
     public void playMusicList(@NonNull AudioPlayerView playerView,
-                              @NonNull List<ApSheetMusic> musicList, boolean startPlay) {
+                              @NonNull List<ApMusic> musicList, boolean startPlay) {
         if (musicList == null && musicList.size() < 1) {
             return;
         }
-        List<ApSheetMusic> playMusicList = mModel.addSheetMusicList(mAppContext, musicList, mPlayListSheet.getId());
+        List<ApMusic> playMusicList = mModel.addSheetMusicList(mAppContext, musicList, mPlayListSheet.getId());
         if (playMusicList != null && playMusicList.size() > 0) {
             playerView.playMusicList(playMusicList, startPlay);
         }

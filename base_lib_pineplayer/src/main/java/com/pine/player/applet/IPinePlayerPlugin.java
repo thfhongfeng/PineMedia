@@ -46,6 +46,10 @@ public interface IPinePlayerPlugin<T extends List> {
 
     void onMediaPlayerError(int framework_err, int impl_err);
 
+    /**
+     *
+     * @param position the current position in milliseconds
+     */
     void onTime(long position);
 
     void onRelease();

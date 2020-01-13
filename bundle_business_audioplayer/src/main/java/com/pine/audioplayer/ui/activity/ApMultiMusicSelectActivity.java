@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMultiMusicSelectAdapter;
 import com.pine.audioplayer.databinding.ApMultiMusicSelectActivityBinding;
-import com.pine.audioplayer.db.entity.ApMusicSheet;
-import com.pine.audioplayer.db.entity.ApSheetMusic;
+import com.pine.audioplayer.db.entity.ApMusic;
+import com.pine.audioplayer.db.entity.ApSheet;
 import com.pine.audioplayer.vm.ApMusicListVm;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmActionBarImageMenuActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
@@ -34,7 +34,7 @@ public class ApMultiMusicSelectActivity extends BaseMvvmActionBarImageMenuActivi
         menuBtnIv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ArrayList<ApSheetMusic> selectList = mMultiMusicSelectAdapter.getSelectMusicList();
+                ArrayList<ApMusic> selectList = mMultiMusicSelectAdapter.getSelectMusicList();
                 if (selectList.size() > 0) {
                     Intent data = new Intent();
                     data.putExtra("selectList", selectList);
@@ -47,16 +47,16 @@ public class ApMultiMusicSelectActivity extends BaseMvvmActionBarImageMenuActivi
 
     @Override
     public void observeInitLiveData(Bundle savedInstanceState) {
-        mViewModel.mSheetData.observe(this, new Observer<ApMusicSheet>() {
+        mViewModel.mSheetData.observe(this, new Observer<ApSheet>() {
             @Override
-            public void onChanged(ApMusicSheet apMusicSheet) {
-                mTitleTv.setText(apMusicSheet.getName());
-                mBinding.setMusicSheet(apMusicSheet);
+            public void onChanged(ApSheet apSheet) {
+                mTitleTv.setText(apSheet.getName());
+                mBinding.setMusicSheet(apSheet);
             }
         });
-        mViewModel.mSheetMusicListData.observe(this, new Observer<List<ApSheetMusic>>() {
+        mViewModel.mSheetMusicListData.observe(this, new Observer<List<ApMusic>>() {
             @Override
-            public void onChanged(List<ApSheetMusic> list) {
+            public void onChanged(List<ApMusic> list) {
                 mMultiMusicSelectAdapter.setData(list);
             }
         });
@@ -118,7 +118,7 @@ public class ApMultiMusicSelectActivity extends BaseMvvmActionBarImageMenuActivi
             }
             Intent intent = new Intent(ApMultiMusicSelectActivity.this, ApAddMusicToSheetActivity.class);
             intent.putExtra("excludeSheetId", mViewModel.mSheetData.getValue().getId());
-            intent.putParcelableArrayListExtra("selectList", mMultiMusicSelectAdapter.getSelectMusicList());
+            intent.putExtra("selectList", mMultiMusicSelectAdapter.getSelectMusicList());
             startActivity(intent);
         }
 

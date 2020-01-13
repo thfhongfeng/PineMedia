@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.adapter.ApMusicSheetAdapter;
 import com.pine.audioplayer.databinding.ApHomeActivityBinding;
-import com.pine.audioplayer.db.entity.ApMusicSheet;
+import com.pine.audioplayer.db.entity.ApSheet;
 import com.pine.audioplayer.manager.ApAudioPlayerHelper;
 import com.pine.audioplayer.vm.ApSheetListVm;
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
@@ -28,21 +28,21 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
 
     @Override
     public void observeInitLiveData(Bundle savedInstanceState) {
-        mViewModel.mAllMusicSheetData.observe(this, new Observer<ApMusicSheet>() {
+        mViewModel.mAllMusicSheetData.observe(this, new Observer<ApSheet>() {
             @Override
-            public void onChanged(ApMusicSheet apMusicSheet) {
-                mBinding.setAllMusicSheet(apMusicSheet);
+            public void onChanged(ApSheet apSheet) {
+                mBinding.setAllMusicSheet(apSheet);
             }
         });
-        mViewModel.mFavouriteSheetData.observe(this, new Observer<ApMusicSheet>() {
+        mViewModel.mFavouriteSheetData.observe(this, new Observer<ApSheet>() {
             @Override
-            public void onChanged(ApMusicSheet apMusicSheet) {
-                mBinding.setFavouriteSheet(apMusicSheet);
+            public void onChanged(ApSheet apSheet) {
+                mBinding.setFavouriteSheet(apSheet);
             }
         });
-        mViewModel.mCustomSheetListData.observe(this, new Observer<List<ApMusicSheet>>() {
+        mViewModel.mCustomSheetListData.observe(this, new Observer<List<ApSheet>>() {
             @Override
-            public void onChanged(List<ApMusicSheet> list) {
+            public void onChanged(List<ApSheet> list) {
                 mBinding.setCustomSheetCount(list == null ? 0 : list.size());
                 mMusicSheetAdapter.setData(list);
             }
@@ -52,10 +52,10 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
     @Override
     public void observeSyncLiveData(int liveDataObjTag) {
         if (liveDataObjTag == ApSheetListVm.LIVE_DATA_TAG_RECENT_SHEET) {
-            mViewModel.mRecentSheetData.observe(this, new Observer<ApMusicSheet>() {
+            mViewModel.mRecentSheetData.observe(this, new Observer<ApSheet>() {
                 @Override
-                public void onChanged(ApMusicSheet apMusicSheet) {
-                    mBinding.setRecentSheet(apMusicSheet);
+                public void onChanged(ApSheet apSheet) {
+                    mBinding.setRecentSheet(apSheet);
                 }
             });
         }
@@ -71,9 +71,9 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
         mBinding.setPresenter(new Presenter());
 
         mMusicSheetAdapter = new ApMusicSheetAdapter();
-        mMusicSheetAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener<ApMusicSheet>() {
+        mMusicSheetAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener<ApSheet>() {
             @Override
-            public void onItemClick(View view, int position, String tag, ApMusicSheet sheet) {
+            public void onItemClick(View view, int position, String tag, ApSheet sheet) {
                 goMusicListActivity(sheet);
             }
         });
@@ -103,7 +103,7 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
         super.onDestroy();
     }
 
-    private void goMusicListActivity(ApMusicSheet sheet) {
+    private void goMusicListActivity(ApSheet sheet) {
         Intent intent = new Intent(this, ApMusicListActivity.class);
         intent.putExtra("musicSheet", sheet);
         startActivity(intent);
@@ -131,15 +131,15 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
                     }).show();
         }
 
-        public void onShowAllClick(View view, ApMusicSheet sheet) {
+        public void onShowAllClick(View view, ApSheet sheet) {
             goMusicListActivity(sheet);
         }
 
-        public void onShowFavouriteClick(View view, ApMusicSheet sheet) {
+        public void onShowFavouriteClick(View view, ApSheet sheet) {
             goMusicListActivity(sheet);
         }
 
-        public void onShowRecentClick(View view, ApMusicSheet sheet) {
+        public void onShowRecentClick(View view, ApSheet sheet) {
             goMusicListActivity(sheet);
         }
     }
