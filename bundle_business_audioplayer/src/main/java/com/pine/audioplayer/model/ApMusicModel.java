@@ -54,6 +54,7 @@ public class ApMusicModel {
 
     public List<ApMusic> getAllMusicList(Context context) {
         List<ApMusic> list = ApLocalMusicUtils.getAllMusicList(context);
+        ApMusicRepository.getInstance(context).addMusicList(list);
         return list;
     }
 

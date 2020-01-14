@@ -11,7 +11,6 @@ import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 
 import com.pine.audioplayer.db.entity.ApMusic;
-import com.pine.audioplayer.db.repository.ApMusicRepository;
 import com.pine.tool.util.FileUtils;
 
 import java.io.FileDescriptor;
@@ -54,7 +53,6 @@ public class ApLocalMusicUtils {
             musicList.add(music);
         }
         cursor.close();
-        ApMusicRepository.getInstance(context).addMusicList(musicList);
         return musicList;
     }
 

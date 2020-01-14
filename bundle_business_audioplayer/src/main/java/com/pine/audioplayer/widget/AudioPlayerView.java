@@ -87,7 +87,7 @@ public abstract class AudioPlayerView extends RelativeLayout {
         LogUtils.d(TAG, "init playerView:" + AudioPlayerView.this);
         mMediaController = new PineMediaController(getContext());
         mMediaPlayerView.disableBackPressTip();
-        mMediaPlayerView.init(tag, mMediaController);
+        mMediaPlayerView.init(tag, mMediaController, false);
         mMediaPlayerView.mForbidIdleControllerWhenDetach = true;
         mMediaPlayer = mMediaPlayerView.getMediaPlayer();
         mMediaPlayer.setAutocephalyPlayMode(true);

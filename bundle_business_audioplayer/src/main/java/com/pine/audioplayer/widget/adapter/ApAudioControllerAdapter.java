@@ -61,7 +61,6 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
     private List<ApMusic> mMusicList = new LinkedList<>();
     private HashMap<String, PineMediaPlayerBean> mCodeMediaListMap = new HashMap<>();
     private HashMap<String, ApMusic> mCodeMusicListMap = new HashMap<>();
-    private String mCurrentMediaCode = "";
 
     private List<ApPlayListType> mPlayTypeList;
     private int mCurPlayTypePos = 0;
@@ -104,13 +103,13 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
             } else {
                 switch (getCurPlayType().getType()) {
                     case ApPlayListType.TYPE_ORDER:
-                        onNextMediaSelect(mCurrentMediaCode, true);
+                        onNextMediaSelect(playerBean.getMediaCode(), true);
                         break;
                     case ApPlayListType.TYPE_ALL_LOOP:
-                        onNextMediaSelect(mCurrentMediaCode, true);
+                        onNextMediaSelect(playerBean.getMediaCode(), true);
                         break;
                     case ApPlayListType.TYPE_SING_LOOP:
-                        onMediaSelect(mCurrentMediaCode, true);
+                        onMediaSelect(playerBean.getMediaCode(), true);
                         break;
                     case ApPlayListType.TYPE_RANDOM:
                         int randomPos = new Random().nextInt(10000) % mMusicList.size();
@@ -355,16 +354,12 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         return mMusicList;
     }
 
-    public void setCurMediaCode(String curMediaCode) {
-        mCurrentMediaCode = curMediaCode;
-    }
-
     public String getCurMediaCode() {
-        return mCurrentMediaCode;
+        return mPlayer != null && mPlayer.getMediaPlayerBean() != null ? mPlayer.getMediaPlayerBean().getMediaCode() : "";
     }
 
     public ApMusic getCurMusic() {
-        return mCodeMusicListMap.get(mCurrentMediaCode);
+        return mCodeMusicListMap.get(getCurMediaCode());
     }
 
     public ApMusic getListedMusic(String mediaCode) {
@@ -413,7 +408,6 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
                 iterator.next().getValue().onPlayMusic(mPlayer, null);
             }
         }
-        mCurrentMediaCode = "";
     }
 
     public void addMusic(ApMusic music, boolean startPlay) {
@@ -479,7 +473,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
 
     public void removeMusic(ApMusic music) {
         ApMusic preMusic = getCurMusic();
-        int curPos = findMusicPosition(mCurrentMediaCode);
+        int curPos = findMusicPosition(getCurMediaCode());
         String removeMediaCode = getMediaCode(music);
         if (mCodeMusicListMap.containsKey(removeMediaCode)) {
             mMusicList.remove(mCodeMusicListMap.get(removeMediaCode));
@@ -495,7 +489,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         if (mMusicList.size() < 1) {
             onMusicListClear(preMusic);
         } else {
-            if (removeMediaCode.equals(mCurrentMediaCode)) {
+            if (removeMediaCode.equals(getCurMediaCode())) {
                 playMedia(curPos, mPlayer.isPlaying());
             }
         }
@@ -575,7 +569,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
     }
 
     public void refreshPreNextBtnState() {
-        int position = findMusicPosition(mCurrentMediaCode);
+        int position = findMusicPosition(getCurMediaCode());
         if (mControllerViewHolder != null) {
             if (mControllerViewHolder.getPrevButton() != null) {
                 mControllerViewHolder.getPrevButton().setEnabled(isLoopMode() || position > 0);
@@ -645,14 +639,13 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
                 ApMusic music = mMusicList.get(position);
                 String mediaCode = getMediaCode(music);
                 PineMediaPlayerBean bean = mCodeMediaListMap.get(mediaCode);
-                if (mCurrentMediaCode != mediaCode) {
+                if (!mediaCode.equals(getCurMediaCode())) {
                     mPlayer.setPlayingMedia(bean);
                     loadAlbumArtAndLyric(music);
                 }
                 if (startPlay) {
                     mPlayer.start();
                 }
-                mCurrentMediaCode = mediaCode;
                 if (mPlayerViewListenerMap.size() > 0) {
                     Iterator<Map.Entry<Integer, AudioPlayerView.PlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
                     while (iterator.hasNext()) {
