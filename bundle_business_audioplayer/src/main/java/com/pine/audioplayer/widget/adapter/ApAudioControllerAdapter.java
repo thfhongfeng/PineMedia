@@ -133,6 +133,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
     private Handler mMainHandler = new Handler(Looper.getMainLooper());
 
     private int DEFAULT_ALBUM_ART_MAIN_COLOR = Color.TRANSPARENT;
+    private final int MAX_SMALL_ALBUM_ART_CACHE_COUNT = 50;
     private final int MAX_BIG_ALBUM_ART_CACHE_COUNT = 10;
     private final int MAX_ALBUM_ART_REQUEST_COUNT = 2;
 
@@ -142,6 +143,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
     private HashMap<String, Bitmap> mBigAlbumArtBitmapMap = new HashMap<>();
     private HashMap<String, Integer> mMainAlbumArtColorMap = new HashMap<>();
     private ArrayDeque<String> mBigAlbumArtDeque = new ArrayDeque<>();
+    private ArrayDeque<String> mSmallAlbumArtDeque = new ArrayDeque<>();
     private HashMap<String, Boolean> mAlbumArtBitmapRequestingMap = new HashMap<>();
     private HashMap<String, String> mLyricMap = new HashMap<>();
     private HashMap<String, Boolean> mLyricRequestingMap = new HashMap<>();
@@ -557,6 +559,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
                 bitmap.recycle();
             }
         }
+        mSmallAlbumArtDeque.clear();
         mBigAlbumArtDeque.clear();
         if (mDefaultSmallAlbumArtBitmap != null) {
             mDefaultSmallAlbumArtBitmap.recycle();
@@ -631,7 +634,7 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
 
     private boolean playMedia(int position, boolean startPlay) {
         if (isLoopMode()) {
-            position = position % mMusicList.size();
+            position = (position + mMusicList.size()) % mMusicList.size();
         }
         if (position >= 0 && position < mMusicList.size()) {
             if (mPlayer != null) {
@@ -766,9 +769,25 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
                     public void run() {
                         LogUtils.d(TAG, "getAlbumArtBitmapInBackground end --- mediaCode:" + mediaCode);
                         mAlbumArtBitmapRequestingMap.remove(mediaCode);
+
+                        if (mSmallAlbumArtDeque.size() >= MAX_SMALL_ALBUM_ART_CACHE_COUNT) {
+                            String oldestMediaCode = mSmallAlbumArtDeque.poll();
+                            if (!oldestMediaCode.equals(mediaCode)) {
+                                Bitmap bitmap = mSmallAlbumArtBitmapMap.remove(oldestMediaCode);
+                                if (bitmap != null) {
+                                    bitmap.recycle();
+                                }
+                            } else {
+                                mSmallAlbumArtDeque.add(mediaCode);
+                            }
+                        }
                         if (finaEnableSmallAlbumArt && !mSmallAlbumArtBitmapMap.containsKey(mediaCode)) {
                             mSmallAlbumArtBitmapMap.put(mediaCode, finalSmallBitmap == null ? mDefaultSmallAlbumArtBitmap : finalSmallBitmap);
+                            if (finalSmallBitmap != null) {
+                                mSmallAlbumArtDeque.add(mediaCode);
+                            }
                         }
+
                         if (mBigAlbumArtDeque.size() >= MAX_BIG_ALBUM_ART_CACHE_COUNT) {
                             String oldestMediaCode = mBigAlbumArtDeque.poll();
                             if (!oldestMediaCode.equals(mediaCode)) {
@@ -786,9 +805,11 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
                                 mBigAlbumArtDeque.add(mediaCode);
                             }
                         }
+
                         if (!mMainAlbumArtColorMap.containsKey(mediaCode)) {
                             mMainAlbumArtColorMap.put(mediaCode, finalColor);
                         }
+
                         if (mediaCode.equals(getCurMediaCode())) {
                             onAlbumArtPrepare(mediaCode, getCurMusic(),
                                     getSmallAlbumArtBitmap(mediaCode), getBigAlbumArtBitmap(mediaCode),
