@@ -88,7 +88,7 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
     protected void onRealResume() {
         super.onRealResume();
         ApAudioPlayerHelper.getInstance().attachPlayerView(mBinding.playerView);
-        mViewModel.refreshData();
+        mViewModel.refreshData(this);
     }
 
     @Override
@@ -119,7 +119,7 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
                                 showShortToast(R.string.ap_home_sheet_name_non_empty);
                                 return true;
                             } else {
-                                mViewModel.createSheet(textList.get(0));
+                                mViewModel.createSheet(ApHomeActivity.this, textList.get(0));
                                 return false;
                             }
                         }

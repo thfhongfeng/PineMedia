@@ -1,5 +1,7 @@
 package com.pine.main.vm;
 
+import android.content.Context;
+
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.gson.Gson;
@@ -23,13 +25,13 @@ import java.util.ArrayList;
 public class MainHomeVm extends ViewModel {
     private MainHomeModel mHomeModel = new MainHomeModel();
 
-    public void loadBusinessBundleData() {
+    public void loadBusinessBundleData(Context context) {
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject;
         try {
             if (ConfigSwitcherServer.getInstance().isEnable(ConfigKey.BUNDLE_VIDEO_PLAYER_KEY)) {
                 jsonObject = new JSONObject();
-                jsonObject.put("name", getContext().getString(R.string.main_home_video_player));
+                jsonObject.put("name", context.getString(R.string.main_home_video_player));
                 jsonObject.put("imageResId", R.mipmap.res_ic_video_player);
                 jsonObject.put("bundle", ConfigKey.BUNDLE_VIDEO_PLAYER_KEY);
                 jsonObject.put("command", RouterVideoPlayerCommand.goVideoPlayerHomeActivity);
@@ -37,7 +39,7 @@ public class MainHomeVm extends ViewModel {
             }
             if (ConfigSwitcherServer.getInstance().isEnable(ConfigKey.BUNDLE_AUDIO_PLAYER_KEY)) {
                 jsonObject = new JSONObject();
-                jsonObject.put("name", getContext().getString(R.string.main_home_audio_player));
+                jsonObject.put("name", context.getString(R.string.main_home_audio_player));
                 jsonObject.put("imageResId", R.mipmap.res_ic_audio_player);
                 jsonObject.put("bundle", ConfigKey.BUNDLE_AUDIO_PLAYER_KEY);
                 jsonObject.put("command", RouterAudioPlayerCommand.goAudioPlayerHomeActivity);
@@ -45,7 +47,7 @@ public class MainHomeVm extends ViewModel {
             }
             if (ConfigSwitcherServer.getInstance().isEnable(ConfigKey.BUNDLE_PICTURE_VIEWER_KEY)) {
                 jsonObject = new JSONObject();
-                jsonObject.put("name", getContext().getString(R.string.main_home_picture_viewer));
+                jsonObject.put("name", context.getString(R.string.main_home_picture_viewer));
                 jsonObject.put("imageResId", R.mipmap.res_ic_picture_viewer);
                 jsonObject.put("bundle", ConfigKey.BUNDLE_PICTURE_VIEWER_KEY);
                 jsonObject.put("command", RouterPictureViewerCommand.goPictureViewerHomeActivity);

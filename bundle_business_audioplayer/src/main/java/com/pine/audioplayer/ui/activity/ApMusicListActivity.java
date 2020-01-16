@@ -111,7 +111,7 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
     protected void onRealResume() {
         super.onRealResume();
         ApAudioPlayerHelper.getInstance().attachPlayerView(mBinding.playerView, mPlayerListener);
-        mViewModel.refreshData();
+        mViewModel.refreshData(this);
     }
 
     @Override
@@ -133,7 +133,7 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
                     public void onSelect(String selectText, int position) {
                         switch (position) {
                             case 0:
-                                mViewModel.addMusicToFavourite(sheetMusic);
+                                mViewModel.updateMusicFavourite(ApMusicListActivity.this, sheetMusic, true);
                                 break;
                             case 1:
                                 Intent intent = new Intent(ApMusicListActivity.this, ApAddMusicToSheetActivity.class);
@@ -144,8 +144,8 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
                                 startActivity(intent);
                                 break;
                             case 2:
-                                mViewModel.deleteSheetMusic(sheetMusic);
-                                mViewModel.refreshData();
+                                mViewModel.deleteSheetMusic(ApMusicListActivity.this, sheetMusic);
+                                mViewModel.refreshData(ApMusicListActivity.this);
                                 break;
                         }
                     }
@@ -190,7 +190,7 @@ public class ApMusicListActivity extends BaseMvvmNoActionBarActivity<ApMusicList
                     @Override
                     public void onClick(View v) {
                         mTopPopupMenu.dismiss();
-                        mViewModel.deleteMusicSheet();
+                        mViewModel.deleteMusicSheet(ApMusicListActivity.this);
                         setResult(RESULT_OK);
                         finish();
                     }

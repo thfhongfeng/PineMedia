@@ -1,15 +1,17 @@
 package com.pine.audioplayer.vm;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
 import com.pine.audioplayer.ApConstants;
-import com.pine.audioplayer.R;
+import com.pine.audioplayer.bean.ApSheetListDetail;
 import com.pine.audioplayer.db.entity.ApMusic;
 import com.pine.audioplayer.db.entity.ApSheet;
 import com.pine.audioplayer.model.ApMusicModel;
+import com.pine.tool.architecture.mvp.model.IModelAsyncResponse;
 import com.pine.tool.architecture.mvvm.vm.ViewModel;
 
 import java.util.List;
@@ -23,7 +25,7 @@ public class ApAddMusicToSheetVm extends ViewModel {
     private long mExcludeCustomSheetId = -1;
 
     @Override
-    public boolean parseIntentData(@NonNull Bundle bundle) {
+    public boolean parseIntentData(Context activity, @NonNull Bundle bundle) {
         mExcludeCustomSheetId = bundle.getLong("excludeSheetId", -1);
         List<ApMusic> selectList = (List<ApMusic>) bundle.getSerializable("selectList");
         if (selectList == null) {
@@ -35,36 +37,90 @@ public class ApAddMusicToSheetVm extends ViewModel {
     }
 
     @Override
-    public void afterViewInit() {
-        super.afterViewInit();
+    public void afterViewInit(Context activity) {
+        super.afterViewInit(activity);
     }
 
-    public void createAndAddMusicToSheet(String sheetName) {
-        ApSheet sheet = new ApSheet();
+    public void createAndAddMusicToSheet(final Context context, String sheetName) {
+        final ApSheet sheet = new ApSheet();
         sheet.setName(sheetName);
-        long sheetId = mModel.addMusicSheet(getContext(), sheet);
-        sheet.setId(sheetId);
-        addMusicToSheet(sheet);
+        mModel.addMusicSheet(context, sheet, new IModelAsyncResponse<Long>() {
+            @Override
+            public void onResponse(Long id) {
+                sheet.setId(id);
+                addMusicToSheet(context, sheet);
+            }
+
+            @Override
+            public boolean onFail(Exception e) {
+                return false;
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+        });
     }
 
-    public void addMusicToSheet(ApSheet sheet) {
+    public void addMusicToSheet(Context context, ApSheet sheet) {
         List<ApMusic> selectList = mSelectMusicListData.getValue();
         if (sheet.getSheetType() == ApConstants.MUSIC_SHEET_TYPE_FAVOURITE) {
-            mModel.updateMusicListFavourite(getContext(), selectList, true);
+            mModel.updateMusicListFavourite(context, selectList, true, new IModelAsyncResponse<Boolean>() {
+                @Override
+                public void onResponse(Boolean success) {
+
+                }
+
+                @Override
+                public boolean onFail(Exception e) {
+                    return false;
+                }
+
+                @Override
+                public void onCancel() {
+
+                }
+            });
         } else {
-            mModel.addSheetMusicList(getContext(), selectList, sheet.getId());
+            mModel.addSheetMusicList(context, selectList, sheet.getId(), new IModelAsyncResponse<List<ApMusic>>() {
+                @Override
+                public void onResponse(List<ApMusic> list) {
+                    
+                }
+
+                @Override
+                public boolean onFail(Exception e) {
+                    return false;
+                }
+
+                @Override
+                public void onCancel() {
+
+                }
+            });
         }
     }
 
-    public void refreshData() {
-        ApSheet favouriteMusicSheet = new ApSheet();
-        favouriteMusicSheet.setName(getContext().getString(R.string.ap_home_my_favourite_name));
-        favouriteMusicSheet.setSheetType(ApConstants.MUSIC_SHEET_TYPE_FAVOURITE);
-        favouriteMusicSheet.setCount(mModel.getFavouriteMusicListCount(getContext()));
-        List<ApSheet> sheetList = mExcludeCustomSheetId == -1 ?
-                mModel.getCustomMusicSheetList(getContext()) :
-                mModel.getCustomMusicSheetList(getContext(), mExcludeCustomSheetId);
-        sheetList.add(0, favouriteMusicSheet);
-        mSheetListData.setValue(sheetList);
+    public void refreshData(Context context) {
+        mModel.getMusicSheetList(context, new IModelAsyncResponse<ApSheetListDetail>() {
+            @Override
+            public void onResponse(ApSheetListDetail sheetListDetail) {
+                if (sheetListDetail.getCustomSheetList() != null && sheetListDetail.getFavouriteSheet() != null) {
+                    sheetListDetail.getCustomSheetList().add(0, sheetListDetail.getFavouriteSheet());
+                }
+                mSheetListData.setValue(sheetListDetail.getCustomSheetList());
+            }
+
+            @Override
+            public boolean onFail(Exception e) {
+                return false;
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+        }, mExcludeCustomSheetId);
     }
 }

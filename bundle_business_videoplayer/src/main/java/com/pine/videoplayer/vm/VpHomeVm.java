@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import com.pine.player.applet.IPinePlayerPlugin;
 import com.pine.player.applet.subtitle.plugin.PineLrcParserPlugin;
 import com.pine.player.applet.subtitle.plugin.PineSrtParserPlugin;
@@ -26,8 +28,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import androidx.annotation.NonNull;
-
 public class VpHomeVm extends ViewModel {
     private final String LRC_SUFFIX = "lrc";
     private final String SRT_SUFFIX = "srt";
@@ -41,11 +41,11 @@ public class VpHomeVm extends ViewModel {
     public ParametricLiveData<List<PineMediaPlayerBean>, String> mMediaListData = new ParametricLiveData<>();
 
     @Override
-    public void afterViewInit() {
-        super.afterViewInit();
+    public void afterViewInit(Context activity) {
+        super.afterViewInit(activity);
         mAllPlayableFileSet = SharePreferenceUtils.readSetStringFromCache("recentAllPlayableFileSet", null);
         if (mAllPlayableFileSet != null && mAllPlayableFileSet.size() > 0) {
-            setupAddedMediaData(getContext(), mAllPlayableFileSet, null);
+            setupAddedMediaData(activity, mAllPlayableFileSet, null);
         } else {
             mAllPlayableFileSet = new HashSet<>();
         }

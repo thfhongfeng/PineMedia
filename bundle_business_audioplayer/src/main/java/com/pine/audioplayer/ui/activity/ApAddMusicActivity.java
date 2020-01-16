@@ -91,7 +91,7 @@ public class ApAddMusicActivity extends BaseMvvmActionBarActivity<ApAddMusicActi
     @Override
     protected void onRealResume() {
         super.onRealResume();
-        mViewModel.refreshData();
+        mViewModel.refreshData(this);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class ApAddMusicActivity extends BaseMvvmActionBarActivity<ApAddMusicActi
             if (resultCode == RESULT_OK) {
                 List<ApMusic> selectList = (List<ApMusic>) data.getSerializableExtra("selectList");
                 if (selectList != null && selectList.size() > 0) {
-                    mViewModel.addMusicList(selectList);
+                    mViewModel.addMusicList(this, selectList);
                 }
             }
         }

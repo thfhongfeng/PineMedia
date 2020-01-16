@@ -137,7 +137,7 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_ADD_TO_SHEET) {
-            mViewModel.refreshPlayMusic();
+            mViewModel.refreshPlayMusic(this);
         }
     }
 

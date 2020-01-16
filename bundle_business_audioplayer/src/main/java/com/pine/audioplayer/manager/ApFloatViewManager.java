@@ -11,6 +11,7 @@ import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
 
+import com.pine.audioplayer.bean.ApSheetMusicDetail;
 import com.pine.audioplayer.db.entity.ApMusic;
 import com.pine.audioplayer.db.entity.ApSheet;
 import com.pine.audioplayer.model.ApMusicModel;
@@ -21,6 +22,7 @@ import com.pine.audioplayer.widget.view.ApSimpleAudioPlayerView;
 import com.pine.player.component.PineMediaWidget;
 import com.pine.player.component.PinePlayState;
 import com.pine.tool.RootApplication;
+import com.pine.tool.architecture.mvp.model.IModelAsyncResponse;
 import com.pine.tool.util.AppUtils;
 import com.pine.tool.util.LogUtils;
 
@@ -39,7 +41,7 @@ public class ApFloatViewManager {
 
     private ApSimpleAudioPlayerView mFloatingSimpleAudioPlayerView;
     private ApMusicModel mModel = new ApMusicModel();
-    private ApSheet mRecentSheet, mPlayListSheet;
+    private long mRecentSheetId, mPlayListSheetId;
 
     private ApAudioControllerAdapter mControllerAdapter;
     private HashMap<Integer, AudioPlayerView.IPlayerViewListener> mPlayerViewListenerMap = new HashMap<>();
@@ -48,7 +50,22 @@ public class ApFloatViewManager {
                 @Override
                 public void onPlayMusic(PineMediaWidget.IPineMediaPlayer mPlayer, @Nullable ApMusic newMusic) {
                     if (newMusic != null) {
-                        mModel.addSheetMusic(mAppContext, newMusic, mRecentSheet.getId());
+                        mModel.addSheetMusic(mAppContext, newMusic, mRecentSheetId, new IModelAsyncResponse<ApMusic>() {
+                            @Override
+                            public void onResponse(ApMusic music) {
+
+                            }
+
+                            @Override
+                            public boolean onFail(Exception e) {
+                                return false;
+                            }
+
+                            @Override
+                            public void onCancel() {
+
+                            }
+                        });
                     }
                     if (mPlayerViewListenerMap.size() > 0) {
                         Iterator<Map.Entry<Integer, AudioPlayerView.IPlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
@@ -77,34 +94,97 @@ public class ApFloatViewManager {
 
                 @Override
                 public void onLyricDownloaded(String mediaCode, ApMusic music, String filePath, String charset) {
-                    mModel.updateMusicLyric(mAppContext, music, filePath, charset);
+                    mModel.updateMusicLyric(mAppContext, music, filePath, charset, new IModelAsyncResponse<Boolean>() {
+                        @Override
+                        public void onResponse(Boolean success) {
+
+                        }
+
+                        @Override
+                        public boolean onFail(Exception e) {
+                            return false;
+                        }
+
+                        @Override
+                        public void onCancel() {
+
+                        }
+                    });
                 }
 
                 @Override
                 public void onMusicRemove(ApMusic music) {
-                    mModel.removeSheetMusic(mAppContext, mPlayListSheet.getId(), music.getSongId());
+                    mModel.removeSheetMusic(mAppContext, mPlayListSheetId, music.getSongId(), new IModelAsyncResponse<Boolean>() {
+                        @Override
+                        public void onResponse(Boolean success) {
+
+                        }
+
+                        @Override
+                        public boolean onFail(Exception e) {
+                            return false;
+                        }
+
+                        @Override
+                        public void onCancel() {
+
+                        }
+                    });
                 }
 
                 @Override
                 public void onMusicListClear() {
-                    mModel.clearSheetMusic(mAppContext, mPlayListSheet.getId());
+                    mModel.clearSheetMusic(mAppContext, mPlayListSheetId, new IModelAsyncResponse<Boolean>() {
+                        @Override
+                        public void onResponse(Boolean success) {
+
+                        }
+
+                        @Override
+                        public boolean onFail(Exception e) {
+                            return false;
+                        }
+
+                        @Override
+                        public void onCancel() {
+
+                        }
+                    });
                 }
 
                 @Override
-                public void onViewClick(View view, ApMusic music, String tag) {
+                public void onViewClick(final View view, final ApMusic music, String tag) {
                     switch (tag) {
                         case "content":
                             boolean hasMedia = mControllerAdapter != null && mControllerAdapter.getMusicList().size() > 0;
                             if (hasMedia) {
                                 Intent intent = new Intent(RootApplication.mCurResumedActivity, ApMainActivity.class);
+                                intent.putExtra("sheetId", mPlayListSheetId);
                                 intent.putExtra("music", mControllerAdapter.getCurMusic());
                                 intent.putExtra("playing", mControllerAdapter.mPlayer != null && mControllerAdapter.mPlayer.isPlaying());
                                 RootApplication.mCurResumedActivity.startActivity(intent);
                             }
                             break;
                         case "favourite":
-                            music.setFavourite(view.isSelected());
-                            mModel.updateMusicFavourite(mAppContext, music, view.isSelected());
+                            final boolean isSelected = view.isSelected();
+                            mModel.updateMusicFavourite(mAppContext, music, view.isSelected(), new IModelAsyncResponse<Boolean>() {
+                                @Override
+                                public void onResponse(Boolean success) {
+                                    music.setFavourite(isSelected);
+                                    view.setSelected(isSelected);
+                                }
+
+                                @Override
+                                public boolean onFail(Exception e) {
+                                    view.setSelected(!isSelected);
+                                    return false;
+                                }
+
+                                @Override
+                                public void onCancel() {
+                                    view.setSelected(!isSelected);
+                                }
+                            });
                             break;
                     }
                 }
@@ -127,18 +207,49 @@ public class ApFloatViewManager {
         //获取WindowManager对象
         mWindowManager = (WindowManager) mAppContext.getSystemService(WINDOW_SERVICE);
 
-        mModel = new ApMusicModel();
-        mRecentSheet = mModel.getRecentSheet(mAppContext);
-        mPlayListSheet = mModel.getPlayListSheet(mAppContext);
-
         mControllerAdapter = new ApAudioControllerAdapter(mAppContext);
+        mModel = new ApMusicModel();
 
-        List<ApMusic> oncePlayedMusicList = mModel.getSheetMusicList(mAppContext, mPlayListSheet.getId());
-        if (oncePlayedMusicList != null && oncePlayedMusicList.size() > 0) {
-            mControllerAdapter.addMusicList(oncePlayedMusicList, false);
-        }
+        mModel.getRecentSheet(mAppContext, new IModelAsyncResponse<ApSheet>() {
+            @Override
+            public void onResponse(ApSheet sheet) {
+                mRecentSheetId = sheet.getId();
+            }
 
-        RootApplication.addAppLifecycleListener(mAppLifecycleListener);
+            @Override
+            public boolean onFail(Exception e) {
+                return false;
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+        });
+        mModel.getPlayListDetail(mAppContext, new IModelAsyncResponse<ApSheetMusicDetail>() {
+            @Override
+            public void onResponse(ApSheetMusicDetail sheetDetail) {
+                if (sheetDetail != null) {
+                    if (sheetDetail.getSheet() != null) {
+                        mPlayListSheetId = sheetDetail.getSheet().getId();
+                    }
+                    List<ApMusic> oncePlayedMusicList = sheetDetail.getMusicList();
+                    if (oncePlayedMusicList != null && oncePlayedMusicList.size() > 0) {
+                        mControllerAdapter.addMusicList(oncePlayedMusicList, false);
+                    }
+                }
+            }
+
+            @Override
+            public boolean onFail(Exception e) {
+                return false;
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+        });
     }
 
     public void clear() {

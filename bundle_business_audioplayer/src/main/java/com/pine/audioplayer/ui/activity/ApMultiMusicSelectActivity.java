@@ -93,7 +93,7 @@ public class ApMultiMusicSelectActivity extends BaseMvvmActionBarImageMenuActivi
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         mBinding.recycleView.setLayoutManager(layoutManager);
         mBinding.recycleView.setAdapter(mMultiMusicSelectAdapter);
-        mViewModel.refreshData();
+        mViewModel.refreshData(this);
     }
 
     private void onMusicSelectChange() {
@@ -123,7 +123,7 @@ public class ApMultiMusicSelectActivity extends BaseMvvmActionBarImageMenuActivi
         }
 
         public void onDeleteClick(View view) {
-            mViewModel.deleteSheetMusics(mMultiMusicSelectAdapter.getSelectMusicList());
+            mViewModel.deleteSheetMusics(ApMultiMusicSelectActivity.this, mMultiMusicSelectAdapter.getSelectMusicList());
             finish();
         }
     }

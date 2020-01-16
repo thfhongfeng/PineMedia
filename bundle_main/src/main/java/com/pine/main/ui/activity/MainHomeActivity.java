@@ -54,7 +54,7 @@ public class MainHomeActivity extends BaseMvvmNoActionBarActivity<MainHomeActivi
     @Override
     public void onResume() {
         super.onResume();
-        mViewModel.loadBusinessBundleData();
+        mViewModel.loadBusinessBundleData(this);
     }
 
     @Override

@@ -79,7 +79,7 @@ public class ApAddMusicToSheetActivity extends BaseMvvmActionBarActivity<ApAddMu
                                         showShortToast(R.string.ap_home_sheet_name_non_empty);
                                         return true;
                                     } else {
-                                        mViewModel.createAndAddMusicToSheet(textList.get(0));
+                                        mViewModel.createAndAddMusicToSheet(ApAddMusicToSheetActivity.this, textList.get(0));
                                         finish();
                                         return false;
                                     }
@@ -91,7 +91,7 @@ public class ApAddMusicToSheetActivity extends BaseMvvmActionBarActivity<ApAddMu
                                 }
                             }).show();
                 } else {
-                    mViewModel.addMusicToSheet(sheet);
+                    mViewModel.addMusicToSheet(ApAddMusicToSheetActivity.this, sheet);
                     finish();
                 }
             }
@@ -105,6 +105,6 @@ public class ApAddMusicToSheetActivity extends BaseMvvmActionBarActivity<ApAddMu
     @Override
     protected void onRealResume() {
         super.onRealResume();
-        mViewModel.refreshData();
+        mViewModel.refreshData(this);
     }
 }
