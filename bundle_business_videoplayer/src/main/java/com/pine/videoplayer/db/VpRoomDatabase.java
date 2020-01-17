@@ -1,4 +1,4 @@
-package com.pine.audioplayer.db;
+package com.pine.videoplayer.db;
 
 import android.content.Context;
 
@@ -8,36 +8,36 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import com.pine.audioplayer.db.dao.ApMusicDao;
-import com.pine.audioplayer.db.dao.ApSheetDao;
-import com.pine.audioplayer.db.dao.ApSheetMusicDao;
-import com.pine.audioplayer.db.entity.ApMusic;
-import com.pine.audioplayer.db.entity.ApSheet;
-import com.pine.audioplayer.db.entity.ApSheetMusic;
 import com.pine.tool.util.AppUtils;
 import com.pine.tool.util.LogUtils;
 import com.pine.tool.util.PathUtils;
+import com.pine.videoplayer.db.dao.VpSheetDao;
+import com.pine.videoplayer.db.dao.VpSheetVideoDao;
+import com.pine.videoplayer.db.dao.VpVideoDao;
+import com.pine.videoplayer.db.entity.VpSheet;
+import com.pine.videoplayer.db.entity.VpSheetVideo;
+import com.pine.videoplayer.db.entity.VpVideo;
 import com.tencent.wcdb.database.SQLiteCipherSpec;
 import com.tencent.wcdb.room.db.WCDBOpenHelperFactory;
 
 import java.io.File;
 
-@Database(entities = {ApMusic.class, ApSheet.class, ApSheetMusic.class}, version = 1, exportSchema = false)
-public abstract class ApRoomDatabase extends RoomDatabase {
-    private static final String TAG = LogUtils.makeLogTag(ApRoomDatabase.class);
+@Database(entities = {VpVideo.class, VpSheet.class, VpSheetVideo.class}, version = 1, exportSchema = false)
+public abstract class VpRoomDatabase extends RoomDatabase {
+    private static final String TAG = LogUtils.makeLogTag(VpRoomDatabase.class);
 
     public static final Object DB_SYNC_LOCK = new Object();
 
-    public abstract ApMusicDao apMusicDao();
+    public abstract VpVideoDao vpVideoDao();
 
-    public abstract ApSheetDao apSheetDao();
+    public abstract VpSheetDao vpSheetDao();
 
-    public abstract ApSheetMusicDao apSheetMusicDao();
+    public abstract VpSheetVideoDao vpSheetVideoDao();
 
     private static final String PASSPHRASE = "pine123";
 
     // volatile关键字，确保不会被编译器优化
-    private static volatile ApRoomDatabase INSTANCE;
+    private static volatile VpRoomDatabase INSTANCE;
 
     private static SQLiteCipherSpec cipherSpec = new SQLiteCipherSpec()
             .setPageSize(4096)
@@ -47,12 +47,12 @@ public abstract class ApRoomDatabase extends RoomDatabase {
             .passphrase(PASSPHRASE.getBytes())  // passphrase to the database, remove this line for plain-text
             .cipherSpec(cipherSpec);               // cipher to use, remove for default settings
 
-    public static ApRoomDatabase getINSTANCE(final Context context) {
+    public static VpRoomDatabase getINSTANCE(final Context context) {
         synchronized (DB_SYNC_LOCK) {
             if (INSTANCE == null) {
-                String path = PathUtils.getAppFilePath("db") + File.separator + "audio_player.db";
+                String path = PathUtils.getAppFilePath("db") + File.separator + "video_player.db";
                 LogUtils.d(TAG, "open or create database with path:" + path);
-                Builder<ApRoomDatabase> builder = Room.databaseBuilder(context.getApplicationContext(), ApRoomDatabase.class, path);
+                Builder<VpRoomDatabase> builder = Room.databaseBuilder(context.getApplicationContext(), VpRoomDatabase.class, path);
                 if (!AppUtils.isApkDebuggable(context)) {
                     LogUtils.d(TAG, "on debug apk, disable encrypt database");
                     builder.openHelperFactory(factory);  // encrypt
@@ -76,7 +76,7 @@ public abstract class ApRoomDatabase extends RoomDatabase {
     }
 
     public static void resetDatabase() {
-        synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
+        synchronized (VpRoomDatabase.DB_SYNC_LOCK) {
             if (INSTANCE != null) {
                 INSTANCE.close();
                 INSTANCE = null;

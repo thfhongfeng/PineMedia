@@ -52,9 +52,9 @@ import java.util.Random;
 public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaControllerAdapter {
     private Context mContext;
     private ViewGroup mControllerView;
-    private PineBackgroundViewHolder mBackgroundViewHolder;
     private PineControllerViewHolder mControllerViewHolder;
     private RelativeLayout mBackgroundView;
+    private PineBackgroundViewHolder mBackgroundViewHolder;
 
     public PineMediaWidget.IPineMediaPlayer mPlayer;
 
@@ -373,9 +373,9 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
     }
 
     public ApPlayListType getAndGoNextPlayType() {
-        ApPlayListType apPlayListType = mPlayTypeList.get((++mCurPlayTypePos) % mPlayTypeList.size());
+        ApPlayListType playListType = mPlayTypeList.get((++mCurPlayTypePos) % mPlayTypeList.size());
         refreshPreNextBtnState();
-        return apPlayListType;
+        return playListType;
     }
 
     public String getMediaCode(@NonNull ApMusic music) {

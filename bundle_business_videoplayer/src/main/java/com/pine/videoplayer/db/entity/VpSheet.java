@@ -1,4 +1,4 @@
-package com.pine.audioplayer.db.entity;
+package com.pine.videoplayer.db.entity;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
 
-@Entity(tableName = "ap_sheet")
-public class ApSheet implements Serializable {
+@Entity(tableName = "vp_sheet")
+public class VpSheet implements Serializable {
     // id
     @PrimaryKey(autoGenerate = true)
     @NonNull
@@ -105,7 +105,7 @@ public class ApSheet implements Serializable {
 
     @Override
     public String toString() {
-        return "ApSheet{" +
+        return "VpSheet{" +
                 "id=" + id +
                 ", sheetType=" + sheetType +
                 ", imageUri='" + imageUri + '\'' +

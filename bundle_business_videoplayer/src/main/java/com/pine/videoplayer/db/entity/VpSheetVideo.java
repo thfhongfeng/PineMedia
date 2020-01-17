@@ -1,4 +1,4 @@
-package com.pine.audioplayer.db.entity;
+package com.pine.videoplayer.db.entity;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
 
-@Entity(tableName = "ap_sheet_music")
-public class ApSheetMusic implements Serializable {
+@Entity(tableName = "vp_sheet_video")
+public class VpSheetVideo implements Serializable {
     // id
     @PrimaryKey(autoGenerate = true)
     @NonNull
@@ -20,8 +20,8 @@ public class ApSheetMusic implements Serializable {
     private long sheetId;
 
     @NonNull
-    @ColumnInfo(name = "song_id")
-    private long songId;
+    @ColumnInfo(name = "video_id")
+    private long videoId;
 
     @NonNull
     @ColumnInfo(name = "update_time_stamp")
@@ -31,7 +31,7 @@ public class ApSheetMusic implements Serializable {
     @ColumnInfo(name = "create_time_stamp")
     private long createTimeStamp;
 
-    public ApSheetMusic() {
+    public VpSheetVideo() {
 
     }
 
@@ -51,12 +51,12 @@ public class ApSheetMusic implements Serializable {
         this.sheetId = sheetId;
     }
 
-    public long getSongId() {
-        return songId;
+    public long getVideoId() {
+        return videoId;
     }
 
-    public void setSongId(long songId) {
-        this.songId = songId;
+    public void setVideoId(long videoId) {
+        this.videoId = videoId;
     }
 
     public long getUpdateTimeStamp() {
@@ -77,10 +77,10 @@ public class ApSheetMusic implements Serializable {
 
     @Override
     public String toString() {
-        return "ApMusic{" +
+        return "VpSheetVideo{" +
                 "id=" + id +
                 ", sheetId=" + sheetId +
-                ", songId=" + songId +
+                ", videoId=" + videoId +
                 ", updateTimeStamp=" + updateTimeStamp +
                 ", createTimeStamp=" + createTimeStamp +
                 '}';

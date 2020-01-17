@@ -5,6 +5,10 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
 import com.pine.base.util.SysIntentUtils;
@@ -20,10 +24,6 @@ import com.pine.videoplayer.vm.VpHomeVm;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 public class VpHomeActivity extends BaseMvvmNoActionBarActivity<VpHomeActivityBinding, VpHomeVm> {
     private final int REQUEST_CODE_CHOOSE_FILE = 1;

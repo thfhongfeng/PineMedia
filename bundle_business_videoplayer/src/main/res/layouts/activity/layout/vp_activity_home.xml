@@ -34,12 +34,13 @@
                 android:background="@color/snow"
                 android:gravity="right"
                 android:orientation="horizontal"
-                android:padding="@dimen/dp_5">
+                android:padding="@dimen/dp_7">
 
                 <ImageView
                     android:id="@+id/choose_file_iv"
-                    android:layout_width="@dimen/dp_30"
-                    android:layout_height="@dimen/dp_30"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/dp_5"
                     android:onClick="@{presenter::onChooseFileClick}"
                     android:src="@mipmap/res_ic_folder_btn"></ImageView>
             </LinearLayout>
@@ -48,8 +49,7 @@
                 android:id="@+id/media_list_rv"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
-                android:padding="10dp"></androidx.recyclerview.widget.RecyclerView>
+                android:layout_weight="1"></androidx.recyclerview.widget.RecyclerView>
 
         </LinearLayout>
     </RelativeLayout>

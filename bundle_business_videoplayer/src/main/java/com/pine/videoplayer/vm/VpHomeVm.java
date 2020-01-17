@@ -43,7 +43,7 @@ public class VpHomeVm extends ViewModel {
     @Override
     public void afterViewInit(Context activity) {
         super.afterViewInit(activity);
-        mAllPlayableFileSet = SharePreferenceUtils.readSetStringFromCache("recentAllPlayableFileSet", null);
+        mAllPlayableFileSet = SharePreferenceUtils.readStringSetFromCache("recentAllPlayableFileSet", null);
         if (mAllPlayableFileSet != null && mAllPlayableFileSet.size() > 0) {
             setupAddedMediaData(activity, mAllPlayableFileSet, null);
         } else {

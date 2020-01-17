@@ -90,11 +90,11 @@ public class ApSheetRepository {
         }
     }
 
-    public long addMusicSheet(@NonNull ApSheet apSheet) {
+    public long addMusicSheet(@NonNull ApSheet sheet) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
-            apSheet.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
-            apSheet.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
-            return apSheetDao.insert(apSheet);
+            sheet.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+            sheet.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
+            return apSheetDao.insert(sheet);
         }
     }
 
@@ -104,13 +104,13 @@ public class ApSheetRepository {
         }
     }
 
-    public void deleteMusicSheet(final @NonNull ApSheet apSheet) {
+    public void deleteMusicSheet(final @NonNull ApSheet sheet) {
         synchronized (ApRoomDatabase.DB_SYNC_LOCK) {
             roomDatabase.runInTransaction(new Runnable() {
                 @Override
                 public void run() {
-                    apSheetDao.delete(apSheet);
-                    apSheetMusicDao.deleteBySheetId(apSheet.getId());
+                    apSheetDao.delete(sheet);
+                    apSheetMusicDao.deleteBySheetId(sheet.getId());
                 }
             });
         }

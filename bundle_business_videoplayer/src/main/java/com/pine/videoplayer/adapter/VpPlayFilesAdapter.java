@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.databinding.DataBindingUtil;
+
 import com.pine.base.recycle_view.BaseListViewHolder;
 import com.pine.base.recycle_view.adapter.BaseNoPaginationTreeListAdapter;
 import com.pine.base.recycle_view.bean.BaseListAdapterItemEntity;
@@ -16,8 +18,6 @@ import com.pine.videoplayer.databinding.VpChooseFolderItemBinding;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.databinding.DataBindingUtil;
 
 public class VpPlayFilesAdapter extends BaseNoPaginationTreeListAdapter<VpFileBean> {
     public final static int FOLDER_VIEW_HOLDER = 1;

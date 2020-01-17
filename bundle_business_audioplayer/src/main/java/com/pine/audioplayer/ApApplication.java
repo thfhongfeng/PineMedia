@@ -29,8 +29,8 @@ public class ApApplication extends BaseApplication {
             ApSheet tmpPlaySheet = new ApSheet();
             tmpPlaySheet.setSheetType(ApConstants.MUSIC_SHEET_TYPE_PLAY_LIST);
             tmpPlaySheet.setName(mApplication.getString(R.string.ap_home_play_list_name));
-            recentSheet.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
-            recentSheet.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
+            tmpPlaySheet.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
+            tmpPlaySheet.setCreateTimeStamp(Calendar.getInstance().getTimeInMillis());
             list.add(tmpPlaySheet);
             ApSheetRepository.getInstance(mApplication).addMusicSheetList(list);
             SharePreferenceUtils.saveToConfig("ap_database_init", true);

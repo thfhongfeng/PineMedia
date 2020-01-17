@@ -168,7 +168,7 @@ public class PineMediaPlayerView extends RelativeLayout {
 
     private boolean checkIsInit() {
         if (!mIsInit) {
-            Toast.makeText(mContext, R.string.init_method_need_call_toast, Toast.LENGTH_SHORT);
+            Toast.makeText(mContext, R.string.pine_init_method_need_call_toast, Toast.LENGTH_SHORT);
         }
         return mIsInit;
     }
