@@ -98,7 +98,6 @@ public class ApMusicModel {
                 break;
         }
         callback.onResponse(list);
-
     }
 
     public void updateMusicFavourite(Context context, @NonNull ApMusic music, boolean isFavourite,

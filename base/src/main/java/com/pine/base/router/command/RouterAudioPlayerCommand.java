@@ -10,4 +10,5 @@ import com.pine.tool.router.annotation.ARouterRemoteAction;
 @ARouterRemoteAction(Key = ConfigKey.BUNDLE_AUDIO_PLAYER_KEY, RemoteAction = "/audioPlayer/service")
 public interface RouterAudioPlayerCommand {
     String goAudioPlayerHomeActivity = "goAudioPlayerHomeActivity";
+    String goAudioPlayerMainActivity = "goAudioPlayerMainActivity";
 }

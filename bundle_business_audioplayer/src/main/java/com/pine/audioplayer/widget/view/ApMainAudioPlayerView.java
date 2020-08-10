@@ -74,6 +74,10 @@ public class ApMainAudioPlayerView extends AudioPlayerView {
         return (ViewGroup) mRoot;
     }
 
+    public void enableMediaList(boolean enable) {
+        mapv_media_list_btn.setEnabled(enable);
+    }
+
     @Override
     public void attachView(PlayerViewListener playerViewListener,
                            ApOutRootLrcPlugin.ILyricUpdateListener lyricUpdateListener) {

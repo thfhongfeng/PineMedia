@@ -8,10 +8,6 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 
-import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
-
 import com.pine.audioplayer.R;
 import com.pine.audioplayer.databinding.ApActionMainTimingDialogBinding;
 import com.pine.audioplayer.databinding.ApItemMainTimingDialogBinding;
@@ -34,6 +30,10 @@ import com.pine.tool.util.ResourceUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
 
 public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBinding, ApMainVm> {
     private final int REQUEST_CODE_ADD_TO_SHEET = 1;
@@ -92,7 +92,7 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
 
     @Override
     public void observeInitLiveData(Bundle savedInstanceState) {
-        mViewModel.mPlayStateData.observe(this, new Observer<ApMusic>() {
+        mViewModel.mPlayMusicStateData.observe(this, new Observer<ApMusic>() {
             @Override
             public void onChanged(ApMusic music) {
                 if (music == null) {
@@ -101,6 +101,24 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
                 }
                 mBinding.setMusic(music);
                 mBinding.playerView.updateMusicData(music);
+            }
+        });
+        mViewModel.mInitMusicStateData.observe(this, new Observer<ApMusic>() {
+            @Override
+            public void onChanged(ApMusic music) {
+                if (music == null) {
+                    finish();
+                    return;
+                }
+                mBinding.setMusic(music);
+                ApAudioPlayerHelper.getInstance().playMusic(mBinding.playerView, music, mViewModel.mInitMusicStateData.getCustomData());
+            }
+        });
+        mViewModel.mPlayListSheetIdData.observe(this, new Observer<Long>() {
+            @Override
+            public void onChanged(Long sheetId) {
+                mBinding.setSheetId(sheetId);
+                mBinding.playerView.enableMediaList(sheetId > 0);
             }
         });
     }
@@ -134,6 +152,14 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
     }
 
     @Override
+    protected void onDestroy() {
+        if (mViewModel.mInitPlayerMode) {
+            ApAudioPlayerHelper.getInstance().destroy();
+        }
+        super.onDestroy();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_ADD_TO_SHEET) {
@@ -152,14 +178,14 @@ public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBi
                 int[] menuImages = ResourceUtils.getResIdArray(ApMainActivity.this, R.array.ap_music_main_item_menu_img);
                 String[] menuNames = getResources().getStringArray(R.array.ap_music_main_item_menu_name);
                 mTopMenuDialog = DialogUtils.createItemSelectDialog(ApMainActivity.this,
-                        mViewModel.mPlayStateData.getValue().getName(), menuImages, menuNames, new SelectItemDialog.IDialogSelectListener() {
+                        mViewModel.mPlayMusicStateData.getValue().getName(), menuImages, menuNames, new SelectItemDialog.IDialogSelectListener() {
                             @Override
                             public void onSelect(String selectText, int position) {
                                 switch (position) {
                                     case 0:
                                         Intent intent = new Intent(ApMainActivity.this, ApAddMusicToSheetActivity.class);
                                         ArrayList<ApMusic> list = new ArrayList<>();
-                                        list.add(mViewModel.mPlayStateData.getValue());
+                                        list.add(mViewModel.mPlayMusicStateData.getValue());
                                         intent.putExtra("selectList", list);
                                         startActivityForResult(intent, REQUEST_CODE_ADD_TO_SHEET);
                                         break;
