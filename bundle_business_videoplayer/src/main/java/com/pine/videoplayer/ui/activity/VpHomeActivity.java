@@ -5,10 +5,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.pine.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.base.recycle_view.adapter.BaseListAdapter;
 import com.pine.base.util.SysIntentUtils;
@@ -24,6 +20,10 @@ import com.pine.videoplayer.vm.VpHomeVm;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class VpHomeActivity extends BaseMvvmNoActionBarActivity<VpHomeActivityBinding, VpHomeVm> {
     private final int REQUEST_CODE_CHOOSE_FILE = 1;
@@ -81,10 +81,15 @@ public class VpHomeActivity extends BaseMvvmNoActionBarActivity<VpHomeActivityBi
         mBinding.mediaListRv.setLayoutManager(linearLayoutManager);
         mRecentPlayedFilesAdapter = new VpPlayFilesAdapter();
         mRecentPlayedFilesAdapter.enableEmptyComplete(false, false);
-        mRecentPlayedFilesAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener<String>() {
+        mRecentPlayedFilesAdapter.setOnItemClickListener(new BaseListAdapter.IOnItemClickListener<VpFileBean>() {
             @Override
-            public void onItemClick(View view, int position, String tag, String customData) {
-                mMediaControllerAdapter.onMediaSelect(customData, true);
+            public void onItemClick(View view, int position, String tag, VpFileBean fileBean) {
+                if ("root".equals(tag)) {
+                    mMediaControllerAdapter.onMediaSelect(fileBean.getMediaCode(), true);
+                    mRecentPlayedFilesAdapter.setCurMediaCode(fileBean.getMediaCode());
+                } else if ("delete".equals(tag)) {
+                    mViewModel.deleteMedia(fileBean);
+                }
             }
         });
         mBinding.mediaListRv.setAdapter(mRecentPlayedFilesAdapter);

@@ -129,10 +129,18 @@ public class VpPlayFilesAdapter extends BaseNoPaginationTreeListAdapter<VpFileBe
                 @Override
                 public void onClick(View v) {
                     if (mItemClickListener != null) {
-                        mItemClickListener.onItemClick(v, position, null, content.getMediaCode());
-                        mCurMediaCode = content.getMediaCode();
+                        mItemClickListener.onItemClick(v, position, "root", content);
                         notifyItemChangedSafely(lastFileSelectPosition);
                         notifyItemChangedSafely(position);
+                    }
+                }
+            });
+            mBinding.deleteIv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mItemClickListener != null) {
+                        mItemClickListener.onItemClick(v, position, "delete", content);
+                        notifyDataSetChangedSafely();
                     }
                 }
             });

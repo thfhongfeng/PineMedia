@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
-
 import com.pine.player.applet.IPinePlayerPlugin;
 import com.pine.player.applet.subtitle.plugin.PineLrcParserPlugin;
 import com.pine.player.applet.subtitle.plugin.PineSrtParserPlugin;
@@ -28,6 +26,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import androidx.annotation.NonNull;
+
 public class VpHomeVm extends ViewModel {
     private final String LRC_SUFFIX = "lrc";
     private final String SRT_SUFFIX = "srt";
@@ -38,7 +38,7 @@ public class VpHomeVm extends ViewModel {
     private HashMap<String, String> mChosenSrtFileSubtitleMap = new HashMap<>();
     private HashMap<String, Uri> mChosenMediaImageMap = new HashMap<>();
     public ParametricLiveData<ArrayList<VpFileBean>, String> mFileListData = new ParametricLiveData<>();
-    public ParametricLiveData<List<PineMediaPlayerBean>, String> mMediaListData = new ParametricLiveData<>();
+    public ParametricLiveData<ArrayList<PineMediaPlayerBean>, String> mMediaListData = new ParametricLiveData<>();
 
     @Override
     public void afterViewInit(Context activity) {
@@ -49,6 +49,21 @@ public class VpHomeVm extends ViewModel {
         } else {
             mAllPlayableFileSet = new HashSet<>();
         }
+    }
+
+    public void deleteMedia(VpFileBean fileBean) {
+        ArrayList<VpFileBean> fileList = mFileListData.getValue();
+        ArrayList<PineMediaPlayerBean> mediaList = mMediaListData.getValue();
+
+        fileList.remove(fileBean);
+        int pos = 0;
+        while (mediaList.size() > pos && !mediaList.get(pos).getMediaCode().equals(fileBean.getMediaCode())) {
+            pos++;
+        }
+        mediaList.remove(pos);
+        String nextMediaCode = mediaList.get(pos % mediaList.size()).getMediaCode();
+        mFileListData.setValue(fileList, nextMediaCode);
+        mMediaListData.setValue(mediaList, nextMediaCode);
     }
 
     public void onFileChosen(Context context, @NonNull Intent data) {
