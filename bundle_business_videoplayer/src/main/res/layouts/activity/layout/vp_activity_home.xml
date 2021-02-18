@@ -5,7 +5,7 @@
 
         <variable
             name="presenter"
-            type="com.pine.videoplayer.ui.activity.VpHomeActivity.Presenter" />
+            type="com.pine.media.videoplayer.ui.activity.VpHomeActivity.Presenter" />
     </data>
 
     <RelativeLayout

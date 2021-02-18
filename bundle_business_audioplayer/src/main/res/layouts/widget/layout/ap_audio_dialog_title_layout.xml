@@ -3,11 +3,11 @@
 
     <data class="ApSimpleAudioDialogTitleBinding">
 
-        <import type="com.pine.audioplayer.R"></import>
+        <import type="com.pine.media.audioplayer.R"></import>
 
         <variable
             name="playType"
-            type="com.pine.audioplayer.bean.ApPlayListType" />
+            type="com.pine.media.audioplayer.bean.ApPlayListType" />
 
         <variable
             name="mediaCount"

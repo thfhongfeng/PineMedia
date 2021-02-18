@@ -5,8 +5,16 @@ buildscript {
     apply from: 'config_app.gradle'
     apply from: 'config_product.gradle'
     repositories {
-        google()
-        jcenter()
+        maven { url 'https://maven.aliyun.com/repository/central' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
+
+//        google()
+//        mavenLocal()
+//        mavenCentral()
+//        maven { url 'https://maven.google.com' }
+//        jcenter()
         maven {
             url uri("./repo")
         }
@@ -20,9 +28,16 @@ buildscript {
 
 allprojects {
     repositories {
-        google()
-        jcenter()
-        maven { url "https://maven.google.com" }
+        maven { url 'https://maven.aliyun.com/repository/central' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
+
+//        google()
+//        mavenLocal()
+//        mavenCentral()
+//        maven { url 'https://maven.google.com' }
+//        jcenter()
     }
 }
 

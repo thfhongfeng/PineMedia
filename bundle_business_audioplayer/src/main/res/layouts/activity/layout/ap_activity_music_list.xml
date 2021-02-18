@@ -7,17 +7,17 @@
 
         <import type="android.text.TextUtils"></import>
 
-        <import type="com.pine.audioplayer.R"></import>
+        <import type="com.pine.media.audioplayer.R"></import>
 
-        <import type="com.pine.audioplayer.ApConstants"></import>
+        <import type="com.pine.media.audioplayer.ApConstants"></import>
 
         <variable
             name="presenter"
-            type="com.pine.audioplayer.ui.activity.ApMusicListActivity.Presenter" />
+            type="com.pine.media.audioplayer.ui.activity.ApMusicListActivity.Presenter" />
 
         <variable
             name="musicSheet"
-            type="com.pine.audioplayer.db.entity.ApSheet" />
+            type="com.pine.media.audioplayer.db.entity.ApSheet" />
     </data>
 
     <RelativeLayout
@@ -131,10 +131,10 @@
                 android:layout_margin="@dimen/dp_10"
                 android:layout_weight="1"></androidx.recyclerview.widget.RecyclerView>
 
-            <com.pine.audioplayer.widget.view.ApSimpleAudioPlayerView
+            <com.pine.media.audioplayer.widget.view.ApSimpleAudioPlayerView
                 android:id="@+id/player_view"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"></com.pine.audioplayer.widget.view.ApSimpleAudioPlayerView>
+                android:layout_height="wrap_content"></com.pine.media.audioplayer.widget.view.ApSimpleAudioPlayerView>
         </LinearLayout>
     </RelativeLayout>
 

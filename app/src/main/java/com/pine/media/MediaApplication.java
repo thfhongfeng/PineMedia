@@ -5,26 +5,26 @@ import android.content.Context;
 import android.os.Build;
 import android.os.StrictMode;
 
-import com.pine.audioplayer.ApApplication;
-import com.pine.base.BaseApplication;
-import com.pine.base.access.UiAccessConfigSwitcherExecutor;
-import com.pine.base.access.UiAccessLoginExecutor;
-import com.pine.base.access.UiAccessType;
-import com.pine.base.access.UiAccessVipLevelExecutor;
-import com.pine.base.component.map.IMapManager;
-import com.pine.base.component.map.IMapManagerFactory;
-import com.pine.base.component.map.MapSdkManager;
-import com.pine.base.component.map.baidu.BaiduMapManager;
-import com.pine.base.component.map.gaode.GaodeMapManager;
-import com.pine.base.component.scan.IScanManager;
-import com.pine.base.component.scan.IScanManagerFactory;
-import com.pine.base.component.scan.ScanManager;
-import com.pine.base.component.scan.zxing.ZXingScanManager;
-import com.pine.base.component.share.manager.ShareManager;
-import com.pine.config.BuildConfig;
-import com.pine.config.switcher.ConfigSwitcherServer;
-import com.pine.main.MainApplication;
-import com.pine.pictureviewer.PvApplication;
+import com.pine.media.audioplayer.ApApplication;
+import com.pine.media.base.BaseApplication;
+import com.pine.media.base.access.UiAccessConfigSwitcherExecutor;
+import com.pine.media.base.access.UiAccessLoginExecutor;
+import com.pine.media.base.access.UiAccessType;
+import com.pine.media.base.access.UiAccessVipLevelExecutor;
+import com.pine.media.base.component.map.IMapManager;
+import com.pine.media.base.component.map.IMapManagerFactory;
+import com.pine.media.base.component.map.MapSdkManager;
+import com.pine.media.base.component.map.baidu.BaiduMapManager;
+import com.pine.media.base.component.map.gaode.GaodeMapManager;
+import com.pine.media.base.component.scan.IScanManager;
+import com.pine.media.base.component.scan.IScanManagerFactory;
+import com.pine.media.base.component.scan.ScanManager;
+import com.pine.media.base.component.scan.zxing.ZXingScanManager;
+import com.pine.media.base.component.share.manager.ShareManager;
+import com.pine.media.config.BuildConfig;
+import com.pine.media.config.switcher.ConfigSwitcherServer;
+import com.pine.media.main.MainApplication;
+import com.pine.media.videoplayer.PvApplication;
 import com.pine.tool.access.UiAccessManager;
 import com.pine.tool.request.IRequestManager;
 import com.pine.tool.request.IRequestManagerFactory;
@@ -36,8 +36,8 @@ import com.pine.tool.router.RouterManager;
 import com.pine.tool.router.impl.arouter.manager.ARouterManager;
 import com.pine.tool.util.AppUtils;
 import com.pine.tool.util.LogUtils;
-import com.pine.videoplayer.VpApplication;
-import com.pine.welcome.WelcomeApplication;
+import com.pine.media.videoplayer.VpApplication;
+import com.pine.media.welcome.WelcomeApplication;
 
 /**
  * Created by tanghongfeng on 2018/7/3.
@@ -84,7 +84,7 @@ public class MediaApplication extends Application {
     }
 
     private void initManager() {
-        RouterManager.init(this, "com.pine.base.router.command",
+        RouterManager.init(this, "com.pine.media.base.router.command",
                 new IRouterManagerFactory() {
                     @Override
                     public IRouterManager makeRouterManager() {

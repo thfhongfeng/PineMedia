@@ -5,7 +5,7 @@
 
         <variable
             name="music"
-            type="com.pine.audioplayer.db.entity.ApMusic" />
+            type="com.pine.media.audioplayer.db.entity.ApMusic" />
 
         <variable
             name="isLightTheme"
@@ -17,7 +17,7 @@
 
         <variable
             name="presenter"
-            type="com.pine.audioplayer.ui.activity.ApMainActivity.Presenter" />
+            type="com.pine.media.audioplayer.ui.activity.ApMainActivity.Presenter" />
     </data>
 
     <LinearLayout
@@ -126,9 +126,9 @@
 
         </LinearLayout>
 
-        <com.pine.audioplayer.widget.view.ApMainAudioPlayerView
+        <com.pine.media.audioplayer.widget.view.ApMainAudioPlayerView
             android:id="@+id/player_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"></com.pine.audioplayer.widget.view.ApMainAudioPlayerView>
+            android:layout_height="wrap_content"></com.pine.media.audioplayer.widget.view.ApMainAudioPlayerView>
     </LinearLayout>
 </layout>
