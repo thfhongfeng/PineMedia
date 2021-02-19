@@ -14,8 +14,8 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    dataBinding {
-        enabled = true
+    buildFeatures {
+        dataBinding = true
     }
 
     buildTypes {
@@ -58,6 +58,7 @@ dependencies {
     api build_dependency['bumptech_glide']
     annotationProcessor build_dependency['bumptech_glide_compiler']
     api(name: build_dependency["sina_weibo_sdk"], ext: 'aar')
+    api(name: build_dependency["chuanshanjia_ads_sdk"], ext: 'aar')
     annotationProcessor build_dependency["android_room_compiler"]
     api build_dependency["android_room_runtime"]
     // CWAC-SafeRoom: A Room<->SQLCipher for Android Bridge
@@ -74,6 +75,5 @@ dependencies {
 
     // 配置模块 begin
     api project(':config')
-    implementation 'androidx.room:room-runtime:2.2.2'
     // 配置模块 end
 }

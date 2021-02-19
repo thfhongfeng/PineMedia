@@ -2,11 +2,11 @@
  * 编译打包参数
  */
 def build_versions = [:]
-build_versions.compileSdkVersion = 28
-build_versions.buildToolsVersion = "28.0.3"
-build_versions.minSdkVersion = 21
-build_versions.targetSdkVersion = 28
-build_versions.targetSdkVersion = 28
+build_versions.compileSdkVersion = 30
+build_versions.buildToolsVersion = "30.0.2"
+build_versions.minSdkVersion = 23
+build_versions.targetSdkVersion = 30
+build_versions.targetSdkVersion = 30
 
 build_versions.apkHeadName = "pine_media"
 
@@ -57,6 +57,7 @@ def build_dependency = [
         "tencent_wcdb_android"        : "com.tencent.wcdb:wcdb-android:1.0.8",
 
         // 第三方 sdk
-        "sina_weibo_sdk"              : 'core-4.3.1-openDefaultRelease'
+        "sina_weibo_sdk"              : 'core-4.3.1-openDefaultRelease',
+        "chuanshanjia_ads_sdk"        : 'open_ad_sdk'
 ]
 ext.build_dependency = build_dependency

@@ -103,5 +103,17 @@
             android:name="com.amap.api.v2.apikey"
             android:value="${gaode_for_app_key}" />
         <!-- 高德地图SDK end-->
+
+        <!-- 穿山甲广告SDK begin-->
+        <provider
+            android:name="com.bytedance.sdk.openadsdk.TTFileProvider"
+            android:authorities="${applicationId}.TTFileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/base_file_paths" />
+        </provider>
+        <!-- 穿山甲广告SDK end-->
     </application>
 </manifest>

@@ -8,9 +8,7 @@ android {
         minSdkVersion build_versions.minSdkVersion
         targetSdkVersion build_versions.targetSdkVersion
 
-        buildConfigField "String", "APPLICATION_PACKAGE", "\"${build_versions.applicationId}\""
-        buildConfigField "String", "APP_NAME", "\"${build_versions.app_name}\""
-
+        buildConfigField "String", "APP_NAME", "\"${build_product_appName.common}\""
         buildConfigField "String", "BASE_URL", "\"${app_url.base_url}\""
         buildConfigField "String", "WEI_BO_REDIRECT_URL", "\"${app_url.wei_bo_secret_key}\""
 
