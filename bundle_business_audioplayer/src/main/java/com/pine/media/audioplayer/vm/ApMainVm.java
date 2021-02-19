@@ -4,6 +4,9 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
+
 import com.pine.media.audioplayer.db.entity.ApMusic;
 import com.pine.media.audioplayer.manager.ApAudioPlayerHelper;
 import com.pine.media.audioplayer.model.ApMusicModel;
@@ -12,9 +15,6 @@ import com.pine.tool.architecture.mvp.model.IModelAsyncResponse;
 import com.pine.tool.architecture.mvvm.vm.ViewModel;
 import com.pine.tool.binding.data.ParametricLiveData;
 import com.pine.tool.service.TimerWorkHelper;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.MutableLiveData;
 
 public class ApMainVm extends ViewModel {
     private ApMusicModel mModel = new ApMusicModel();
@@ -31,8 +31,8 @@ public class ApMainVm extends ViewModel {
         long sheetId = bundle.getLong("sheetId", -1);
         mPlayMusic = (ApMusic) bundle.getSerializable("music");
         boolean playing = bundle.getBoolean("playing", false);
+        mInitPlayerMode = bundle.getBoolean("isStartupMode", false);
         if (sheetId < 0 || mPlayMusic == null) {
-            mInitPlayerMode = true;
             Uri musicPathUri = bundle.getParcelable("data");
             if (musicPathUri == null) {
                 finishUi();

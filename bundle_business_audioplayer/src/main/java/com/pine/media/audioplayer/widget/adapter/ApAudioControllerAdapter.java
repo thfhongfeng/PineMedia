@@ -401,8 +401,10 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
     }
 
     private void onMusicListClear(ApMusic preMusic) {
-        mPlayer.release();
-        mPlayer.setPlayingMedia(null);
+        if (mPlayer != null) {
+            mPlayer.release();
+            mPlayer.setPlayingMedia(null);
+        }
         loadAlbumArtAndLyric(null);
         if (mPlayerViewListenerMap.size() > 0) {
             Iterator<Map.Entry<Integer, AudioPlayerView.PlayerViewListener>> iterator = mPlayerViewListenerMap.entrySet().iterator();
@@ -524,7 +526,9 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
     }
 
     public void destroy() {
-        mPlayer.removeMediaPlayerListener(mPlayerListener);
+        if (mPlayer != null) {
+            mPlayer.removeMediaPlayerListener(mPlayerListener);
+        }
         setMusicList(null, false);
 
         clearAlbumArtBitmap();

@@ -15,7 +15,7 @@ import com.pine.media.audioplayer.adapter.ApMusicSheetAdapter;
 import com.pine.media.audioplayer.databinding.ApHomeActivityBinding;
 import com.pine.media.audioplayer.db.entity.ApSheet;
 import com.pine.media.audioplayer.manager.ApAudioPlayerHelper;
-import com.pine.media.audioplayer.vm.ApSheetListVm;
+import com.pine.media.audioplayer.vm.ApHomeVm;
 import com.pine.media.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.media.base.recycle_view.adapter.BaseListAdapter;
 import com.pine.media.base.util.DialogUtils;
@@ -23,7 +23,7 @@ import com.pine.media.base.widget.dialog.InputTextDialog;
 
 import java.util.List;
 
-public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBinding, ApSheetListVm> {
+public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBinding, ApHomeVm> {
     private ApMusicSheetAdapter mMusicSheetAdapter;
 
     @Override
@@ -51,7 +51,7 @@ public class ApHomeActivity extends BaseMvvmNoActionBarActivity<ApHomeActivityBi
 
     @Override
     public void observeSyncLiveData(int liveDataObjTag) {
-        if (liveDataObjTag == ApSheetListVm.LIVE_DATA_TAG_RECENT_SHEET) {
+        if (liveDataObjTag == ApHomeVm.LIVE_DATA_TAG_RECENT_SHEET) {
             mViewModel.mRecentSheetData.observe(this, new Observer<ApSheet>() {
                 @Override
                 public void onChanged(ApSheet apSheet) {

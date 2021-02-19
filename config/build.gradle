@@ -17,6 +17,8 @@ android {
         buildConfigField "String", "WX_SECRET_KEY", "\"${app_key.wx_secret_key}\""
         buildConfigField "String", "WEI_BO_FOR_APP_KEY", "\"${app_key.wei_bo_for_app_key}\""
         buildConfigField "String", "WEI_BO_SECRET_KEY", "\"${app_key.wei_bo_secret_key}\""
+        buildConfigField "String", "ADS_CSJ_FOR_APP_ID", "\"${app_key.ads_csj_for_app_id}\""
+        buildConfigField "String", "ADS_CSJ_FOR_CODE_ID", "\"${app_key.ads_csj_for_code_id}\""
 
         buildConfigField "String", "APP_THIRD_ROUTER_PROVIDER", "\"${app_third_sdk_provider.router_provider}\""
         buildConfigField "String", "APP_THIRD_MAP_PROVIDER", "\"${app_third_sdk_provider.map_provider}\""
@@ -24,6 +26,7 @@ android {
         buildConfigField "String", "APP_THIRD_HTTP_REQUEST_PROVIDER", "\"${app_third_sdk_provider.http_request_provider}\""
         buildConfigField "String", "APP_THIRD_DATA_SOURCE_PROVIDER", "\"${app_third_sdk_provider.data_source_provider}\""
         buildConfigField "String", "APP_THIRD_SCAN_PROVIDER", "\"${app_third_sdk_provider.scan_provider}\""
+        buildConfigField "String", "APP_THIRD_ADS_PROVIDER", "\"${app_third_sdk_provider.ads_provider}\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

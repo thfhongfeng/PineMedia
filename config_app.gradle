@@ -29,6 +29,9 @@ app_key.gaode_for_app_key = "de1c90e5a95bcc3f7bc0c567d41d8337"
 app_key.wei_bo_for_app_key = "1125184506"
 app_key.wei_bo_secret_key = "15256daac5dc83e0b0aec9dabafc3620"
 
+app_key.ads_csj_for_app_id = "5145387"
+app_key.ads_csj_for_code_id = "887439682"
+
 ext.app_key = app_key
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,6 +55,8 @@ app_third_sdk_provider.http_request_provider = "nohttp"
 app_third_sdk_provider.data_source_provider = "net"
 // 第三方扫码功能提供者，默认使用zxing(目前可供选择项：zxing)
 app_third_sdk_provider.scan_provider = "zxing"
+// 第三方广告变现提供者，默认使用chuanshanjia(目前可供选择项：chuanshanjia)
+app_third_sdk_provider.ads_provider = "chuanshanjia"
 
 ext.app_third_sdk_provider = app_third_sdk_provider
 

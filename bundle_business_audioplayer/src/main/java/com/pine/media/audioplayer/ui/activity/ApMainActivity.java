@@ -8,6 +8,10 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+
 import com.pine.media.audioplayer.R;
 import com.pine.media.audioplayer.databinding.ApActionMainTimingDialogBinding;
 import com.pine.media.audioplayer.databinding.ApItemMainTimingDialogBinding;
@@ -30,10 +34,6 @@ import com.pine.tool.util.ResourceUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
 
 public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBinding, ApMainVm> {
     private final int REQUEST_CODE_ADD_TO_SHEET = 1;

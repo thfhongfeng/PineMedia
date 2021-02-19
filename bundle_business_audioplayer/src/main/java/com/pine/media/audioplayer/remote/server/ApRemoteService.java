@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+
 import com.pine.media.audioplayer.ApConstants;
 import com.pine.media.audioplayer.ui.activity.ApHomeActivity;
 import com.pine.media.audioplayer.ui.activity.ApMainActivity;
@@ -11,8 +13,6 @@ import com.pine.media.base.router.command.RouterAudioPlayerCommand;
 import com.pine.tool.router.IServiceCallback;
 import com.pine.tool.router.annotation.RouterCommand;
 import com.pine.tool.ui.Activity;
-
-import androidx.annotation.NonNull;
 
 /**
  * Created by tanghongfeng on 2018/9/13
@@ -38,6 +38,7 @@ public class ApRemoteService {
         if (startupIntent == null || requestCode == null) {
             return;
         }
+        intent.putExtra("isStartupMode", true);
         intent.putExtra("data", startupIntent.getData());
         intent.putExtra("playing", true);
         if (context instanceof Activity && requestCode != null) {

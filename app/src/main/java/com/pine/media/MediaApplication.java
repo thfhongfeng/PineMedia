@@ -11,6 +11,10 @@ import com.pine.media.base.access.UiAccessConfigSwitcherExecutor;
 import com.pine.media.base.access.UiAccessLoginExecutor;
 import com.pine.media.base.access.UiAccessType;
 import com.pine.media.base.access.UiAccessVipLevelExecutor;
+import com.pine.media.base.component.ads.AdsSdkManager;
+import com.pine.media.base.component.ads.IAdsManager;
+import com.pine.media.base.component.ads.IAdsManagerFactory;
+import com.pine.media.base.component.ads.csj.CsjAdsManager;
 import com.pine.media.base.component.map.IMapManager;
 import com.pine.media.base.component.map.IMapManagerFactory;
 import com.pine.media.base.component.map.MapSdkManager;
@@ -25,6 +29,8 @@ import com.pine.media.config.BuildConfig;
 import com.pine.media.config.switcher.ConfigSwitcherServer;
 import com.pine.media.main.MainApplication;
 import com.pine.media.videoplayer.PvApplication;
+import com.pine.media.videoplayer.VpApplication;
+import com.pine.media.welcome.WelcomeApplication;
 import com.pine.tool.access.UiAccessManager;
 import com.pine.tool.request.IRequestManager;
 import com.pine.tool.request.IRequestManagerFactory;
@@ -36,8 +42,6 @@ import com.pine.tool.router.RouterManager;
 import com.pine.tool.router.impl.arouter.manager.ARouterManager;
 import com.pine.tool.util.AppUtils;
 import com.pine.tool.util.LogUtils;
-import com.pine.media.videoplayer.VpApplication;
-import com.pine.media.welcome.WelcomeApplication;
 
 /**
  * Created by tanghongfeng on 2018/7/3.
@@ -141,6 +145,18 @@ public class MediaApplication extends Application {
                         return ZXingScanManager.getInstance();
                     default:
                         return ZXingScanManager.getInstance();
+                }
+            }
+        });
+
+        AdsSdkManager.init(this, new IAdsManagerFactory() {
+            @Override
+            public IAdsManager makeAdsManager(Context context) {
+                switch (BuildConfig.APP_THIRD_DATA_SOURCE_PROVIDER) {
+                    case "chuanshanjia":
+                        return CsjAdsManager.getInstance();
+                    default:
+                        return CsjAdsManager.getInstance();
                 }
             }
         });

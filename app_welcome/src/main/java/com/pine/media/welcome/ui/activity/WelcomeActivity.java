@@ -2,15 +2,19 @@ package com.pine.media.welcome.ui.activity;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 
 import com.pine.media.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
+import com.pine.media.base.component.ads.AdsSdkManager;
+import com.pine.media.base.component.ads.IAdsInteractionListener;
+import com.pine.media.base.component.ads.IAdsRequestStateListener;
 import com.pine.media.base.router.command.RouterMainCommand;
-import com.pine.tool.router.IRouterCallback;
-import com.pine.tool.util.LogUtils;
 import com.pine.media.welcome.R;
 import com.pine.media.welcome.databinding.WelcomeActivityBinding;
 import com.pine.media.welcome.remote.WelcomeRouterClient;
 import com.pine.media.welcome.vm.WelcomeVm;
+import com.pine.tool.router.IRouterCallback;
+import com.pine.tool.util.LogUtils;
 
 public class WelcomeActivity extends BaseMvvmNoActionBarActivity<WelcomeActivityBinding, WelcomeVm> {
     private final static int WELCOME_STAY_MIN_TIME = 1000;
@@ -29,7 +33,11 @@ public class WelcomeActivity extends BaseMvvmNoActionBarActivity<WelcomeActivity
     @Override
     protected void init(Bundle savedInstanceState) {
         mStartTimeMillis = System.currentTimeMillis();
-        goMainHomeActivity();
+        if (getIntent().getBooleanExtra("allowAds", false)) {
+            loadAds();
+        } else {
+            goMainHomeActivity();
+        }
     }
 
     private void goMainHomeActivity() {
@@ -53,6 +61,52 @@ public class WelcomeActivity extends BaseMvvmNoActionBarActivity<WelcomeActivity
                 });
             }
         }, delay);
+    }
+
+    private void loadAds() {
+        AdsSdkManager.loadSplashAd(this, mBinding.welAdsContainer, false, new IAdsRequestStateListener() {
+            @Override
+            public void onError(int code, String message) {
+                goMainHomeActivity();
+            }
+
+            @Override
+            public void onTimeout() {
+                goMainHomeActivity();
+            }
+
+            @Override
+            public void onAdsRequestSuccess(View adsView) {
+                if (adsView != null && mBinding.welAdsContainer != null && !WelcomeActivity.this.isFinishing()) {
+                    mBinding.welAdsContainer.removeAllViews();
+                    //把SplashView 添加到ViewGroup中,注意开屏广告view：width >=70%屏幕宽；height >=50%屏幕高
+                    mBinding.welAdsContainer.addView(adsView);
+                } else {
+                    goMainHomeActivity();
+                }
+            }
+        }, new IAdsInteractionListener() {
+
+            @Override
+            public void onAdClicked(View view, int type) {
+
+            }
+
+            @Override
+            public void onAdShow(View view, int type) {
+
+            }
+
+            @Override
+            public void onAdSkip() {
+                goMainHomeActivity();
+            }
+
+            @Override
+            public void onAdTimeOver() {
+                goMainHomeActivity();
+            }
+        }, null);
     }
 
     @Override

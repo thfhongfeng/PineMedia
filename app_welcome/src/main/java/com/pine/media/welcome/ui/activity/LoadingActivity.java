@@ -10,16 +10,16 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
+
 import com.pine.media.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.media.base.router.command.RouterAudioPlayerCommand;
 import com.pine.media.base.util.DialogUtils;
 import com.pine.media.base.widget.dialog.ProgressDialog;
 import com.pine.media.config.ConfigKey;
 import com.pine.media.config.switcher.ConfigSwitcherServer;
-import com.pine.tool.permission.PermissionsAnnotation;
-import com.pine.tool.router.IRouterCallback;
-import com.pine.tool.util.LogUtils;
-import com.pine.tool.util.SharePreferenceUtils;
 import com.pine.media.welcome.R;
 import com.pine.media.welcome.WelcomeApplication;
 import com.pine.media.welcome.WelcomeConstants;
@@ -27,10 +27,10 @@ import com.pine.media.welcome.WelcomeSPKeyConstants;
 import com.pine.media.welcome.databinding.LoadingActivityBinding;
 import com.pine.media.welcome.remote.WelcomeRouterClient;
 import com.pine.media.welcome.vm.LoadingVm;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.Observer;
+import com.pine.tool.permission.PermissionsAnnotation;
+import com.pine.tool.router.IRouterCallback;
+import com.pine.tool.util.LogUtils;
+import com.pine.tool.util.SharePreferenceUtils;
 
 @PermissionsAnnotation(Permissions = {Manifest.permission.READ_PHONE_STATE,
         Manifest.permission.WRITE_EXTERNAL_STORAGE})
@@ -241,11 +241,8 @@ public class LoadingActivity extends BaseMvvmNoActionBarActivity<LoadingActivity
     }
 
     private void gotoNext(int delayTogo) {
-        long delay = delayTogo;
-        if (delayTogo <= 0) {
-            delay = LOADING_STAY_MIN_TIME - (System.currentTimeMillis() - mStartTimeMillis);
-            delay = delay > 0 ? delay : 0;
-        }
+        long delay = LOADING_STAY_MIN_TIME - (System.currentTimeMillis() - mStartTimeMillis);
+        delay = delay > delayTogo ? delay : delayTogo > 0 ? delayTogo : 0;
         if (isGoAssignActivityAction()) {
             goAssignActivity();
         } else {
@@ -267,8 +264,9 @@ public class LoadingActivity extends BaseMvvmNoActionBarActivity<LoadingActivity
 
     private boolean isGoAssignActivityAction() {
         Intent startupIntent = getIntent().getParcelableExtra(WelcomeConstants.STARTUP_INTENT);
-        LogUtils.d(TAG, "gotoNext startupIntent: " + startupIntent);
-        return startupIntent != null;
+        boolean isGoAssignActivityAction = Intent.ACTION_VIEW.equals(startupIntent.getAction());
+        LogUtils.d(TAG, "gotoNext startupIntent: " + startupIntent + ", isGoAssignActivityAction: " + isGoAssignActivityAction);
+        return isGoAssignActivityAction;
     }
 
     private void goAssignActivity() {
