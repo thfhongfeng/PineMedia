@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.pine.media.videoplayer">
+    package="com.pine.media.pictureviewer">
 
     <application
         android:allowBackup="true"

@@ -13,16 +13,16 @@ import android.text.style.URLSpan;
 import android.view.KeyEvent;
 import android.view.View;
 
+import androidx.annotation.Nullable;
+
 import com.pine.media.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.media.base.util.DialogUtils;
-import com.pine.tool.util.SharePreferenceUtils;
 import com.pine.media.welcome.R;
 import com.pine.media.welcome.WelcomeConstants;
 import com.pine.media.welcome.WelcomeSPKeyConstants;
 import com.pine.media.welcome.databinding.UserPrivacyActivityBinding;
 import com.pine.media.welcome.vm.UserPrivacyVm;
-
-import androidx.annotation.Nullable;
+import com.pine.tool.util.SharePreferenceUtils;
 
 public class UserPrivacyActivity extends BaseMvvmNoActionBarActivity<UserPrivacyActivityBinding, UserPrivacyVm> {
     private Dialog mTipDialog;

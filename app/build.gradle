@@ -108,6 +108,8 @@ dependencies {
     implementation project(':bundle_business_audioplayer')
     implementation project(':bundle_business_pictureviewer')
     // bundle模块 end
+
+    implementation project(':db_server')
 }
 
 // 下面的代码会引起：

@@ -6,11 +6,11 @@ build_product_applicationId.common = "com.pine.media"
 ext.build_product_applicationId = build_product_applicationId
 
 def build_product_versionCode = [:]
-build_product_versionCode.common = 1
+build_product_versionCode.common = 2
 ext.build_product_versionCode = build_product_versionCode
 
 def build_product_versionName = [:]
-build_product_versionName.common = "1.0.1"
+build_product_versionName.common = "1.0.2"
 ext.build_product_versionName = build_product_versionName
 
 def build_product_appName = [:]

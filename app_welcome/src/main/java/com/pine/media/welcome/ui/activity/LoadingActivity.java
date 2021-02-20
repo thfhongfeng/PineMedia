@@ -110,8 +110,7 @@ public class LoadingActivity extends BaseMvvmNoActionBarActivity<LoadingActivity
 
     private void doneAppStartTask() {
         mStartTimeMillis = System.currentTimeMillis();
-//        mViewModel.setupConfigSwitcher();
-        autoLogin(GO_NEXT_DELAY);
+        mViewModel.setupConfigSwitcher();
     }
 
     @Override

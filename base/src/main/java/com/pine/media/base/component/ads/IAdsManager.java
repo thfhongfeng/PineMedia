@@ -24,13 +24,41 @@ public interface IAdsManager {
      *
      * @param activity
      * @param adsViewContainer
-     * @param isExpress            是否请求模板广告
-     * @param requestStateListener 广告请求监听器
-     * @param interactionListener  广告交互监听器
-     * @param downloadListener     广告下载监听器
+     * @param isExpress              是否请求模板广告
+     * @param adsListener            广告请求监听器
+     * @param adsInteractionListener 广告交互监听器
+     * @param downloadListener       广告下载监听器
      */
     void loadSplashAd(Activity activity, FrameLayout adsViewContainer, boolean isExpress,
-                      @NonNull IAdsRequestStateListener requestStateListener,
-                      @NonNull IAdsInteractionListener interactionListener,
-                      IAdsDownloadListener downloadListener);
+                      final @NonNull ISplashAdsListener adsListener,
+                      final @NonNull ISplashAdsInteractionListener adsInteractionListener,
+                      final IAdsDownloadListener downloadListener);
+
+    /**
+     * 加载激励广告
+     *
+     * @param activity
+     * @param isExpress
+     * @param adsListener            广告请求监听器
+     * @param adsInteractionListener 广告交互监听器
+     * @param downloadListener       广告下载监听器
+     */
+    void loadRewardVideoAd(Activity activity, boolean isExpress,
+                           final @NonNull IRewardAdsListener adsListener,
+                           final @NonNull IRewardAdsInteractionListener adsInteractionListener,
+                           final IAdsDownloadListener downloadListener);
+
+    /**
+     * 加载全屏广告
+     *
+     * @param activity
+     * @param isExpress
+     * @param adsListener            广告请求监听器
+     * @param adsInteractionListener 广告交互监听器
+     * @param downloadListener       广告下载监听器
+     */
+    void loadFullScreenVideoAd(final Activity activity, boolean isExpress,
+                               final IFullScreenAdsListener adsListener,
+                               final IFullScreenAdsInteractionListener adsInteractionListener,
+                               final IAdsDownloadListener downloadListener);
 }

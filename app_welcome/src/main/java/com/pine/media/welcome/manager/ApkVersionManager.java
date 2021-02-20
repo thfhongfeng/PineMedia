@@ -5,6 +5,10 @@ import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import com.pine.media.welcome.R;
+import com.pine.media.welcome.WelcomeSPKeyConstants;
+import com.pine.media.welcome.bean.VersionEntity;
+import com.pine.media.welcome.model.VersionModel;
 import com.pine.tool.architecture.mvp.model.IModelAsyncResponse;
 import com.pine.tool.exception.MessageException;
 import com.pine.tool.request.DownloadRequestBean;
@@ -15,10 +19,6 @@ import com.pine.tool.util.AppUtils;
 import com.pine.tool.util.LogUtils;
 import com.pine.tool.util.PathUtils;
 import com.pine.tool.util.SharePreferenceUtils;
-import com.pine.media.welcome.R;
-import com.pine.media.welcome.WelcomeSPKeyConstants;
-import com.pine.media.welcome.bean.VersionEntity;
-import com.pine.media.welcome.model.VersionModel;
 
 import java.io.File;
 import java.util.HashMap;

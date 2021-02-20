@@ -2,7 +2,7 @@ package com.pine.media.base.component.ads;
 
 import android.view.View;
 
-public interface IAdsInteractionListener {
+public interface ISplashAdsInteractionListener {
     //点击回调
     void onAdClicked(View view, int type);
 

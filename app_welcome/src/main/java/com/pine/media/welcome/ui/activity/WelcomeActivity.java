@@ -6,9 +6,11 @@ import android.view.View;
 
 import com.pine.media.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.media.base.component.ads.AdsSdkManager;
-import com.pine.media.base.component.ads.IAdsInteractionListener;
-import com.pine.media.base.component.ads.IAdsRequestStateListener;
+import com.pine.media.base.component.ads.ISplashAdsInteractionListener;
+import com.pine.media.base.component.ads.ISplashAdsListener;
 import com.pine.media.base.router.command.RouterMainCommand;
+import com.pine.media.config.ConfigKey;
+import com.pine.media.config.switcher.ConfigSwitcherServer;
 import com.pine.media.welcome.R;
 import com.pine.media.welcome.databinding.WelcomeActivityBinding;
 import com.pine.media.welcome.remote.WelcomeRouterClient;
@@ -33,7 +35,7 @@ public class WelcomeActivity extends BaseMvvmNoActionBarActivity<WelcomeActivity
     @Override
     protected void init(Bundle savedInstanceState) {
         mStartTimeMillis = System.currentTimeMillis();
-        if (getIntent().getBooleanExtra("allowAds", false)) {
+        if (ConfigSwitcherServer.getInstance().isEnable(ConfigKey.CONFIG_ADS_ALLOW_KEY)) {
             loadAds();
         } else {
             goMainHomeActivity();
@@ -64,7 +66,8 @@ public class WelcomeActivity extends BaseMvvmNoActionBarActivity<WelcomeActivity
     }
 
     private void loadAds() {
-        AdsSdkManager.loadSplashAd(this, mBinding.welAdsContainer, false, new IAdsRequestStateListener() {
+        LogUtils.d(TAG, "loadSplashAds");
+        AdsSdkManager.loadSplashAd(this, mBinding.welAdsContainer, false, new ISplashAdsListener() {
             @Override
             public void onError(int code, String message) {
                 goMainHomeActivity();
@@ -76,7 +79,7 @@ public class WelcomeActivity extends BaseMvvmNoActionBarActivity<WelcomeActivity
             }
 
             @Override
-            public void onAdsRequestSuccess(View adsView) {
+            public void onAdLoad(View adsView) {
                 if (adsView != null && mBinding.welAdsContainer != null && !WelcomeActivity.this.isFinishing()) {
                     mBinding.welAdsContainer.removeAllViews();
                     //把SplashView 添加到ViewGroup中,注意开屏广告view：width >=70%屏幕宽；height >=50%屏幕高
@@ -85,7 +88,7 @@ public class WelcomeActivity extends BaseMvvmNoActionBarActivity<WelcomeActivity
                     goMainHomeActivity();
                 }
             }
-        }, new IAdsInteractionListener() {
+        }, new ISplashAdsInteractionListener() {
 
             @Override
             public void onAdClicked(View view, int type) {

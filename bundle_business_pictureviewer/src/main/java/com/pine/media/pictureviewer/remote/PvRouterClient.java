@@ -1,4 +1,4 @@
-package com.pine.media.videoplayer.remote;
+package com.pine.media.pictureviewer.remote;
 
 import android.content.Context;
 import android.os.Bundle;

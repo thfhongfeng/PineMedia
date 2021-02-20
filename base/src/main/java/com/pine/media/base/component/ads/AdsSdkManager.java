@@ -20,11 +20,27 @@ public class AdsSdkManager {
     }
 
     public static void loadSplashAd(Activity activity, FrameLayout adsViewContainer, boolean isExpress,
-                                    IAdsRequestStateListener requestStateListener,
-                                    IAdsInteractionListener interactionListener,
+                                    ISplashAdsListener adsListener,
+                                    ISplashAdsInteractionListener adsInteractionListener,
                                     IAdsDownloadListener downloadListener) {
-        mAdsManagerImpl.loadSplashAd(activity, adsViewContainer, isExpress, requestStateListener,
-                interactionListener, downloadListener);
+        mAdsManagerImpl.loadSplashAd(activity, adsViewContainer, isExpress, adsListener,
+                adsInteractionListener, downloadListener);
+    }
+
+    public static void loadRewardVideoAd(Activity activity, boolean isExpress,
+                                         IRewardAdsListener adsListener,
+                                         IRewardAdsInteractionListener adsInteractionListener,
+                                         IAdsDownloadListener downloadListener) {
+        mAdsManagerImpl.loadRewardVideoAd(activity, isExpress, adsListener,
+                adsInteractionListener, downloadListener);
+    }
+
+    public static void loadFullScreenVideoAd(Activity activity, boolean isExpress,
+                                         IFullScreenAdsListener adsListener,
+                                         IFullScreenAdsInteractionListener adsInteractionListener,
+                                         IAdsDownloadListener downloadListener) {
+        mAdsManagerImpl.loadFullScreenVideoAd(activity, isExpress, adsListener,
+                adsInteractionListener, downloadListener);
     }
 }
 

@@ -4,7 +4,7 @@ import android.view.View;
 
 import androidx.annotation.MainThread;
 
-public interface IAdsRequestStateListener {
+public interface ISplashAdsListener {
     //请求广告失败
     @MainThread
     void onError(int code, String message);
@@ -14,5 +14,5 @@ public interface IAdsRequestStateListener {
 
     //请求广告成功
     @MainThread
-    void onAdsRequestSuccess(View adsView);
+    void onAdLoad(View adsView);
 }

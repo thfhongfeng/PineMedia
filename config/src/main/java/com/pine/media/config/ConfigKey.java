@@ -10,6 +10,7 @@ public interface ConfigKey {
     String BUNDLE_LOGIN_KEY = "bundle_login";
     String BUNDLE_MAIN_KEY = "bundle_main";
     String BUNDLE_USER_KEY = "bundle_user";
+    String BUNDLE_DB_SEVER_KEY = "bundle_db_server";
 
     String BUNDLE_VIDEO_PLAYER_KEY = "bundle_video_player";
     String BUNDLE_AUDIO_PLAYER_KEY = "bundle_audio_player";
@@ -20,4 +21,8 @@ public interface ConfigKey {
     /*********************** 功能开关Key begin **********************/
 
     /*********************** 功能开关Key end ************************/
+
+    /*********************** 配置开关Key begin **********************/
+    String CONFIG_ADS_ALLOW_KEY = "config_ads_allow";
+    /*********************** 配置开关Key end ************************/
 }

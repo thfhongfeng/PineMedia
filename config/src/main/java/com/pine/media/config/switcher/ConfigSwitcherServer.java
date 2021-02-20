@@ -30,9 +30,7 @@ public class ConfigSwitcherServer {
             mGuestConfigStateMap.put(ConfigKey.BUNDLE_LOGIN_KEY, "");
             mGuestConfigStateMap.put(ConfigKey.BUNDLE_MAIN_KEY, "");
             mGuestConfigStateMap.put(ConfigKey.BUNDLE_USER_KEY, "");
-            mGuestConfigStateMap.put(ConfigKey.BUNDLE_VIDEO_PLAYER_KEY, "");
-            mGuestConfigStateMap.put(ConfigKey.BUNDLE_AUDIO_PLAYER_KEY, "");
-            mGuestConfigStateMap.put(ConfigKey.BUNDLE_PICTURE_VIEWER_KEY, "");
+            mGuestConfigStateMap.put(ConfigKey.BUNDLE_DB_SEVER_KEY, "");
         }
 
         synchronized (mUserConfigStateMap) {
@@ -62,9 +60,11 @@ public class ConfigSwitcherServer {
                         parentKeyMap.put(parentKey, true);
                         parentKey = mUserConfigStateMap.get(parentKey);
                     } else {
+                        LogUtils.d(TAG, "UserConfig " + key + " isEnable:" + false);
                         return false;
                     }
                 } while (!TextUtils.isEmpty(parentKey) && !parentKeyMap.containsKey(parentKey));
+                LogUtils.d(TAG, "UserConfig " + key + " isEnable:" + true);
                 return true;
             }
         } else {
@@ -77,9 +77,11 @@ public class ConfigSwitcherServer {
                         parentKeyMap.put(parentKey, true);
                         parentKey = mGuestConfigStateMap.get(parentKey);
                     } else {
+                        LogUtils.d(TAG, "GuestConfig " + key + " isEnable:" + false);
                         return false;
                     }
                 } while (!TextUtils.isEmpty(parentKey) && !parentKeyMap.containsKey(parentKey));
+                LogUtils.d(TAG, "GuestConfig " + key + " isEnable:" + true);
                 return true;
             }
         }

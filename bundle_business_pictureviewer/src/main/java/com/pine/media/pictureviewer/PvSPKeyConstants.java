@@ -1,4 +1,4 @@
-package com.pine.media.videoplayer;
+package com.pine.media.pictureviewer;
 
 import com.pine.media.base.BaseSPKeyConstants;
 

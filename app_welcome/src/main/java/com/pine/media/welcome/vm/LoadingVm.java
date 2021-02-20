@@ -1,17 +1,26 @@
 package com.pine.media.welcome.vm;
 
+import android.content.Context;
+
 import androidx.lifecycle.MutableLiveData;
 
 import com.pine.media.base.BaseApplication;
+import com.pine.media.base.component.ads.AdsSdkManager;
+import com.pine.media.base.component.ads.IAdsManager;
+import com.pine.media.base.component.ads.IAdsManagerFactory;
+import com.pine.media.base.component.ads.csj.CsjAdsManager;
+import com.pine.media.config.BuildConfig;
+import com.pine.media.config.ConfigKey;
 import com.pine.media.config.switcher.ConfigSwitcherServer;
+import com.pine.media.welcome.R;
+import com.pine.media.welcome.bean.VersionEntity;
+import com.pine.media.welcome.manager.ApkVersionManager;
 import com.pine.tool.architecture.mvvm.vm.ViewModel;
 import com.pine.tool.binding.data.ParametricLiveData;
 import com.pine.tool.exception.MessageException;
 import com.pine.tool.request.RequestManager;
+import com.pine.tool.util.AppUtils;
 import com.pine.tool.util.LogUtils;
-import com.pine.media.welcome.R;
-import com.pine.media.welcome.bean.VersionEntity;
-import com.pine.media.welcome.manager.ApkVersionManager;
 
 /**
  * Created by tanghongfeng on 2019/10/28.
@@ -24,6 +33,19 @@ public class LoadingVm extends ViewModel {
                 new ConfigSwitcherServer.IConfigSwitcherCallback() {
                     @Override
                     public void onSetupComplete() {
+                        if (ConfigSwitcherServer.getInstance().isEnable(ConfigKey.CONFIG_ADS_ALLOW_KEY)) {
+                            AdsSdkManager.init(AppUtils.getApplication(), new IAdsManagerFactory() {
+                                @Override
+                                public IAdsManager makeAdsManager(Context context) {
+                                    switch (BuildConfig.APP_THIRD_DATA_SOURCE_PROVIDER) {
+                                        case "chuanshanjia":
+                                            return CsjAdsManager.getInstance();
+                                        default:
+                                            return CsjAdsManager.getInstance();
+                                    }
+                                }
+                            });
+                        }
                         checkVersion();
                     }
 

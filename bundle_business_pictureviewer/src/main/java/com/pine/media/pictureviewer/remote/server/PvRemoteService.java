@@ -1,4 +1,4 @@
-package com.pine.media.videoplayer.remote.server;
+package com.pine.media.pictureviewer.remote.server;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,7 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 
 import com.pine.media.base.router.command.RouterPictureViewerCommand;
-import com.pine.media.videoplayer.ui.activity.PvHomeActivity;
+import com.pine.media.pictureviewer.ui.activity.PvHomeActivity;
 import com.pine.tool.router.IServiceCallback;
 import com.pine.tool.router.annotation.RouterCommand;
 

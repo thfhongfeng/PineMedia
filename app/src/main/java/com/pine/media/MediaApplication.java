@@ -3,6 +3,7 @@ package com.pine.media;
 import android.app.Application;
 import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.StrictMode;
 
 import com.pine.media.audioplayer.ApApplication;
@@ -25,16 +26,22 @@ import com.pine.media.base.component.scan.IScanManagerFactory;
 import com.pine.media.base.component.scan.ScanManager;
 import com.pine.media.base.component.scan.zxing.ZXingScanManager;
 import com.pine.media.base.component.share.manager.ShareManager;
+import com.pine.media.base.router.command.RouterDbServerCommand;
 import com.pine.media.config.BuildConfig;
+import com.pine.media.config.ConfigKey;
 import com.pine.media.config.switcher.ConfigSwitcherServer;
+import com.pine.media.db_server.DbServerApplication;
 import com.pine.media.main.MainApplication;
-import com.pine.media.videoplayer.PvApplication;
+import com.pine.media.pictureviewer.PvApplication;
 import com.pine.media.videoplayer.VpApplication;
 import com.pine.media.welcome.WelcomeApplication;
 import com.pine.tool.access.UiAccessManager;
 import com.pine.tool.request.IRequestManager;
 import com.pine.tool.request.IRequestManagerFactory;
 import com.pine.tool.request.RequestManager;
+import com.pine.tool.request.impl.database.DbRequestManager;
+import com.pine.tool.request.impl.database.DbResponse;
+import com.pine.tool.request.impl.database.IDbRequestServer;
 import com.pine.tool.request.impl.http.nohttp.NoRequestManager;
 import com.pine.tool.router.IRouterManager;
 import com.pine.tool.router.IRouterManagerFactory;
@@ -78,6 +85,8 @@ public class MediaApplication extends Application {
             VpApplication.attach();
             ApApplication.attach();
             PvApplication.attach();
+            DbServerApplication.attach();
+
             doStartupBusiness();
         }
     }
@@ -112,6 +121,14 @@ public class MediaApplication extends Application {
             @Override
             public IRequestManager makeRequestManager() {
                 switch (BuildConfig.APP_THIRD_DATA_SOURCE_PROVIDER) {
+                    case "local":
+                        return DbRequestManager.getInstance(new IDbRequestServer() {
+                            @Override
+                            public DbResponse request(Bundle bundle) {
+                                return RouterManager.callDataCommandDirect(mApplication, ConfigKey.BUNDLE_DB_SEVER_KEY,
+                                        RouterDbServerCommand.callDbServerCommand, bundle);
+                            }
+                        });
                     default:
                         switch (BuildConfig.APP_THIRD_HTTP_REQUEST_PROVIDER) {
                             case "nohttp":
@@ -122,6 +139,7 @@ public class MediaApplication extends Application {
                 }
             }
         });
+
 
         MapSdkManager.init(this, new IMapManagerFactory() {
             @Override

@@ -1,4 +1,4 @@
-package com.pine.media.videoplayer.vm;
+package com.pine.media.pictureviewer.vm;
 
 import com.pine.tool.architecture.mvvm.vm.ViewModel;
 

@@ -1,7 +1,7 @@
-package com.pine.media.videoplayer.remote.server.arouter;
+package com.pine.media.pictureviewer.remote.server.arouter;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
-import com.pine.media.videoplayer.remote.server.PvRemoteService;
+import com.pine.media.pictureviewer.remote.server.PvRemoteService;
 import com.pine.tool.router.impl.arouter.ARouterBundleRemote;
 
 /**

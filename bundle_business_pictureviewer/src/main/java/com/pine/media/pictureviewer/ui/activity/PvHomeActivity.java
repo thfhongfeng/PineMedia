@@ -1,11 +1,11 @@
-package com.pine.media.videoplayer.ui.activity;
+package com.pine.media.pictureviewer.ui.activity;
 
 import android.os.Bundle;
 
 import com.pine.media.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
-import com.pine.media.videoplayer.R;
-import com.pine.media.videoplayer.databinding.PvHomeActivityBinding;
-import com.pine.media.videoplayer.vm.PvHomeVm;
+import com.pine.media.pictureviewer.R;
+import com.pine.media.pictureviewer.databinding.PvHomeActivityBinding;
+import com.pine.media.pictureviewer.vm.PvHomeVm;
 
 public class PvHomeActivity extends BaseMvvmNoActionBarActivity<PvHomeActivityBinding, PvHomeVm> {
     @Override

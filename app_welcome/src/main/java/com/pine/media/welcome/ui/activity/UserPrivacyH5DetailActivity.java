@@ -18,10 +18,10 @@ import android.widget.TextView;
 import androidx.lifecycle.Observer;
 
 import com.pine.media.base.architecture.mvvm.ui.activity.BaseMvvmActionBarActivity;
-import com.pine.tool.util.WebViewUtils;
 import com.pine.media.welcome.R;
 import com.pine.media.welcome.databinding.UserPrivacyH5DetailActivityBinding;
 import com.pine.media.welcome.vm.UserPrivacyDetailVm;
+import com.pine.tool.util.WebViewUtils;
 
 import cn.pedant.SafeWebViewBridge.InjectedChromeClient;
 

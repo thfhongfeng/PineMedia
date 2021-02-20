@@ -7,7 +7,7 @@ package com.pine.media.welcome.bean;
 public class VersionEntity {
 
     /**
-     * packageName : com.pine.template
+     * packageName : com.pine.media
      * versionCode : 2
      * versionName : 1.0.2
      * minSupportedVersion : 1

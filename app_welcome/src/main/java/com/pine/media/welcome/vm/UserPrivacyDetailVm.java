@@ -6,8 +6,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
-import com.pine.tool.architecture.mvvm.vm.ViewModel;
 import com.pine.media.welcome.WelcomeUrlConstants;
+import com.pine.tool.architecture.mvvm.vm.ViewModel;
 
 /**
  * Created by tanghongfeng on 2019/10/28.

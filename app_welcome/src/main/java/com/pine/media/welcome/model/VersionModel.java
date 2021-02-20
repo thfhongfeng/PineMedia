@@ -4,6 +4,9 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.pine.media.welcome.WelcomeConstants;
+import com.pine.media.welcome.WelcomeUrlConstants;
+import com.pine.media.welcome.bean.VersionEntity;
 import com.pine.tool.architecture.mvp.model.IModelAsyncResponse;
 import com.pine.tool.exception.MessageException;
 import com.pine.tool.request.RequestBean;
@@ -11,9 +14,6 @@ import com.pine.tool.request.RequestManager;
 import com.pine.tool.request.Response;
 import com.pine.tool.request.callback.JsonCallback;
 import com.pine.tool.util.LogUtils;
-import com.pine.media.welcome.WelcomeConstants;
-import com.pine.media.welcome.WelcomeUrlConstants;
-import com.pine.media.welcome.bean.VersionEntity;
 
 import org.json.JSONObject;
 
