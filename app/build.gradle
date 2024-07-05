@@ -112,23 +112,35 @@ dependencies {
     implementation project(':db_server')
 }
 
-// 下面的代码会引起：
-// Deprecated Gradle features were used in this build, making it incompatible with Gradle 5.0.
-// 以后解决
-apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
-publishing {
-    repositories {
-        mavenLocal()
-    }
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            artifact "${project.buildDir}/outputs/apk/${project.name}-debug.ap"
-            artifactId "AP-debug"
+afterEvaluate {
+    publishing {
+        android.applicationVariants.all { variant ->
+            if (variant.buildType.name == 'release') {
+                def productType = variant.flavorName
+                def publicationName = "${productType}"
+                def component = components.findByName("${variant.name}_apk")
+                if (component != null) {
+                    publishing.publications.create(publicationName, MavenPublication) {
+                        from component
+                        groupId = build_product_applicationId.common
+                        artifactId = build_product_appName.common
+                        version = build_product_versionName.common
+                    }
+                }
+            }
         }
+
+        repositories {
+            maven {
+                url "file:///D:/PineProducts"
+            }
+        }
+    }
+
+    // 将发布任务添加到自定义组
+    tasks.named('publish') {
+        group = 'private'
     }
 }
