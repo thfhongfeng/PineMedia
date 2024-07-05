@@ -12,6 +12,7 @@ import android.provider.MediaStore;
 
 import com.pine.media.audioplayer.db.entity.ApMusic;
 import com.pine.tool.util.FileUtils;
+import com.pine.tool.util.MediaFileUtils;
 
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
@@ -57,9 +58,14 @@ public class ApLocalMusicUtils {
     }
 
     public static ApMusic getMusicFromPath(Context context, Uri pathUri) {
-        Cursor cursor = context.getContentResolver().query(pathUri, null, null, null, null);
-        ApMusic music = new ApMusic();
+        Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                null, null, null, null);
+        if (cursor == null) {
+            return null;
+        }
+        ApMusic music = null;
         if (cursor.moveToNext()) {
+            music = new ApMusic();
             music.setSongId(cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)));
             music.setName(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)));
             music.setDuration(cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)));

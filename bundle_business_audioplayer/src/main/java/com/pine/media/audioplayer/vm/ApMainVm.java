@@ -15,6 +15,7 @@ import com.pine.tool.architecture.mvp.model.IModelAsyncResponse;
 import com.pine.tool.architecture.mvvm.vm.ViewModel;
 import com.pine.tool.binding.data.ParametricLiveData;
 import com.pine.tool.service.TimerWorkHelper;
+import com.pine.tool.util.LogUtils;
 
 public class ApMainVm extends ViewModel {
     private ApMusicModel mModel = new ApMusicModel();
@@ -38,6 +39,7 @@ public class ApMainVm extends ViewModel {
                 finishUi();
                 return true;
             }
+            LogUtils.d(TAG, "parseIntentData musicPathUri:" + musicPathUri);
             mPlayMusic = ApLocalMusicUtils.getMusicFromPath(activity, musicPathUri);
         } else {
             setPlayedMusic(mPlayMusic, playing);

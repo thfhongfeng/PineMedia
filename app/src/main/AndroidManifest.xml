@@ -11,11 +11,20 @@
         android:allowBackup="true"
         android:icon="@mipmap/res_ic_launcher"
         android:label="${app_name}"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/res_ic_launcher"
         android:supportsRtl="true"
-        android:requestLegacyExternalStorage="true"
         android:theme="@style/BaseAppTheme"
         tools:replace="android:label">
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.pine.media.fileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 

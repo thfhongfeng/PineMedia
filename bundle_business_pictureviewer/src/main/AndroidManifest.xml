@@ -8,7 +8,6 @@
             android:name=".ui.activity.PvHomeActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan|stateHidden"></activity>
     </application>
 

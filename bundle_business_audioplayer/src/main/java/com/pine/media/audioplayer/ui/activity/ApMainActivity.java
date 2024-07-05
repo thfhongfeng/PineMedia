@@ -1,5 +1,6 @@
 package com.pine.media.audioplayer.ui.activity;
 
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
@@ -29,12 +30,14 @@ import com.pine.player.applet.subtitle.bean.PineSubtitleBean;
 import com.pine.player.bean.PineMediaPlayerBean;
 import com.pine.player.component.PineMediaWidget;
 import com.pine.player.component.PinePlayState;
+import com.pine.tool.permission.PermissionsAnnotation;
 import com.pine.tool.util.ColorUtils;
 import com.pine.tool.util.ResourceUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@PermissionsAnnotation(Permissions = {Manifest.permission.READ_EXTERNAL_STORAGE})
 public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBinding, ApMainVm> {
     private final int REQUEST_CODE_ADD_TO_SHEET = 1;
     private SelectItemDialog mTopMenuDialog;
