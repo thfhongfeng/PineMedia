@@ -37,7 +37,7 @@ import com.pine.tool.util.ResourceUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-@PermissionsAnnotation(Permissions = {Manifest.permission.READ_EXTERNAL_STORAGE})
+@PermissionsAnnotation(Permissions = {Manifest.permission.MANAGE_EXTERNAL_STORAGE})
 public class ApMainActivity extends BaseMvvmNoActionBarActivity<ApMainActivityBinding, ApMainVm> {
     private final int REQUEST_CODE_ADD_TO_SHEET = 1;
     private SelectItemDialog mTopMenuDialog;

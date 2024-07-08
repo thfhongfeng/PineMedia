@@ -6,7 +6,6 @@
         android:supportsRtl="true">
         <activity
             android:name=".ui.activity.ApHomeActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustPan|stateHidden"></activity>
 

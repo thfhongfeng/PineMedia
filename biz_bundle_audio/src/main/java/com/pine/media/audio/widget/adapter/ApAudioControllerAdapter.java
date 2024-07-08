@@ -198,6 +198,17 @@ public class ApAudioControllerAdapter extends PineMediaController.AbstractMediaC
         mBackgroundView = null;
     }
 
+    protected PineMediaController.ControllerMonitor onCreateControllerMonitor() {
+        return new PineMediaController.ControllerMonitor() {
+            public boolean judgeAndChangeRequestedOrientation(
+                    Context context, PineMediaWidget.IPineMediaController controller,
+                    PineMediaWidget.IPineMediaPlayer player, int mediaWidth,
+                    int mediaHeight, int mediaType) {
+                return true;
+            }
+        };
+    }
+
     @Override
     protected final PineBackgroundViewHolder onCreateBackgroundViewHolder(
             PineMediaWidget.IPineMediaPlayer player, boolean isFullScreenMode) {
