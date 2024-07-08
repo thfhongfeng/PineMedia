@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:clickable="true">
+
+    <com.pine.player.widget.PineMediaPlayerView
+        android:id="@+id/media_player_view"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_0"></com.pine.player.widget.PineMediaPlayerView>
+
+    <LinearLayout
+        android:id="@+id/sapv_controller_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="@dimen/dp_10">
+
+        <LinearLayout
+            android:id="@+id/sapv_content_ll"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/dp_30"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.pine.template.base.widget.view.CircleImageView
+                android:id="@+id/sapv_cover_iv"
+                android:layout_width="@dimen/dp_40"
+                android:layout_height="@dimen/dp_40"
+                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_marginRight="@dimen/dp_10"
+                android:scaleType="centerCrop" />
+
+            <LinearLayout
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/sapv_name_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/dp_3"
+                    android:singleLine="true"
+                    android:textColor="@color/dark_gray_black"
+                    android:textSize="@dimen/sp_14"></TextView>
+
+                <TextView
+                    android:id="@+id/sapv_desc_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="@dimen/sp_12"></TextView>
+            </LinearLayout>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/dp_10">
+
+            <com.pine.player.widget.view.PineRingProgressBar
+                android:id="@+id/player_progress_bar"
+                android:layout_width="@dimen/dp_46"
+                android:layout_height="@dimen/dp_46"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:gravity="center"
+                app:backgroundColor="@color/transparent"
+                app:progressColor="@color/red"
+                app:radius="@dimen/dp_21"
+                app:startAngle="-90"
+                app:strokeWidth="@dimen/dp_2" />
+
+            <ImageView
+                android:id="@+id/player_play_pause_btn"
+                android:layout_width="@dimen/dp_40"
+                android:layout_height="@dimen/dp_40"
+                android:layout_centerInParent="true"
+                android:background="@drawable/ap_shape_circle_f8f8ff"
+                android:gravity="center"
+                android:padding="@dimen/dp_10"
+                android:src="@drawable/ap_selector_play_pause_btn_2_1" />
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/player_next_btn"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:layout_marginRight="@dimen/dp_10"
+            android:background="@drawable/ap_shape_circle_f8f8ff"
+            android:gravity="center"
+            android:padding="@dimen/dp_10"
+            android:src="@drawable/ap_selector_next_btn_2_1" />
+
+        <ImageView
+            android:id="@+id/sapv_media_list_btn"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:layout_marginRight="@dimen/dp_10"
+            android:background="@drawable/ap_shape_circle_f8f8ff"
+            android:gravity="center"
+            android:padding="@dimen/dp_10"
+            android:src="@drawable/ap_selector_music_list_btn_1_2" />
+    </LinearLayout>
+</RelativeLayout>

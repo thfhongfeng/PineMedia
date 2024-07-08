@@ -1,0 +1,91 @@
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
+apply from: "${rootDir}/gradleWorker/task/GenerateFileTask.gradle"
+apply from: "${rootDir}/gradleWorker/task/PublishTask.gradle"
+
+android {
+    compileSdkVersion build_versions.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion build_versions.minSdkVersion
+        targetSdkVersion build_versions.targetSdkVersion
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        //必须要保证所有的flavor 都属于同一个维度
+        flavorDimensions "default"
+
+        // ARouter配置 begin
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [AROUTER_MODULE_NAME: project.getName()]
+            }
+        }
+        // ARouter配置 end
+    }
+
+    buildFeatures {
+        dataBinding = true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    productFlavors {
+        build_flavor_product.each { flavorName, _ ->
+            "$flavorName" {
+            }
+        }
+    }
+
+    sourceSets {
+        main {
+            res.srcDirs += [
+                    'src/main/res/layouts/activity',
+                    'src/main/res/layouts/fragment',
+                    'src/main/res/layouts/widget',
+                    'src/main/res/layouts/dialog',
+                    'src/main/res/layouts/item'
+            ]
+            java.srcDirs = ['src/main/java']
+        }
+    }
+
+    resourcePrefix "vp_"
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // android官方 dependency begin
+    implementation build_dependency["android_palette"]
+    // android官方 dependency end
+
+    // ARouter配置 begin
+    implementation build_dependency["arouter_api"]
+    annotationProcessor build_dependency["arouter_compiler"]
+    // ARouter配置 end
+
+    // 第三方 dependency begin
+    annotationProcessor build_dependency["android_room_compiler"]
+    // 第三方 dependency end
+
+    // library project begin
+    implementation rootProject.ext.dependencyCustom("base_lib_pineplayer", "")
+    // library project end
+
+    android.libraryVariants.all { variant ->
+        // 获取当前 variant 的 flavor 名称
+        def flavorName = variant.flavorName
+
+        // 业务基础模块 begin
+        "${flavorName}Api" rootProject.ext.dependencyCustom("bundle_base", flavorName)
+        // 业务基础模块 end
+    }
+}

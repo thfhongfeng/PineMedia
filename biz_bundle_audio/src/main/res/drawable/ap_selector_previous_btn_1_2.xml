@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@mipmap/ap_ic_play_pre_enable_1_2" android:state_enabled="true"></item>
+    <item android:drawable="@mipmap/ap_ic_play_pre_disable_1_1"></item>
+</selector>

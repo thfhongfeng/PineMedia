@@ -1,18 +1,33 @@
 /**
- * 渠道打包参数
+ * 打包参数
  */
-def build_product_applicationId = [:]
-build_product_applicationId.common = "com.pine.media"
-ext.build_product_applicationId = build_product_applicationId
+ext.build_lib_groupId = "com.pine.app.media.libs"
+def build_flavor_product = [:]
+build_flavor_product = [
+        common: [
+                build_product_applicationId    : "com.pine.app.media",
+                build_product_groupId          : "com.pine.app.media.common",
+                build_product_versionCode      : 10001,
+                build_product_versionName      : "1.0.001",
+                build_product_appName          : "PineMedia",
+                build_product_storeFile        : "../signapk/common/template.jks",
+                build_product_storePassword    : "pine123",
+                build_product_keyAlias         : "AppTemplate",
+                build_product_keyPassword      : "pine123",
+                build_product_biz_bundle_module: [BIZ_BUNDLE_AUDIO  : "biz_bundle_audio",
+                                                  BIZ_BUNDLE_VIDEO  : "biz_bundle_video",
+                                                  BIZ_BUNDLE_PICTURE: "biz_bundle_picture"]
+        ]
+]
+ext.build_flavor_product = build_flavor_product
 
-def build_product_versionCode = [:]
-build_product_versionCode.common = 2
-ext.build_product_versionCode = build_product_versionCode
-
-def build_product_versionName = [:]
-build_product_versionName.common = "1.0.2"
-ext.build_product_versionName = build_product_versionName
-
-def build_product_appName = [:]
-build_product_appName.common = "PineMedia"
-ext.build_product_appName = build_product_appName
+ext.build_biz_bundle = { flavorName ->
+    def biz_bundle = []
+    def build_product_biz_bundle_module = build_flavor_product[flavorName]["build_product_biz_bundle_module"]
+    if (build_product_biz_bundle_module) {
+        build_product_biz_bundle_module.each { key, value ->
+            biz_bundle.add("\"${key}\"")
+        }
+    }
+    return biz_bundle
+}

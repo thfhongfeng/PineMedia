@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@mipmap/res_ic_play_next_enable_2_1" android:state_enabled="true"></item>
-    <item android:drawable="@mipmap/res_ic_play_next_disable_2_1"></item>
-</selector>

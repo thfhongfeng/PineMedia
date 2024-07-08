@@ -1,14 +1,20 @@
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
+apply from: "${rootDir}/gradleWorker/task/PublishTask.gradle"
 
 android {
     compileSdkVersion build_versions.compileSdkVersion
-    buildToolsVersion build_versions.buildToolsVersion
 
     defaultConfig {
         minSdkVersion build_versions.minSdkVersion
         targetSdkVersion build_versions.targetSdkVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        //必须要保证所有的flavor 都属于同一个维度
+        flavorDimensions "default"
     }
 
     buildTypes {
@@ -18,31 +24,14 @@ android {
         }
     }
 
-    resourcePrefix "res_"
-}
-
-repositories {
-    flatDir {
-        dirs 'libs'
+    productFlavors {
+        build_flavor_product.each { flavorName, _ ->
+            "$flavorName" {
+            }
+        }
     }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    // 测试 dependency begin
-    androidTestImplementation(build_dependency["test_espresso_core"], {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    testImplementation build_dependency["test_junit"]
-    // 测试 dependency end
-
-    // android官方 dependency begin
-    api build_dependency["android_appcompat"]
-    api build_dependency["android_constraint_layout"]
-    // android官方 dependency end
-
-    // 公共工具模块 begin
-    api project(':tool')
-    // 公共工具模块 end
 }

@@ -1,42 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.pine.media.welcome">
+    package="com.pine.template.welcome">
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
         android:supportsRtl="true">
         <activity
             android:name=".ui.activity.UserPrivacyActivity"
+            android:exported="true"
             android:launchMode="singleTask"
+            android:theme="@style/BaseLoadingTheme"
             android:windowSoftInputMode="adjustPan|stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter tools:ignore="AppLinkUrlError">
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:mimeType="audio/*" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.activity.UserPrivacyDetailActivity"
+            android:name=".ui.activity.UserPrivacyDetailActionBarActivity"
+            android:theme="@style/BaseLoadingTheme"
             android:windowSoftInputMode="adjustPan|stateHidden"></activity>
         <activity
-            android:name=".ui.activity.UserPrivacyH5DetailActivity"
+            android:name=".ui.activity.UserPrivacyH5DetailActionBarActivity"
+            android:theme="@style/BaseLoadingTheme"
             android:windowSoftInputMode="adjustPan|stateHidden"></activity>
         <activity
             android:name=".ui.activity.LoadingActivity"
             android:launchMode="singleTask"
+            android:theme="@style/BaseLoadingTheme"
             android:windowSoftInputMode="adjustPan|stateHidden"></activity>
         <activity
             android:name=".ui.activity.WelcomeActivity"
             android:launchMode="singleTask"
+            android:theme="@style/BaseLoadingTheme"
             android:windowSoftInputMode="adjustPan|stateHidden"></activity>
+
+        <receiver
+            android:name=".receiver.BootCompleteReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -80,7 +80,7 @@ public final class Intents {
         /**
          * If a barcode is found, Barcodes returns RESULT_OK to onActivityResult() of the app which
          * requested the scan via startSubActivity(). The barcodes contents can be retrieved with
-         * intent.getStringExtra(RESULT). If the user presses Back, The result code will be
+         * intent.getStringExtra(RESULT). If the user presses Back, the result code will be
          * RESULT_CANCELED.
          */
         public static final String RESULT = "SCAN_RESULT";

@@ -1,0 +1,126 @@
+package com.pine.template.db_server.sqlite;
+
+import static com.pine.tool.request.IRequestManager.SESSION_ID;
+
+import android.content.Context;
+import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
+
+import com.pine.template.db_server.DbResponseGenerator;
+import com.pine.template.db_server.DbSession;
+import com.pine.template.db_server.DbUrlConstants;
+import com.pine.template.db_server.IDbServerManager;
+import com.pine.template.db_server.sqlite.server.SQLiteFileServer;
+import com.pine.template.db_server.sqlite.server.SQLiteLoginServer;
+import com.pine.template.db_server.sqlite.server.SQLiteWelcomeServer;
+import com.pine.tool.request.IRequestManager;
+import com.pine.tool.request.RequestBean;
+import com.pine.tool.request.Response;
+import com.pine.tool.util.AppUtils;
+import com.pine.tool.util.LogUtils;
+
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Random;
+
+public class SQLiteDbServerManager implements IDbServerManager {
+    private static final String TAG = LogUtils.makeLogTag(SQLiteDbServerManager.class);
+
+    private static volatile SQLiteDbServerManager mInstance;
+    private static volatile HashMap<String, DbSession> mSessionMap = new HashMap<>();
+
+    private SQLiteDbServerManager(@NonNull Context context) {
+        new SQLiteDbHelper(context).getReadableDatabase();
+    }
+
+    public synchronized static SQLiteDbServerManager getInstance() {
+        if (mInstance == null) {
+            mInstance = new SQLiteDbServerManager(AppUtils.getApplicationContext());
+        }
+        return mInstance;
+    }
+
+    public DbSession getOrGenerateSession(String sessionId) {
+        synchronized (mSessionMap) {
+            DbSession session = mSessionMap.get(sessionId);
+            if (session == null) {
+                session = new DbSession(sessionId);
+                mSessionMap.put(sessionId, session);
+            }
+            return session;
+        }
+    }
+
+    public void removeSession(String sessionId) {
+        synchronized (mSessionMap) {
+            mSessionMap.remove(sessionId);
+        }
+    }
+
+    public String generateSessionId() {
+        return Calendar.getInstance().getTimeInMillis() + "" + new Random().nextInt(10000);
+    }
+
+    public String generateSessionId(String accountId) {
+        return Calendar.getInstance().getTimeInMillis() + accountId;
+    }
+
+    @Override
+    @NonNull
+    public Response callCommand(@NonNull Context context, @NonNull RequestBean requestBean,
+                                HashMap<String, String> header) {
+        LogUtils.d(TAG, "callCommand url:" + requestBean.getUrl());
+        if (DbUrlConstants.CONFIG().equals(requestBean.getUrl())) {
+            synchronized (this) {
+                setupSession(header);
+                return SQLiteWelcomeServer.queryConfigSwitcher(context, requestBean, header);
+            }
+        } else if (DbUrlConstants.APK_UPDATE().equals(requestBean.getUrl())) {
+            synchronized (this) {
+                setupSession(header);
+                return SQLiteWelcomeServer.queryAppVersion(context, requestBean, header);
+            }
+        } else if (DbUrlConstants.LOGIN().equals(requestBean.getUrl())) {
+            synchronized (this) {
+                setupSession(header);
+                return SQLiteLoginServer.login(context, requestBean, header);
+            }
+        } else if (DbUrlConstants.LOGOUT().equals(requestBean.getUrl())) {
+            synchronized (this) {
+                setupSession(header);
+                return SQLiteLoginServer.logout(context, requestBean, header);
+            }
+        } else if (requestBean.getUrl() != null && requestBean.getUrl().startsWith(DbUrlConstants.VERIFY_CODE())) {
+            synchronized (this) {
+                setupSession(header);
+                return SQLiteLoginServer.getVerifyCode(context, requestBean, header);
+            }
+        } else if (DbUrlConstants.REGISTER_ACCOUNT().equals(requestBean.getUrl())) {
+            synchronized (this) {
+                setupSession(header);
+                return SQLiteLoginServer.register(context, requestBean, header);
+            }
+        } else if (DbUrlConstants.FILE_UPLOAD().equals(requestBean.getUrl())) {
+            synchronized (this) {
+                setupSession(header);
+                return SQLiteFileServer.uploadMultiFile(context, requestBean, header);
+            }
+        } else if (requestBean.getRequestType() == IRequestManager.RequestType.BITMAP) {
+            return DbResponseGenerator.getSuccessUrlBitmapBytesRep(requestBean, header, requestBean.getUrl());
+        } else {
+            synchronized (this) {
+                setupSession(header);
+                return DbResponseGenerator.getNoSuchTableJsonRep(requestBean, header);
+            }
+        }
+    }
+
+    private synchronized void setupSession(HashMap<String, String> header) {
+        if (TextUtils.isEmpty(header.get(SESSION_ID))) {
+            String sessionId = generateSessionId();
+            header.put(SESSION_ID, sessionId);
+            getOrGenerateSession(sessionId);
+        }
+    }
+}

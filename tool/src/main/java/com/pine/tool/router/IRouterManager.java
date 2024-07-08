@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -24,9 +25,11 @@ public interface IRouterManager {
      */
     void init(Application application, List<String> commandClassNameList);
 
+    void init(Application application, HashMap<String, String> bundlePathMap);
+
     void callCommand(Context context, final String bundleKey, final String commandType,
                      final String commandName, final Bundle args, final IRouterCallback callback);
 
     <R> R callCommandDirect(Context context, final String bundleKey, final String commandType,
-                            final String commandName, final Bundle args);
+                            final String commandName, final Bundle args) throws RouterException;
 }

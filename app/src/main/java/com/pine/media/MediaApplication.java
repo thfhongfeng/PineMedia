@@ -3,50 +3,16 @@ package com.pine.media;
 import android.app.Application;
 import android.content.Context;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.StrictMode;
 
-import com.pine.media.audioplayer.ApApplication;
-import com.pine.media.base.BaseApplication;
-import com.pine.media.base.access.UiAccessConfigSwitcherExecutor;
-import com.pine.media.base.access.UiAccessLoginExecutor;
-import com.pine.media.base.access.UiAccessType;
-import com.pine.media.base.access.UiAccessVipLevelExecutor;
-import com.pine.media.base.component.ads.AdsSdkManager;
-import com.pine.media.base.component.ads.IAdsManager;
-import com.pine.media.base.component.ads.IAdsManagerFactory;
-import com.pine.media.base.component.ads.csj.CsjAdsManager;
-import com.pine.media.base.component.map.IMapManager;
-import com.pine.media.base.component.map.IMapManagerFactory;
-import com.pine.media.base.component.map.MapSdkManager;
-import com.pine.media.base.component.map.baidu.BaiduMapManager;
-import com.pine.media.base.component.map.gaode.GaodeMapManager;
-import com.pine.media.base.component.scan.IScanManager;
-import com.pine.media.base.component.scan.IScanManagerFactory;
-import com.pine.media.base.component.scan.ScanManager;
-import com.pine.media.base.component.scan.zxing.ZXingScanManager;
-import com.pine.media.base.component.share.manager.ShareManager;
-import com.pine.media.base.router.command.RouterDbServerCommand;
-import com.pine.media.config.BuildConfig;
-import com.pine.media.config.ConfigKey;
-import com.pine.media.config.switcher.ConfigSwitcherServer;
-import com.pine.media.db_server.DbServerApplication;
 import com.pine.media.main.MainApplication;
-import com.pine.media.pictureviewer.PvApplication;
-import com.pine.media.videoplayer.VpApplication;
-import com.pine.media.welcome.WelcomeApplication;
-import com.pine.tool.access.UiAccessManager;
-import com.pine.tool.request.IRequestManager;
-import com.pine.tool.request.IRequestManagerFactory;
-import com.pine.tool.request.RequestManager;
-import com.pine.tool.request.impl.database.DbRequestManager;
-import com.pine.tool.request.impl.database.DbResponse;
-import com.pine.tool.request.impl.database.IDbRequestServer;
-import com.pine.tool.request.impl.http.nohttp.NoRequestManager;
-import com.pine.tool.router.IRouterManager;
-import com.pine.tool.router.IRouterManagerFactory;
+import com.pine.template.base.BaseApplication;
+import com.pine.template.base.BundleBaseApplication;
+import com.pine.template.bundle_base.BuildConfig;
+import com.pine.template.login.LoginApplication;
+import com.pine.template.welcome.WelcomeApplication;
+import com.pine.tool.router.RouterException;
 import com.pine.tool.router.RouterManager;
-import com.pine.tool.router.impl.arouter.manager.ARouterManager;
 import com.pine.tool.util.AppUtils;
 import com.pine.tool.util.LogUtils;
 
@@ -60,6 +26,7 @@ public class MediaApplication extends Application {
 
     @Override
     public void onCreate() {
+        LogUtils.setDebugLevel(0);
         LogUtils.d(TAG, "onCreate");
         super.onCreate();
         mApplication = this;
@@ -71,21 +38,42 @@ public class MediaApplication extends Application {
             builder.detectFileUriExposure();
         }
 
-        LogUtils.setDebuggable(AppUtils.isApkDebuggable(this));
-
         LogUtils.d(TAG, "APP SHA1:" + AppUtils.SHA1(this));
 
         // 主进程初始化
         if (mApplication.getPackageName().equals(AppUtils.getCurProcessName(mApplication))) {
             BaseApplication.init(this);
-            initManager();
 
+            BundleBaseApplication.onCreate();
+            WelcomeApplication.onCreate();
+            LoginApplication.onCreate();
+            MainApplication.onCreate();
+
+            BundleBaseApplication.initManager();
+
+            BundleBaseApplication.attach();
             WelcomeApplication.attach();
+            LoginApplication.attach();
             MainApplication.attach();
-            VpApplication.attach();
-            ApApplication.attach();
-            PvApplication.attach();
-            DbServerApplication.attach();
+
+            if (BuildConfig.BUILD_BIZ_BUNDLE != null) {
+                for (String bizBundle : BuildConfig.BUILD_BIZ_BUNDLE) {
+                    try {
+                        RouterManager.callOpCommandDirect(mApplication, bizBundle,
+                                "onAppCreate", null);
+                    } catch (RouterException e) {
+                        e.printStackTrace();
+                    }
+                }
+                for (String bizBundle : BuildConfig.BUILD_BIZ_BUNDLE) {
+                    try {
+                        RouterManager.callOpCommandDirect(mApplication, bizBundle,
+                                "onAppAttach", null);
+                    } catch (RouterException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
 
             doStartupBusiness();
         }
@@ -96,96 +84,6 @@ public class MediaApplication extends Application {
         super.attachBaseContext(baseContext);
     }
 
-    private void initManager() {
-        RouterManager.init(this, "com.pine.media.base.router.command",
-                new IRouterManagerFactory() {
-                    @Override
-                    public IRouterManager makeRouterManager() {
-                        switch (BuildConfig.APP_THIRD_ROUTER_PROVIDER) {
-                            case "arouter":
-                                return ARouterManager.getInstance();
-                            default:
-                                return ARouterManager.getInstance();
-                        }
-                    }
-
-                    @Override
-                    public boolean isBundleEnable(String bundleKey) {
-                        return ConfigSwitcherServer.getInstance().isEnable(bundleKey);
-                    }
-                });
-
-        ShareManager.getInstance().init(this, R.mipmap.res_ic_launcher);
-
-        RequestManager.init(this, new IRequestManagerFactory() {
-            @Override
-            public IRequestManager makeRequestManager() {
-                switch (BuildConfig.APP_THIRD_DATA_SOURCE_PROVIDER) {
-                    case "local":
-                        return DbRequestManager.getInstance(new IDbRequestServer() {
-                            @Override
-                            public DbResponse request(Bundle bundle) {
-                                return RouterManager.callDataCommandDirect(mApplication, ConfigKey.BUNDLE_DB_SEVER_KEY,
-                                        RouterDbServerCommand.callDbServerCommand, bundle);
-                            }
-                        });
-                    default:
-                        switch (BuildConfig.APP_THIRD_HTTP_REQUEST_PROVIDER) {
-                            case "nohttp":
-                                return NoRequestManager.getInstance();
-                            default:
-                                return NoRequestManager.getInstance();
-                        }
-                }
-            }
-        });
-
-
-        MapSdkManager.init(this, new IMapManagerFactory() {
-            @Override
-            public IMapManager makeMapManager(Context context) {
-                switch (BuildConfig.APP_THIRD_MAP_PROVIDER) {
-                    case "baidu":
-                        return BaiduMapManager.getInstance();
-                    case "gaode":
-                        return GaodeMapManager.getInstance();
-                    default:
-                        return BaiduMapManager.getInstance();
-                }
-            }
-        });
-
-        ScanManager.init(this, new IScanManagerFactory() {
-            @Override
-            public IScanManager makeScanManager(Context context) {
-                switch (BuildConfig.APP_THIRD_SCAN_PROVIDER) {
-                    case "zxing":
-                        return ZXingScanManager.getInstance();
-                    default:
-                        return ZXingScanManager.getInstance();
-                }
-            }
-        });
-
-        AdsSdkManager.init(this, new IAdsManagerFactory() {
-            @Override
-            public IAdsManager makeAdsManager(Context context) {
-                switch (BuildConfig.APP_THIRD_DATA_SOURCE_PROVIDER) {
-                    case "chuanshanjia":
-                        return CsjAdsManager.getInstance();
-                    default:
-                        return CsjAdsManager.getInstance();
-                }
-            }
-        });
-
-        UiAccessManager.getInstance().addAccessExecutor(UiAccessType.LOGIN,
-                new UiAccessLoginExecutor());
-        UiAccessManager.getInstance().addAccessExecutor(UiAccessType.CONFIG_SWITCHER,
-                new UiAccessConfigSwitcherExecutor());
-        UiAccessManager.getInstance().addAccessExecutor(UiAccessType.VIP_LEVEL,
-                new UiAccessVipLevelExecutor());
-    }
 
     private void doStartupBusiness() {
 

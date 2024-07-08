@@ -13,6 +13,29 @@
     <attr name="base_enableImageScale" format="boolean" />
     <attr name="base_enableImageTranslate" format="boolean" />
     <attr name="base_enableImageRotate" format="boolean" />
+    <attr name="base_textSize" format="dimension|reference" />
+    <attr name="base_textColor" format="color|reference" />
+    <attr name="base_secondTextSize" format="dimension|reference" />
+    <attr name="base_secondTextColor" format="color|reference" />
+    <attr name="base_text" format="reference" />
+    <attr name="base_lines" format="integer" />
+    <attr name="base_textStyle" format="enum">
+        <enum name="normal" value="0" />
+        <enum name="bold" value="1" />
+        <enum name="italic" value="2" />
+        <enum name="bold_italic" value="3" />
+    </attr>
+    <attr name="base_ellipsize" format="enum">
+        <enum name="start" value="0" />
+        <enum name="end" value="1" />
+        <enum name="middle" value="2" />
+    </attr>
+    <attr name="base_layout" format="integer|reference" />
+    <attr name="base_desc" format="reference" />
+    <attr name="base_decimalNum" type="integer"></attr>
+    <attr name="base_decimalAllow" type="boolean"></attr>
+    <attr name="base_spaceChar" type="string"></attr>
+    <attr name="base_numberMaxLength" type="integer"></attr>
 
     <declare-styleable name="BaseFileUploadRecycleView">
         <attr name="base_maxFileCount" />
@@ -59,5 +82,103 @@
         <attr name="base_bpiuv_addText" format="string|reference"></attr>
         <attr name="base_bpiuv_leftItemText" format="string|reference"></attr>
         <attr name="base_bpiuv_rightItemText" format="string|reference"></attr>
+    </declare-styleable>
+
+    <declare-styleable name="BaseRatioImageView">
+        <attr name="base_ratio" format="float" />
+    </declare-styleable>
+
+    <declare-styleable name="BaseRoundImageView">
+        <attr name="base_riv_radius" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="BaseBilingualTextView">
+        <attr name="base_text" />
+        <attr name="base_textStyle" />
+        <attr name="base_ellipsize" />
+        <attr name="base_lines" />
+        <attr name="base_textSize" />
+        <attr name="base_textColor" />
+        <attr name="base_secondTextSize" />
+        <attr name="base_secondTextColor" />
+        <attr name="base_enableDual" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="BaseCountDownTimerView">
+        <attr name="base_layout" />
+        <attr name="base_desc" />
+        <attr name="base_textStyle" />
+        <attr name="base_textSize" />
+        <attr name="base_textColor" />
+    </declare-styleable>
+
+    <declare-styleable name="BaseThousandthNumberTv">
+        <attr name="base_decimalNum" />
+        <attr name="base_decimalAllow" />
+        <attr name="base_spaceChar" />
+        <attr name="base_numberMaxLength" />
+    </declare-styleable>
+
+    <declare-styleable name="BaseThousandthNumberEt">
+        <attr name="base_decimalNum" />
+        <attr name="base_decimalAllow" />
+        <attr name="base_spaceChar" />
+        <attr name="base_numberMaxLength" />
+    </declare-styleable>
+
+    <declare-styleable name="BaseRingScaleDiagramView">
+        <attr name="base_innerRadius" format="dimension" />
+        <attr name="base_outerRadius" format="dimension" />
+        <attr name="base_ringBackgroundColor" format="color" />
+        <attr name="base_foldFirstLineLength" format="dimension" />
+        <attr name="base_foldLineWidth" format="dimension" />
+        <attr name="base_startAngle" format="integer" />
+        <attr name="base_nameTextColor" format="color" />
+        <attr name="base_nameTextSize" format="dimension" />
+        <attr name="base_scaleTextColor" format="color" />
+        <attr name="base_scaleTextSize" format="dimension" />
+        <attr name="base_isTwoTextLine" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="BaseViewPagerTabLayout">
+        <attr name="base_divider" format="reference" />
+        <attr name="base_showDividers">
+            <flag name="none" value="0" />
+            <flag name="beginning" value="1" />
+            <flag name="middle" value="2" />
+            <flag name="end" value="4" />
+        </attr>
+        <attr name="base_margin" format="dimension" />
+        <attr name="base_marginLeft" format="dimension" />
+        <attr name="base_marginTop" format="dimension" />
+        <attr name="base_marginRight" format="dimension" />
+        <attr name="base_marginBottom" format="dimension" />
+        <attr name="base_marginStart" format="dimension" />
+        <attr name="base_marginEnd" format="dimension" />
+        <attr name="base_bottomDivider" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="BaseCircleImageView">
+        <attr name="base_borderWidth" format="dimension" />
+        <attr name="base_borderColor" format="color" />
+        <attr name="base_borderOverlay" format="boolean" />
+        <attr name="base_fillColor" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="BaseTransformImageView">
+        <attr name="base_maxScale" format="float" />
+        <attr name="base_minScale" format="float" />
+        <attr name="base_enableImageScale" />
+        <attr name="base_enableImageTranslate" />
+        <attr name="base_enableImageRotate" />
+        <attr name="base_revertDuration" format="integer" />
+        <attr name="base_openScaleRevert" format="boolean" />
+        <attr name="base_openRotateRevert" format="boolean" />
+        <attr name="base_openTranslateRevert" format="boolean" />
+        <attr name="base_openAnimator" format="boolean" />
+        <attr name="base_scaleCenter" format="enum">
+            <enum name="img_center" value="0" />
+            <enum name="finger_center" value="1" />
+        </attr>
     </declare-styleable>
 </resources>

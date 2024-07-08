@@ -2,11 +2,6 @@ package com.pine.tool.permission.easy;
 
 import android.app.Activity;
 
-import com.pine.tool.R;
-import com.pine.tool.permission.easy.helper.PermissionHelper;
-
-import java.util.Arrays;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -15,12 +10,17 @@ import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
 import androidx.fragment.app.Fragment;
 
+import com.pine.tool.R;
+import com.pine.tool.permission.easy.helper.PermissionHelper;
+
+import java.util.Arrays;
+
 /**
  * An immutable model object that holds all of the parameters associated with a permission request,
  * such as the permissions, request code, and rationale.
  *
  * @see EasyPermissions#requestPermissions(PermissionRequest)
- * @see PermissionRequest.Builder
+ * @see Builder
  */
 public final class PermissionRequest {
     private final PermissionHelper mHelper;

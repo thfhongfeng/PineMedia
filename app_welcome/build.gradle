@@ -1,14 +1,21 @@
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
+apply from: "${rootDir}/gradleWorker/task/GenerateFileTask.gradle"
+apply from: "${rootDir}/gradleWorker/task/PublishTask.gradle"
 
 android {
     compileSdkVersion build_versions.compileSdkVersion
-    buildToolsVersion build_versions.buildToolsVersion
 
     defaultConfig {
         minSdkVersion build_versions.minSdkVersion
         targetSdkVersion build_versions.targetSdkVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        //必须要保证所有的flavor 都属于同一个维度
+        flavorDimensions "default"
 
         // ARouter配置 begin
         javaCompileOptions {
@@ -30,13 +37,14 @@ android {
         }
     }
 
-    resourcePrefix "wel_"
-}
-
-repositories {
-    flatDir {
-        dirs 'libs', '../base/libs'
+    productFlavors {
+        build_flavor_product.each { flavorName, _ ->
+            "$flavorName" {
+            }
+        }
     }
+
+    resourcePrefix "wel_"
 }
 
 dependencies {
@@ -50,8 +58,12 @@ dependencies {
     // 第三方 dependency begin
     // 第三方 dependency end
 
-    // 主体基础模块 begin
-    api project(':base')
-    api project(':resource')
-    // 主体基础模块 end
+    android.libraryVariants.all { variant ->
+        // 获取当前 variant 的 flavor 名称
+        def flavorName = variant.flavorName
+
+        // 业务基础模块 begin
+        "${flavorName}Api" rootProject.ext.dependencyCustom("bundle_base", flavorName)
+        // 业务基础模块 end
+    }
 }

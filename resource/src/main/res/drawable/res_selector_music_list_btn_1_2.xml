@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@mipmap/res_ic_music_list_enable_1_2" android:state_enabled="true"></item>
-    <item android:drawable="@mipmap/res_ic_music_list_disable_1_1"></item>
-</selector>

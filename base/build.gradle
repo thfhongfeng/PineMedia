@@ -1,17 +1,20 @@
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
+apply from: "${rootDir}/gradleWorker/task/PublishTask.gradle"
 
 android {
     compileSdkVersion build_versions.compileSdkVersion
-    buildToolsVersion build_versions.buildToolsVersion
 
     defaultConfig {
         minSdkVersion build_versions.minSdkVersion
         targetSdkVersion build_versions.targetSdkVersion
 
-        manifestPlaceholders = [baidu_for_app_key: app_key.baidu_for_app_key,
-                                gaode_for_app_key: app_key.gaode_for_app_key]
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        //必须要保证所有的flavor 都属于同一个维度
+        flavorDimensions "default"
     }
 
     buildFeatures {
@@ -43,12 +46,6 @@ android {
     resourcePrefix "base_"
 }
 
-repositories {
-    flatDir {
-        dirs 'libs'
-    }
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -57,23 +54,14 @@ dependencies {
     api build_dependency['safewebviewbridge']
     api build_dependency['bumptech_glide']
     annotationProcessor build_dependency['bumptech_glide_compiler']
-    api(name: build_dependency["sina_weibo_sdk"], ext: 'aar')
-    api(name: build_dependency["chuanshanjia_ads_sdk"], ext: 'aar')
-    annotationProcessor build_dependency["android_room_compiler"]
-    api build_dependency["android_room_runtime"]
-    // CWAC-SafeRoom: A Room<->SQLCipher for Android Bridge
-    // 腾讯WCDB: A Room<->SQLCipher for Android Bridge
-    api build_dependency["tencent_wcdb_room"]
-    api build_dependency["tencent_wcdb_android"]
+    annotationProcessor build_dependency['android_annotation']
     // 第三方 dependency end
 
     // library project begin
-    api project(':base_lib_immersionbar')
-    api project(':base_lib_zxing')
-    api project(':base_lib_pineplayer')
+    api rootProject.ext.dependencyCustom("base_lib_zxing", "")
     // library project end
 
-    // 配置模块 begin
-    api project(':config')
-    // 配置模块 end
+    // 公共工具模块 begin
+    api rootProject.ext.dependencyCustom("tool", "")
+    // 公共工具模块 end
 }

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data class="ApMultiMusicSelectActivityBinding">
+
+        <import type="android.view.View"></import>
+
+        <variable
+            name="presenter"
+            type="com.pine.media.audio.ui.activity.ApMultiMusicSelectActivity.Presenter" />
+
+        <variable
+            name="musicSheet"
+            type="com.pine.media.audio.db.entity.ApSheet" />
+
+        <variable
+            name="hasAction"
+            type="boolean" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="vertical">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycle_view"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_0"
+            android:layout_margin="@dimen/dp_10"
+            android:layout_weight="1"></androidx.recyclerview.widget.RecyclerView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white_smoke"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingLeft="@dimen/dp_30"
+            android:paddingRight="@dimen/dp_30">
+
+            <TextView
+                android:id="@+id/add_to_sheet_btn"
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"
+                android:drawableTop="@mipmap/ap_ic_add_to_music_sheet_enable"
+                android:drawablePadding="@dimen/dp_5"
+                android:enabled="false"
+                android:gravity="center"
+                android:onClick="@{presenter::onAddToSheetClick}"
+                android:padding="@dimen/dp_10"
+                android:text="@string/ap_mms_add_to_sheet"
+                android:textColor="@drawable/ap_selector_text_enable_color"
+                android:textSize="@dimen/sp_13"
+                android:visibility="@{hasAction?View.VISIBLE:View.GONE}" />
+
+            <TextView
+                android:id="@+id/all_select_btn"
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawableTop="@drawable/ap_selector_all_select"
+                android:drawablePadding="@dimen/dp_5"
+                android:gravity="center"
+                android:onClick="@{presenter::onAllSelectClick}"
+                android:padding="@dimen/dp_10"
+                android:text="@string/ap_mms_all_select"
+                android:textColor="@color/dark_gray_black"
+                android:textSize="@dimen/sp_13" />
+
+            <TextView
+                android:id="@+id/delete_select_btn"
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"
+                android:drawableTop="@mipmap/ap_ic_delete_1_1"
+                android:drawablePadding="@dimen/dp_5"
+                android:enabled="false"
+                android:gravity="center"
+                android:onClick="@{presenter::onDeleteClick}"
+                android:padding="@dimen/dp_10"
+                android:text="@string/ap_mms_delete"
+                android:textColor="@drawable/ap_selector_text_enable_color"
+                android:textSize="@dimen/sp_13"
+                android:visibility="@{hasAction?View.VISIBLE:View.GONE}" />
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

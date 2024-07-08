@@ -3,11 +3,22 @@
  */
 def app_url = [:]
 
-app_url.base_url = "https://suggest.taobao.com/sug?code=utf-8"
-
 app_url.wei_bo_redirect_url = "https://api.weibo.com/oauth2/default.html"
 
 ext.app_url = app_url
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * 配置项
+ */
+def app_config = [:]
+
+app_config.file_provider_authority = "com.pine.media.fileProvider"
+
+ext.app_config = app_config
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,15 +33,12 @@ app_key.qq_for_app_id = "1107820499"
 app_key.wx_for_app_id = "wxa1785555bc28855b"
 app_key.wx_secret_key = "faf7a17b7ef08adf96d6d19372b0895c"
 
-app_key.baidu_for_app_key = "4Q1csXrKouKj3AfTj2mHq6GYVFzmuVH8"
+app_key.baidu_for_app_key = "eaR8Y8d2cAxelTNIVTAWkIGEgF22XHL3"
 
 app_key.gaode_for_app_key = "de1c90e5a95bcc3f7bc0c567d41d8337"
 
 app_key.wei_bo_for_app_key = "1125184506"
 app_key.wei_bo_secret_key = "15256daac5dc83e0b0aec9dabafc3620"
-
-app_key.ads_csj_for_app_id = "5145387"
-app_key.ads_csj_for_code_id = "887439682"
 
 ext.app_key = app_key
 
@@ -51,12 +59,10 @@ app_third_sdk_provider.map_provider = "baidu"
 app_third_sdk_provider.image_loader_provider = "glide"
 // 第三方http请求框架提供者，默认使用nohttp(目前可供选择项：nohttp)
 app_third_sdk_provider.http_request_provider = "nohttp"
-// 业务数据源提供者，默认使用net(目前可供选择项：local、net)
+// 业务数据源提供者，默认使用net(目前可供选择项：net, local)
 app_third_sdk_provider.data_source_provider = "local"
 // 第三方扫码功能提供者，默认使用zxing(目前可供选择项：zxing)
 app_third_sdk_provider.scan_provider = "zxing"
-// 第三方广告变现提供者，默认使用chuanshanjia(目前可供选择项：chuanshanjia)
-app_third_sdk_provider.ads_provider = "chuanshanjia"
 
 ext.app_third_sdk_provider = app_third_sdk_provider
 

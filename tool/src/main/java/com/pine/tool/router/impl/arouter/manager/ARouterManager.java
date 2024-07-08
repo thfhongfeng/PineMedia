@@ -1,5 +1,9 @@
 package com.pine.tool.router.impl.arouter.manager;
 
+import static com.pine.tool.router.RouterCommandType.TYPE_DATA_COMMAND;
+import static com.pine.tool.router.RouterCommandType.TYPE_OP_COMMAND;
+import static com.pine.tool.router.RouterCommandType.TYPE_UI_COMMAND;
+
 import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
@@ -12,6 +16,7 @@ import com.alibaba.android.arouter.launcher.ARouter;
 import com.pine.tool.R;
 import com.pine.tool.router.IRouterCallback;
 import com.pine.tool.router.IRouterManager;
+import com.pine.tool.router.RouterException;
 import com.pine.tool.router.RouterManager;
 import com.pine.tool.router.annotation.ARouterRemoteAction;
 import com.pine.tool.router.impl.arouter.ARouterBundleRemote;
@@ -20,10 +25,6 @@ import com.pine.tool.util.LogUtils;
 
 import java.util.HashMap;
 import java.util.List;
-
-import static com.pine.tool.router.RouterCommandType.TYPE_DATA_COMMAND;
-import static com.pine.tool.router.RouterCommandType.TYPE_OP_COMMAND;
-import static com.pine.tool.router.RouterCommandType.TYPE_UI_COMMAND;
 
 /**
  * Created by tanghongfeng on 2019/2/21
@@ -65,6 +66,18 @@ public class ARouterManager implements IRouterManager {
                 e.printStackTrace();
             }
         }
+        LogUtils.d(TAG, "init bundle action map:" + mBundleActionMap);
+    }
+
+    @Override
+    public void init(Application application, HashMap<String, String> bundlePathMap) {
+        if (AppUtils.isApkDebuggable(AppUtils.getApplication())) {
+            ARouter.openLog();
+            ARouter.openDebug();
+        }
+        ARouter.init(AppUtils.getApplication());
+        mBundleActionMap = bundlePathMap;
+        LogUtils.d(TAG, "init bundle action map:" + mBundleActionMap);
     }
 
     @Override
@@ -108,16 +121,16 @@ public class ARouterManager implements IRouterManager {
 
     @Override
     public <R> R callCommandDirect(final Context context, final String bundleKey, final String commandType,
-                                   String commandName, Bundle args) {
+                                   String commandName, Bundle args) throws RouterException {
         if (!checkBundleValidity(bundleKey, commandType, context, null)) {
-            return null;
+            throw new RouterException("bundle no valid");
         }
         ARouterBundleRemote routerService = ((ARouterBundleRemote) ARouter.getInstance().build(mBundleActionMap.get(bundleKey))
                 .navigation(context, null));
         if (routerService != null) {
             return (R) routerService.callDirect(context, commandName, args);
         }
-        return null;
+        throw new RouterException("bundle no valid");
     }
 
     private boolean checkBundleValidity(final String bundleKey, final String commandType, final Context context,

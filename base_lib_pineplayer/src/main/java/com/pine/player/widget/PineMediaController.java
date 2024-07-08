@@ -1,5 +1,7 @@
 package com.pine.player.widget;
 
+import static com.pine.player.component.PinePlayState.STATE_PLAYBACK_COMPLETED;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -44,8 +46,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import static com.pine.player.component.PinePlayState.STATE_PLAYBACK_COMPLETED;
 
 /**
  * Created by tanghongfeng on 2017/8/16.

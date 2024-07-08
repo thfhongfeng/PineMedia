@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="base_network_err">网络错误，请检查网络后重试</string>
     <string name="base_server_err">服务器错误，请稍后重试</string>
     <string name="base_json_data_err">服务器返回数据异常，请重试</string>
+
+    <string name="base_new_version_no">当前为最新版本</string>
+    <string name="base_new_version_available">发现新版本(%s)，是否要更新?</string>
+    <string name="base_new_version_download_fail">更新下载失败</string>
+    <string name="base_new_version_download_extra_fail">更新下载失败(%s)</string>
+    <string name="base_new_version_install_fail">更新安装失败</string>
+    <string name="base_new_version_update_cancel">更新被取消</string>
+
+    <string name="base_version_get_download_path_fail">获取下载目录%s失败</string>
 
     <string name="base_loading">加载中...</string>
     <string name="base_downloading">正在下载...</string>
@@ -15,12 +24,16 @@
     <string name="base_item_more">正在加载...</string>
     <string name="base_item_complete">没有更多了</string>
     <string name="base_item_init_loading">正在加载中...</string>
+    <string name="base_item_load_fail">加载失败</string>
 
     <string name="base_fun_not_open">该功能暂不开放</string>
 
     <string name="base_share_to">分享至</string>
 
+    <string name="base_true">正确</string>
+    <string name="base_false">错误</string>
     <string name="base_cancel">取消</string>
+    <string name="base_clear">清空</string>
     <string name="base_done">完成</string>
     <string name="base_confirm">确定</string>
     <string name="base_affirm">确认</string>
@@ -30,6 +43,13 @@
     <string name="base_disagree">不同意</string>
 
     <string name="base_save_success">保存成功</string>
+    <string name="base_save_fail">保存失败</string>
+    <string name="base_add_success">添加成功</string>
+    <string name="base_add_fail">添加失败</string>
+    <string name="base_edit_success">编辑成功</string>
+    <string name="base_edit_fail">编辑失败</string>
+    <string name="base_delete_success">删除成功</string>
+    <string name="base_delete_fail">删除失败</string>
 
     <string name="base_text">文字</string>
     <string name="base_image">图片</string>
@@ -53,6 +73,14 @@
     <string name="base_input_hint">点击输入</string>
     <string name="base_text_max_length">最多允许输入%1d个字符</string>
     <string name="base_number_max_length">最多允许输入%1d个非小数</string>
+    <string name="base_empty_or_format_err_msg">%s为空或者格式不正确</string>
+    <string name="base_url_format_err_msg">%s必须仪\'/\'结尾</string>
+    <string name="base_number_range_err_msg">%s必须大于等于%d小于等于%d</string>
+    <string name="base_number_range_err_msg_1">%s必须大于%s</string>
+    <string name="base_number_range_err_msg_2">%s必须小于%s</string>
+    <string name="base_str_range_err_msg">%s的长度必须大于等于%d小于等于%d</string>
+
+    <string name="base_date_hint">选择时间</string>
 
     <string name="base_date_year">%1$s年</string>
     <string name="base_date_month">%1$s月</string>
@@ -74,4 +102,16 @@
 
     <string name="base_main_tab_home">首页</string>
     <string name="base_main_tab_mine">我的</string>
+
+    <string name="base_bg_service_content_title">%s后台服务</string>
+
+    <string name="base_q_complete_d_title">完成答题</string>
+    <string name="base_q_complete_d_not_all_msg">您还有题目未答完，是否仍然完成答题？</string>
+    <string name="base_q_cancel_d_title">取消答题</string>
+    <string name="base_q_cancel_d_msg">未完成答题可能会影响后续操作，确定取消答题吗？</string>
+
+    <string name="base_q_cancel">退出</string>
+    <string name="base_q_pre">上一页</string>
+    <string name="base_q_next">下一页</string>
+    <string name="base_q_complete">完成</string>
 </resources>

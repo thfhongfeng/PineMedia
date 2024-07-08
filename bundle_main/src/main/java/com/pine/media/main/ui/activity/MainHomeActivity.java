@@ -6,26 +6,26 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 
-import com.pine.media.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
 import com.pine.media.main.R;
-import com.pine.media.main.adapter.MainBusinessAdapter;
-import com.pine.media.main.bean.MainBusinessItemEntity;
+import com.pine.media.main.adapter.MainBizAdapter;
+import com.pine.media.main.bean.MainBizItemEntity;
 import com.pine.media.main.databinding.MainHomeActivityBinding;
 import com.pine.media.main.vm.MainHomeVm;
-import com.pine.tool.widget.decor.GridSpacingItemDecoration;
+import com.pine.template.base.architecture.mvvm.ui.activity.BaseMvvmNoActionBarActivity;
+import com.pine.template.base.widget.decor.GridSpacingItemDecoration;
 
 import java.util.ArrayList;
 
 public class MainHomeActivity extends BaseMvvmNoActionBarActivity<MainHomeActivityBinding, MainHomeVm> {
-    private MainBusinessAdapter mMainBusinessAdapter;
+    private MainBizAdapter mMainBizAdapter;
 
     @Override
     public void observeInitLiveData(Bundle savedInstanceState) {
-        mViewModel.getBusinessBundleListData().observe(this,
-                new Observer<ArrayList<MainBusinessItemEntity>>() {
+        mViewModel.bizBundleListData.observe(this,
+                new Observer<ArrayList<MainBizItemEntity>>() {
                     @Override
-                    public void onChanged(@Nullable ArrayList<MainBusinessItemEntity> list) {
-                        mMainBusinessAdapter.setData(list);
+                    public void onChanged(@Nullable ArrayList<MainBizItemEntity> list) {
+                        mMainBizAdapter.setData(list);
                     }
                 });
     }
@@ -46,15 +46,15 @@ public class MainHomeActivity extends BaseMvvmNoActionBarActivity<MainHomeActivi
         mBinding.businessRv.addItemDecoration(new GridSpacingItemDecoration(2,
                 getResources().getDimensionPixelOffset(R.dimen.dp_10), true));
         mBinding.businessRv.setHasFixedSize(true);
-        mMainBusinessAdapter = new MainBusinessAdapter();
-        mMainBusinessAdapter.enableEmptyComplete(true, false);
-        mBinding.businessRv.setAdapter(mMainBusinessAdapter);
+        mMainBizAdapter = new MainBizAdapter();
+        mMainBizAdapter.enableEmptyComplete(true, false);
+        mBinding.businessRv.setAdapter(mMainBizAdapter);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mViewModel.loadBusinessBundleData(this);
+        mViewModel.loadBizBundleData(this);
     }
 
     @Override

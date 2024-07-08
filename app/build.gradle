@@ -1,32 +1,16 @@
-apply plugin: 'com.android.application'
-
-def apVersion = getEnvValue("apVersion", "");
+plugins {
+    id 'com.android.application'
+    id 'maven-publish'
+}
 
 android {
-    compileSdkVersion build_versions.compileSdkVersion
-    buildToolsVersion build_versions.buildToolsVersion
-
-    signingConfigs {
-        release {
-            storeFile file(build_versions.storeFile)
-            storePassword build_versions.storePassword
-            keyAlias build_versions.keyAlias
-            keyPassword build_versions.keyPassword
-        }
-    }
+    compileSdk build_versions.compileSdkVersion
 
     defaultConfig {
-        minSdkVersion build_versions.minSdkVersion
-        targetSdkVersion build_versions.targetSdkVersion
-
-        applicationId build_product_applicationId.common
-        versionCode build_product_versionCode.common
-        versionName build_product_versionName.common
-
-        manifestPlaceholders = [app_name: build_product_appName.common]
+        minSdk build_versions.minSdkVersion
+        targetSdk build_versions.targetSdkVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
         //必须要保证所有的flavor 都属于同一个维度
         flavorDimensions "default"
     }
@@ -35,84 +19,94 @@ android {
         dataBinding = true
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    productFlavors {
+        build_flavor_product.each { flavorName, _ ->
+            "$flavorName" {
+                applicationId build_flavor_product[flavorName].build_product_applicationId
+                versionCode build_flavor_product[flavorName].build_product_versionCode
+                versionName build_flavor_product[flavorName].build_product_versionName
+            }
+        }
+    }
+    signingConfigs {
+        build_flavor_product.each { flavorName, _ ->
+            "$flavorName" {
+                storeFile file(build_flavor_product[flavorName].build_product_storeFile)
+                storePassword build_flavor_product[flavorName].build_product_storePassword
+                keyAlias build_flavor_product[flavorName].build_product_keyAlias
+                keyPassword build_flavor_product[flavorName].build_product_keyPassword
+            }
+        }
+    }
+
+    // 将签名配置应用到各个 productFlavors
+    productFlavors.all { flavor ->
+        signingConfig signingConfigs[flavor.name]
+    }
+
     buildTypes {
         release {
-            signingConfig signingConfigs.release
             minifyEnabled false
-            debuggable false
-            shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            initWith(buildTypes.release)
+            // 使用了initWith，需要在之后覆盖debug特有的属性
+            debuggable true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
     applicationVariants.all { variant ->
+        def buildTypeName = variant.buildType.name
+        String timeTag = ""
+        if (!"debug".equalsIgnoreCase(buildTypeName)) {
+            timeTag = "-${releaseTime()}"
+        }
         variant.outputs.all {
-            // 显示app名称+当前版本号
-            def fileName = "${build_versions.apkHeadName}-V${variant.versionName}"
-//                // 加入打包时间
-//                fileName = fileName + "-${releaseTime()}"
-            // 如果是debug版本，加入beta版本号
-            if ('debug'.equals(variant.buildType.name)) {
-                fileName = fileName + "-beta.apk"
-            } else {
-                // 如果是release版本，直接显示
-                fileName = fileName + "-release.apk"
-            }
-            outputFileName = fileName
+            outputFileName = "${build_versions.apkHeadName}-${variant.flavorName}-${variant.versionCode}${timeTag}.apk"
         }
     }
 }
 
-//// 显示的时间格式，形如20171110
-//def releaseTime() {
-//    return new Date().format("yyyyMMdd", TimeZone.getDefault());
-//}
-
-// 获取执行gradle命令时的运行参数
-String getEnvValue(key, defValue) {
-    def val = System.getProperty(key);
-    if (null != val) {
-        return val;
-    }
-    val = System.getenv(key);
-    if (null != val) {
-        return val;
-    }
-    return defValue;
-}
-
-repositories {
-    flatDir {
-        dirs 'libs', '../base/libs'
-    }
+static def releaseTime() {
+    return new Date().format("yyyyMMddHHmm", TimeZone.getTimeZone("GMT+8"))
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    android.applicationVariants.all { variant ->
+        // 获取当前 variant 的 flavor 名称
+        def flavorName = variant.flavorName
 
-    // 主体基础模块 begin
-    api project(':base')
-    api project(':resource')
-    // 主体基础模块 end
+        // 资源模块 begin
+        "${flavorName}Implementation" rootProject.ext.dependencyCustom("resource", flavorName)
+        // 资源模块 end
 
-    // 入口模块 begin
-    implementation project(':app_welcome')
-    // 入口模块 end
+        // 入口模块 begin
+        "${flavorName}Implementation" rootProject.ext.dependencyCustom("app_welcome", flavorName)
+        // 入口模块 end
 
-    // bundle模块 begin
-    implementation project(':bundle_login')
-    implementation project(':bundle_main')
-    implementation project(':bundle_user')
+        // bundle模块 begin
+        "${flavorName}Implementation" rootProject.ext.dependencyCustom("bundle_login", flavorName)
+        "${flavorName}Implementation" rootProject.ext.dependencyCustom("bundle_main", flavorName)
+        "${flavorName}Implementation" rootProject.ext.dependencyCustom("bundle_user", flavorName)
 
-    implementation project(':bundle_business_videoplayer')
-    implementation project(':bundle_business_audioplayer')
-    implementation project(':bundle_business_pictureviewer')
-    // bundle模块 end
+        "${flavorName}Implementation" rootProject.ext.dependencyCustom("db_server", flavorName)
+        // bundle模块 begin
 
-    implementation project(':db_server')
+        // biz_bundle模块 begin
+        build_flavor_product[flavorName].build_product_biz_bundle_module.each { moduleKey, moduleValue ->
+            "${flavorName}Implementation" rootProject.ext.dependencyCustom(moduleValue, flavorName)
+        }
+        // biz_bundle模块 end
+    }
 }
-
-apply plugin: 'maven-publish'
 
 afterEvaluate {
     publishing {
@@ -124,9 +118,9 @@ afterEvaluate {
                 if (component != null) {
                     publishing.publications.create(publicationName, MavenPublication) {
                         from component
-                        groupId = build_product_applicationId.common
-                        artifactId = build_product_appName.common
-                        version = build_product_versionName.common
+                        groupId = build_flavor_product[productType].build_product_groupId
+                        artifactId = build_flavor_product[productType].build_product_appName
+                        version = build_flavor_product[productType].build_product_versionName
                     }
                 }
             }

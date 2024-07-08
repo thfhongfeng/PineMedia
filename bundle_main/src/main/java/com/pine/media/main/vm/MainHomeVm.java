@@ -6,15 +6,15 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.pine.media.base.router.command.RouterAudioPlayerCommand;
-import com.pine.media.base.router.command.RouterPictureViewerCommand;
-import com.pine.media.base.router.command.RouterVideoPlayerCommand;
-import com.pine.media.config.ConfigKey;
-import com.pine.media.config.switcher.ConfigSwitcherServer;
+import com.pine.app.template.bundle_main.BuildConfigKey;
+import com.pine.app.template.bundle_main.router.RouterAudioCommand;
+import com.pine.app.template.bundle_main.router.RouterPicCommand;
+import com.pine.app.template.bundle_main.router.RouterVideoCommand;
 import com.pine.media.main.R;
-import com.pine.media.main.bean.MainBusinessItemEntity;
+import com.pine.media.main.bean.MainBizItemEntity;
 import com.pine.media.main.model.MainHomeModel;
 import com.pine.tool.architecture.mvvm.vm.ViewModel;
+import com.pine.tool.router.RouterManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,50 +25,42 @@ import java.util.ArrayList;
 public class MainHomeVm extends ViewModel {
     private MainHomeModel mHomeModel = new MainHomeModel();
 
-    public void loadBusinessBundleData(Context context) {
+    public void loadBizBundleData(Context context) {
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject;
         try {
-            if (ConfigSwitcherServer.getInstance().isEnable(ConfigKey.BUNDLE_VIDEO_PLAYER_KEY)) {
+            if (RouterManager.isBundleEnable(BuildConfigKey.BIZ_BUNDLE_VIDEO)) {
                 jsonObject = new JSONObject();
                 jsonObject.put("name", context.getString(R.string.main_home_video_player));
-                jsonObject.put("imageResId", R.mipmap.res_ic_video_player);
-                jsonObject.put("bundle", ConfigKey.BUNDLE_VIDEO_PLAYER_KEY);
-                jsonObject.put("command", RouterVideoPlayerCommand.goVideoPlayerHomeActivity);
+                jsonObject.put("imageResId", R.mipmap.main_ic_video_player);
+                jsonObject.put("bundle", BuildConfigKey.BIZ_BUNDLE_VIDEO);
+                jsonObject.put("command", RouterVideoCommand.goVideoHomeActivity);
                 jsonArray.put(jsonObject);
             }
-            if (ConfigSwitcherServer.getInstance().isEnable(ConfigKey.BUNDLE_AUDIO_PLAYER_KEY)) {
+            if (RouterManager.isBundleEnable(BuildConfigKey.BIZ_BUNDLE_AUDIO)) {
                 jsonObject = new JSONObject();
                 jsonObject.put("name", context.getString(R.string.main_home_audio_player));
-                jsonObject.put("imageResId", R.mipmap.res_ic_audio_player);
-                jsonObject.put("bundle", ConfigKey.BUNDLE_AUDIO_PLAYER_KEY);
-                jsonObject.put("command", RouterAudioPlayerCommand.goAudioPlayerHomeActivity);
+                jsonObject.put("imageResId", R.mipmap.main_ic_audio_player);
+                jsonObject.put("bundle", BuildConfigKey.BIZ_BUNDLE_AUDIO);
+                jsonObject.put("command", RouterAudioCommand.goAudioHomeActivity);
                 jsonArray.put(jsonObject);
             }
-            if (ConfigSwitcherServer.getInstance().isEnable(ConfigKey.BUNDLE_PICTURE_VIEWER_KEY)) {
+            if (RouterManager.isBundleEnable(BuildConfigKey.BIZ_BUNDLE_PICTURE)) {
                 jsonObject = new JSONObject();
                 jsonObject.put("name", context.getString(R.string.main_home_picture_viewer));
-                jsonObject.put("imageResId", R.mipmap.res_ic_picture_viewer);
-                jsonObject.put("bundle", ConfigKey.BUNDLE_PICTURE_VIEWER_KEY);
-                jsonObject.put("command", RouterPictureViewerCommand.goPictureViewerHomeActivity);
+                jsonObject.put("imageResId", R.mipmap.main_ic_picture_viewer);
+                jsonObject.put("bundle", BuildConfigKey.BIZ_BUNDLE_PICTURE);
+                jsonObject.put("command", RouterPicCommand.goPicHomeActivity);
                 jsonArray.put(jsonObject);
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        ArrayList<MainBusinessItemEntity> entityList = new Gson().fromJson(jsonArray.toString(),
-                new TypeToken<ArrayList<MainBusinessItemEntity>>() {
+        ArrayList<MainBizItemEntity> entityList = new Gson().fromJson(jsonArray.toString(),
+                new TypeToken<ArrayList<MainBizItemEntity>>() {
                 }.getType());
-        setBusinessBundleList(entityList);
+        bizBundleListData.setValue(entityList);
     }
 
-    private MutableLiveData<ArrayList<MainBusinessItemEntity>> businessBundleListData = new MutableLiveData<>();
-
-    public MutableLiveData<ArrayList<MainBusinessItemEntity>> getBusinessBundleListData() {
-        return businessBundleListData;
-    }
-
-    public void setBusinessBundleList(ArrayList<MainBusinessItemEntity> list) {
-        businessBundleListData.setValue(list);
-    }
+    public MutableLiveData<ArrayList<MainBizItemEntity>> bizBundleListData = new MutableLiveData<>();
 }

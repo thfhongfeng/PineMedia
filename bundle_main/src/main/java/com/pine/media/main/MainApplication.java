@@ -1,6 +1,6 @@
 package com.pine.media.main;
 
-import com.pine.media.base.BaseApplication;
+import com.pine.template.base.BaseApplication;
 import com.pine.tool.util.LogUtils;
 
 /**

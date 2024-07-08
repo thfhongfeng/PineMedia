@@ -1,12 +1,18 @@
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
+apply from: "${rootDir}/gradleWorker/task/PublishTask.gradle"
 
 android {
     compileSdkVersion build_versions.compileSdkVersion
-    buildToolsVersion build_versions.buildToolsVersion
 
     defaultConfig {
         minSdkVersion build_versions.minSdkVersion
         targetSdkVersion build_versions.targetSdkVersion
+
+        buildConfigField "String", "FILE_PROVIDER_AUTHORITY", "\"${app_config.file_provider_authority}\""
+        resValue "string", "file_provider_authority", "\"${app_config.file_provider_authority}\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -50,7 +56,6 @@ dependencies {
 
     // 第三方 dependency begin
     api build_dependency["nohttp_nohttp"]
-    api build_dependency["nohttp_okhttp"]
     implementation build_dependency["vdurmont_emoji"]
     // 第三方 dependency end
 }
